@@ -6,11 +6,11 @@ import com.mongodb.MongoClient;
 public class MongoHealthCheck extends HealthCheck {
 
 	private MongoClient mongo;
-	
+
 	public MongoHealthCheck(MongoClient mongo) {
 		this.mongo = mongo;
 	}
-	
+
 	@Override
 	protected Result check() throws Exception {
 		mongo.getDatabaseNames();

@@ -1,7 +1,5 @@
 package resource;
 
-import java.util.List;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -16,41 +14,28 @@ import service.MemberService;
 
 @Path("/member")
 @Produces(MediaType.APPLICATION_JSON)
-public class MemberResource {
-	
+public class MemberResource extends GenericResource<MemberDO> {
+
 	private MemberService memberService;
-	
+
 	public MemberResource(MemberService memberService) {
+		super(memberService);
 		this.memberService = memberService;
 	}
-	
+
 	@GET
 	@Timed
-	public List<MemberDO> getAll() {
-		return memberService.getAll();
+	@Path("/{memberNumber}")
+	public MemberDO getMemberByNumber(@PathParam("memberNumber") Long memberNumber) throws Exception {
+		return memberService.getByMemberNumber(memberNumber);
 	}
-	
-	@GET
-    @Timed
-    @Path("/id/{id}")
-    public MemberDO getMemberById(@PathParam("id") String id) {
-    	return memberService.getById(id);
-    }
-	
-    @GET
-    @Timed
-    @Path("/{memberNumber}")
-    public MemberDO getMemberByNumber(@PathParam("memberNumber") Long memberNumber) throws Exception {
-    	return memberService.getByMemberNumber(memberNumber);
-    }
-    
-    @POST
-    @Timed
-    public MemberDO createMember(MemberDO member) throws Exception {
-    	if (memberService.findByMemberNumber(member.getMembershipNumber()).isEmpty()) {
-    		return memberService.create(member);
-    	}
-    	else
-    		throw new Exception("A member already exists with this membership number");
-    }
+
+	@POST
+	@Timed
+	public MemberDO createMember(MemberDO member) throws Exception {
+		if (memberService.findByMemberNumber(member.getMembershipNumber()).isEmpty()) {
+			return super.createItem(member);
+		} else
+			throw new Exception("A member already exists with this membership number");
+	}
 }
