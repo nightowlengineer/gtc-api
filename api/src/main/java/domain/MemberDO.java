@@ -1,10 +1,17 @@
 package domain;
 
 import org.hibernate.validator.constraints.Length;
+import org.mongojack.ObjectId;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MemberDO {
 	
-	private long membershipNumber;
+	@ObjectId
+	@JsonProperty("_id")
+	private String id;
+	
+	private Long membershipNumber;
 	
 	private MemberType type;
 	
@@ -24,7 +31,7 @@ public class MemberDO {
 		// Jackson Mapping
 	}
 	
-	public MemberDO(long membershipNumber, MemberType type, MemberStatus status,
+	public MemberDO(Long membershipNumber, MemberType type, MemberStatus status,
 			Salutation salutation, String firstName, String lastName, String email) {
 		setMembershipNumber(membershipNumber);
 		setType(type);
@@ -67,11 +74,11 @@ public class MemberDO {
 		this.email = email;
 	}
 	
-	public long getMembershipNumber() {
+	public Long getMembershipNumber() {
 		return membershipNumber;
 	}
 
-	public void setMembershipNumber(long membershipNumber) {
+	public void setMembershipNumber(Long membershipNumber) {
 		this.membershipNumber = membershipNumber;
 	}
 
