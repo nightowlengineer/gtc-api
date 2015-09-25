@@ -1,9 +1,11 @@
 package uk.org.gtc.api;
 
+import health.BasicHealthCheck;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import resource.MemberResource;
+import service.MemberService;
 
 public class GtcApplication extends Application<GtcConfiguration> {
     public static void main(String[] args) throws Exception {
@@ -23,9 +25,18 @@ public class GtcApplication extends Application<GtcConfiguration> {
     @Override
     public void run(GtcConfiguration configuration,
                     Environment environment) {
-        final MemberResource memberResource = new MemberResource();
-        
-        environment.jersey().register(memberResource);
+    	
+    	// Health checks
+    	BasicHealthCheck basicHealthCheck = new BasicHealthCheck();
+    	
+    	// Services
+    	MemberService memberService = new MemberService();
+    	
+    	// Resources
+    	final MemberResource memberResource = new MemberResource(memberService);
+    	
+    	environment.healthChecks().register("basic", basicHealthCheck);
+    	environment.jersey().register(memberResource);
     }
 
 }

@@ -12,10 +12,18 @@ import domain.MemberDO;
 import domain.MemberStatus;
 import domain.MemberType;
 import domain.Salutation;
+import service.MemberService;
 
 @Path("/member")
 @Produces(MediaType.APPLICATION_JSON)
 public class MemberResource {
+	
+	private MemberService memberService;
+	
+	public MemberResource(MemberService memberService) {
+		this.memberService = memberService;
+	}
+	
     @GET
     @Timed
     @Path("/{memberNumber}")
