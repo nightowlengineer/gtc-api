@@ -35,7 +35,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	
 	@GET
 	@Timed
-	@Path("verify/{membershipNumber}/{lastName}")
+	@Path("{membershipNumber}/{lastName}/verify")
 	public Boolean verifyMemberByNumberAndSurname(final @PathParam("membershipNumber") Long membershipNumber,
 			final @PathParam("lastName") String lastName) throws Exception
 	{
@@ -56,6 +56,13 @@ public class MemberResource extends GenericResource<MemberDO>
 			return false;
 		}
 		
+	}
+	
+	@GET
+	@Path("nextMemberNumber")
+	public Long getNextMembershipNumber()
+	{
+		return memberService.getNextMemberNumber();
 	}
 	
 	@POST

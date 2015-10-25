@@ -2,8 +2,12 @@ package uk.org.gtc.api.service;
 
 import java.util.List;
 
+import org.mongojack.DBCursor;
 import org.mongojack.JacksonDBCollection;
 import org.mongojack.WriteResult;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 
 import uk.org.gtc.api.domain.GenericDO;
 
@@ -30,5 +34,38 @@ public class GenericService<T extends GenericDO>
 	public List<T> getAll()
 	{
 		return collection.find().toArray();
+	}
+	
+	public DBCursor<T> getAllSorted(DBObject sort)
+	{
+		return collection.find().sort(sort);
+	}
+	
+	/**
+	 * Find a list of sorted, lightweight items
+	 * 
+	 * @param sort
+	 *            - how to sort the returned list
+	 * @param projection
+	 *            - what to return out of the retrieved objects
+	 * @return a sorted, lightweight list of T
+	 */
+	public List<T> getAllLightweightSorted(DBObject sort, DBObject projection, Integer limit)
+	{
+		return collection.find(new BasicDBObject(), projection).sort(sort).limit(limit).toArray();
+	}
+	
+	/**
+	 * Find a list of sorted, lightweight items
+	 * 
+	 * @param sort
+	 *            - how to sort the returned list
+	 * @param projection
+	 *            - what to return out of the retrieved objects
+	 * @return a sorted, lightweight list of T
+	 */
+	public T getLastBy(DBObject sort)
+	{
+		return getAllLightweightSorted(sort, new BasicDBObject(), 1).get(0);
 	}
 }
