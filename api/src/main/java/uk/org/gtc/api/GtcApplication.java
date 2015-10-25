@@ -17,12 +17,15 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import uk.org.gtc.api.domain.ApplicationDO;
+import uk.org.gtc.api.domain.BookDO;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.health.BasicHealthCheck;
 import uk.org.gtc.api.health.MongoHealthCheck;
 import uk.org.gtc.api.resource.ApplicationResource;
+import uk.org.gtc.api.resource.BookResource;
 import uk.org.gtc.api.resource.MemberResource;
 import uk.org.gtc.api.service.ApplicationService;
+import uk.org.gtc.api.service.BookService;
 import uk.org.gtc.api.service.MemberService;
 
 public class GtcApplication extends Application<GtcConfiguration>
@@ -67,7 +70,8 @@ public class GtcApplication extends Application<GtcConfiguration>
 				String.class);
 		final JacksonDBCollection<ApplicationDO, String> applications = JacksonDBCollection.wrap(db.getCollection("applications"),
 				ApplicationDO.class, String.class);
-				
+		final JacksonDBCollection<BookDO, String> books = JacksonDBCollection.wrap(db.getCollection("books"), BookDO.class, String.class);
+		
 		// Health checks
 		final BasicHealthCheck basicHealthCheck = new BasicHealthCheck();
 		final MongoHealthCheck mongoHealthCheck = new MongoHealthCheck(mongo);
@@ -75,14 +79,18 @@ public class GtcApplication extends Application<GtcConfiguration>
 		// Services
 		final MemberService memberService = new MemberService(members);
 		final ApplicationService applicationService = new ApplicationService(applications);
+		final BookService bookService = new BookService(books);
 		
 		// Resources
 		final MemberResource memberResource = new MemberResource(memberService);
 		final ApplicationResource applicationResource = new ApplicationResource(applicationService, memberService);
+		final BookResource bookResource = new BookResource(bookService, memberService);
 		
 		environment.healthChecks().register("basic", basicHealthCheck);
 		environment.healthChecks().register("mongo", mongoHealthCheck);
 		environment.jersey().register(memberResource);
 		environment.jersey().register(applicationResource);
+		environment.jersey().register(bookResource);
+		
 	}
 }
