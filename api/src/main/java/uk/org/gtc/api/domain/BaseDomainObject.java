@@ -4,11 +4,21 @@ import org.mongojack.ObjectId;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class GenericDO
+public class BaseDomainObject
 {
 	@ObjectId
 	@JsonProperty("_id")
 	private String id;
+	
+	public String getId()
+	{
+		return id;
+	}
+	
+	public void setId(String id)
+	{
+		this.id = id;
+	}
 	
 	@Override
 	public int hashCode()
@@ -28,7 +38,7 @@ public class GenericDO
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		GenericDO other = (GenericDO) obj;
+		BaseDomainObject other = (BaseDomainObject) obj;
 		if (id == null)
 		{
 			if (other.id != null)

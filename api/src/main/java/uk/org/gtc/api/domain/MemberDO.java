@@ -14,6 +14,13 @@ public class MemberDO extends Person
 		// Jackson Mapping
 	}
 	
+	public MemberDO(ApplicationDO application, Long membershipNumber)
+	{
+		new MemberDO(membershipNumber, application.getType(), application.getStatus(), application.getSalutation(),
+				application.getFirstName(), application.getLastName(), application.getEmail(), application.getPhoneNumbers(),
+				application.getAddresses());
+	}
+	
 	public MemberDO(Long membershipNumber, MemberType type, MemberStatus status, Salutation salutation, String firstName, String lastName,
 			String email, List<PhoneNumber> phoneNumbers, List<Address> addresses)
 	{

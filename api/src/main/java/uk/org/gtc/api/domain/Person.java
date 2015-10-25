@@ -6,7 +6,7 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
-public class Person extends GenericDO
+public class Person extends BaseDomainObject
 {
 	private MemberType type;
 	

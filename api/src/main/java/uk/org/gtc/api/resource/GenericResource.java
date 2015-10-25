@@ -4,10 +4,10 @@ import java.util.List;
 
 import javax.ws.rs.PathParam;
 
-import uk.org.gtc.api.domain.GenericDO;
+import uk.org.gtc.api.domain.BaseDomainObject;
 import uk.org.gtc.api.service.GenericService;
 
-public class GenericResource<T extends GenericDO>
+public class GenericResource<T extends BaseDomainObject>
 {
 	private GenericService<T> genericService;
 	

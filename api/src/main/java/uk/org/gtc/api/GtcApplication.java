@@ -78,7 +78,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		
 		// Resources
 		final MemberResource memberResource = new MemberResource(memberService);
-		final ApplicationResource applicationResource = new ApplicationResource(applicationService);
+		final ApplicationResource applicationResource = new ApplicationResource(applicationService, memberService);
 		
 		environment.healthChecks().register("basic", basicHealthCheck);
 		environment.healthChecks().register("mongo", mongoHealthCheck);

@@ -9,9 +9,9 @@ import org.mongojack.WriteResult;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
-import uk.org.gtc.api.domain.GenericDO;
+import uk.org.gtc.api.domain.BaseDomainObject;
 
-public class GenericService<T extends GenericDO>
+public class GenericService<T extends BaseDomainObject>
 {
 	private JacksonDBCollection<T, String> collection;
 	
