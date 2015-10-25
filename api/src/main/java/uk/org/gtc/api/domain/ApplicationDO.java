@@ -3,7 +3,7 @@ package uk.org.gtc.api.domain;
 import java.time.Year;
 import java.util.List;
 
-public class ApplicationDO extends MemberDO
+public class ApplicationDO extends Person
 {
 	private String currentPost;
 	
@@ -18,12 +18,12 @@ public class ApplicationDO extends MemberDO
 		// Jackson Mapping
 	}
 	
-	public ApplicationDO(
-	
-	String currentPost, Year careerStartDate, List<Long> sponsorMembers, String referralSource)
+	public ApplicationDO(MemberType type, MemberStatus status, Salutation salutation, String firstName, String lastName, String email,
+			List<PhoneNumber> phoneNumbers, List<Address> addresses, String currentPost, Year careerStartDate, List<Long> sponsorMembers,
+			String referralSource)
 	{
-		// super(membershipNumber, type, status, salutation, firstName,
-		// lastName, email, phoneNumbers, addresses)
+		super(type, status, salutation, firstName, lastName, email, phoneNumbers, addresses);
+		
 		setCurrentPost(currentPost);
 		setCareerStartDate(careerStartDate);
 		setSponsorMembers(sponsorMembers);
