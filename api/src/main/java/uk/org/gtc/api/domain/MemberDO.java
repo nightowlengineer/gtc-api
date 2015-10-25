@@ -1,31 +1,45 @@
 package uk.org.gtc.api.domain;
 
+import java.util.List;
+
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotEmpty;
 
 public class MemberDO extends GenericDO {
 
+	@NotNull
 	private Long membershipNumber;
 
+	@NotEmpty
 	private MemberType type;
 
 	private MemberStatus status;
 
 	private Salutation salutation;
 
-	@Length(max = 20)
+	@Length(max = 50)
 	private String firstName;
 
-	@Length(max = 20)
+	@Length(max = 50)
 	private String lastName;
 
+	@Email
+	@NotEmpty
 	private String email;
+
+	private List<PhoneNumber> phoneNumbers;
+
+	private List<Address> addresses;
 
 	public MemberDO() {
 		// Jackson Mapping
 	}
 
 	public MemberDO(Long membershipNumber, MemberType type, MemberStatus status, Salutation salutation,
-			String firstName, String lastName, String email) {
+			String firstName, String lastName, String email, List<PhoneNumber> phoneNumbers, List<Address> addresses) {
 		setMembershipNumber(membershipNumber);
 		setType(type);
 		setStatus(status);
@@ -33,6 +47,16 @@ public class MemberDO extends GenericDO {
 		setFirstName(firstName);
 		setLastName(lastName);
 		setEmail(email);
+		setPhoneNumbers(phoneNumbers);
+		setAddresses(addresses);
+	}
+
+	public List<PhoneNumber> getPhoneNumbers() {
+		return phoneNumbers;
+	}
+
+	public void setPhoneNumbers(List<PhoneNumber> phoneNumbers) {
+		this.phoneNumbers = phoneNumbers;
 	}
 
 	public MemberType getType() {
@@ -91,14 +115,24 @@ public class MemberDO extends GenericDO {
 		this.lastName = lastName;
 	}
 
+	public List<Address> getAddresses() {
+		return addresses;
+	}
+
+	public void setAddresses(List<Address> addresses) {
+		this.addresses = addresses;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
+		result = prime * result + ((addresses == null) ? 0 : addresses.hashCode());
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
 		result = prime * result + ((firstName == null) ? 0 : firstName.hashCode());
 		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
-		result = prime * result + (int) (membershipNumber ^ (membershipNumber >>> 32));
+		result = prime * result + ((membershipNumber == null) ? 0 : membershipNumber.hashCode());
+		result = prime * result + ((phoneNumbers == null) ? 0 : phoneNumbers.hashCode());
 		result = prime * result + ((salutation == null) ? 0 : salutation.hashCode());
 		result = prime * result + ((status == null) ? 0 : status.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
@@ -109,11 +143,16 @@ public class MemberDO extends GenericDO {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		MemberDO other = (MemberDO) obj;
+		if (addresses == null) {
+			if (other.addresses != null)
+				return false;
+		} else if (!addresses.equals(other.addresses))
+			return false;
 		if (email == null) {
 			if (other.email != null)
 				return false;
@@ -129,7 +168,15 @@ public class MemberDO extends GenericDO {
 				return false;
 		} else if (!lastName.equals(other.lastName))
 			return false;
-		if (membershipNumber != other.membershipNumber)
+		if (membershipNumber == null) {
+			if (other.membershipNumber != null)
+				return false;
+		} else if (!membershipNumber.equals(other.membershipNumber))
+			return false;
+		if (phoneNumbers == null) {
+			if (other.phoneNumbers != null)
+				return false;
+		} else if (!phoneNumbers.equals(other.phoneNumbers))
 			return false;
 		if (salutation != other.salutation)
 			return false;
