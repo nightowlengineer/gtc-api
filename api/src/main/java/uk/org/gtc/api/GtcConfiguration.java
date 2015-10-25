@@ -23,4 +23,8 @@ public class GtcConfiguration extends Configuration
 	@JsonProperty
 	@NotEmpty
 	public String mongoDatabase = "gtc-dev";
+	
+	@JsonProperty
+	@NotEmpty
+	public String mandrillApiKey;
 }
