@@ -1,5 +1,7 @@
 package uk.org.gtc.api.resource;
 
+import java.util.List;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -24,6 +26,23 @@ public class MemberResource extends GenericResource<MemberDO>
 	{
 		super(memberService);
 		this.memberService = memberService;
+	}
+	
+	@Override
+	@GET
+	@Timed
+	public List<MemberDO> getAll()
+	{
+		return super.getAll();
+	}
+	
+	@Override
+	@GET
+	@Timed
+	@Path("id/{id}")
+	public MemberDO getItemById(@PathParam("id") String id)
+	{
+		return super.getItemById(id);
 	}
 	
 	@GET
