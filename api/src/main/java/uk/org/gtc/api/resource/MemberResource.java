@@ -30,6 +30,25 @@ public class MemberResource extends GenericResource<MemberDO> {
 		return memberService.getByMemberNumber(memberNumber);
 	}
 
+	@GET
+	@Timed
+	@Path("verify/{membershipNumber}/{lastName}")
+	public Boolean verifyMemberByNumberAndSurname(final @PathParam("membershipNumber") Long membershipNumber,
+			final @PathParam("lastName") String lastName) throws Exception {
+
+		try {
+			final MemberDO memberToVerify = memberService.getByMemberNumber(membershipNumber);
+			if (memberToVerify.getLastName().equalsIgnoreCase(lastName)) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (Exception e) {
+			return false;
+		}
+
+	}
+
 	@POST
 	@Timed
 	public MemberDO createMember(MemberDO member) throws Exception {
