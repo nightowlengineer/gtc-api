@@ -7,27 +7,32 @@ import org.mongojack.JacksonDBCollection;
 
 import uk.org.gtc.api.domain.MemberDO;
 
-public class MemberService extends GenericService<MemberDO> {
-
+public class MemberService extends GenericService<MemberDO>
+{
 	private JacksonDBCollection<MemberDO, String> collection;
-
-	public MemberService(JacksonDBCollection<MemberDO, String> members) {
+	
+	public MemberService(JacksonDBCollection<MemberDO, String> members)
+	{
 		super(members);
 		this.collection = members;
 	}
-
-	public MemberDO getByMemberNumber(Long memberNumber) throws Exception {
+	
+	public MemberDO getByMemberNumber(Long memberNumber) throws Exception
+	{
 		final List<MemberDO> members = findByMemberNumber(memberNumber);
-		if (members.size() == 1) {
+		if (members.size() == 1)
+		{
 			return members.get(0);
-		} else {
-			throw new Exception(
-					members.size() + " members were found with the membership number '" + memberNumber + "'");
+		}
+		else
+		{
+			throw new Exception(members.size() + " members were found with the membership number '" + memberNumber + "'");
 		}
 	}
-
-	public List<MemberDO> findByMemberNumber(Long memberNumber) throws Exception {
+	
+	public List<MemberDO> findByMemberNumber(Long memberNumber) throws Exception
+	{
 		return collection.find(DBQuery.is("membershipNumber", memberNumber)).toArray();
 	}
-
+	
 }

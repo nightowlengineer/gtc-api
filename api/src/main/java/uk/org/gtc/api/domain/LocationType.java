@@ -1,5 +1,6 @@
 package uk.org.gtc.api.domain;
 
-public enum LocationType {
+public enum LocationType
+{
 	HOME, MOBILE, WORK
 }

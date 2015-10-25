@@ -2,61 +2,72 @@ package uk.org.gtc.api.domain;
 
 import java.util.List;
 
-public class Address {
-
+public class Address
+{
 	private List<String> lines;
-
+	
 	private String country;
-
+	
 	private String postcode;
-
+	
 	private LocationType addressType;
-
-	public Address() {
+	
+	public Address()
+	{
 		// Jackson Mapping
 	}
-
-	public Address(List<String> lines, String country, String postcode, LocationType addressType) {
+	
+	public Address(List<String> lines, String country, String postcode, LocationType addressType)
+	{
 		setLines(lines);
 		setCountry(country);
 		setPostcode(postcode);
 		setAddressType(addressType);
 	}
-
-	public LocationType getAddressType() {
+	
+	public LocationType getAddressType()
+	{
 		return addressType;
 	}
-
-	public void setAddressType(LocationType addressType) {
+	
+	public void setAddressType(LocationType addressType)
+	{
 		this.addressType = addressType;
 	}
-
-	public List<String> getLines() {
+	
+	public List<String> getLines()
+	{
 		return lines;
 	}
-
-	public void setLines(List<String> lines) {
+	
+	public void setLines(List<String> lines)
+	{
 		this.lines = lines;
 	}
-
-	public String getCountry() {
+	
+	public String getCountry()
+	{
 		return country;
 	}
-
-	public void setCountry(String country) {
+	
+	public void setCountry(String country)
+	{
 		this.country = country;
 	}
-
-	public String getPostcode() {
+	
+	public String getPostcode()
+	{
 		return postcode;
 	}
-
-	public void setPostcode(String postcode) {
+	
+	public void setPostcode(String postcode)
+	{
 		this.postcode = postcode;
 	}
-
+	
 	@Override
-	public int hashCode() {
+	public int hashCode()
+	{
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((country == null) ? 0 : country.hashCode());
@@ -65,9 +76,10 @@ public class Address {
 		result = prime * result + ((addressType == null) ? 0 : addressType.hashCode());
 		return result;
 	}
-
+	
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj)
+	{
 		if (this == obj)
 			return true;
 		if (!super.equals(obj))
@@ -75,24 +87,30 @@ public class Address {
 		if (getClass() != obj.getClass())
 			return false;
 		Address other = (Address) obj;
-		if (country == null) {
+		if (country == null)
+		{
 			if (other.country != null)
 				return false;
-		} else if (!country.equals(other.country))
+		}
+		else if (!country.equals(other.country))
 			return false;
-		if (lines == null) {
+		if (lines == null)
+		{
 			if (other.lines != null)
 				return false;
-		} else if (!lines.equals(other.lines))
+		}
+		else if (!lines.equals(other.lines))
 			return false;
-		if (postcode == null) {
+		if (postcode == null)
+		{
 			if (other.postcode != null)
 				return false;
-		} else if (!postcode.equals(other.postcode))
+		}
+		else if (!postcode.equals(other.postcode))
 			return false;
 		if (addressType != other.addressType)
 			return false;
 		return true;
 	}
-
+	
 }
