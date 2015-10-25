@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 import com.codahale.metrics.annotation.Timed;
 
 import uk.org.gtc.api.domain.MemberDO;
+import uk.org.gtc.api.domain.MemberStatus;
 import uk.org.gtc.api.service.MemberService;
 
 @Path("member")
@@ -42,7 +43,7 @@ public class MemberResource extends GenericResource<MemberDO>
 		try
 		{
 			final MemberDO memberToVerify = memberService.getByMemberNumber(membershipNumber);
-			if (memberToVerify.getLastName().equalsIgnoreCase(lastName))
+			if (memberToVerify.getLastName().equalsIgnoreCase(lastName) && memberToVerify.getStatus() == MemberStatus.CURRENT)
 			{
 				return true;
 			}
