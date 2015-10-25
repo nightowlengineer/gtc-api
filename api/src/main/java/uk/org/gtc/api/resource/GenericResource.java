@@ -3,6 +3,7 @@ package uk.org.gtc.api.resource;
 import java.util.List;
 
 import javax.ws.rs.PathParam;
+import javax.ws.rs.WebApplicationException;
 
 import uk.org.gtc.api.domain.BaseDomainObject;
 import uk.org.gtc.api.service.GenericService;
@@ -21,7 +22,7 @@ public class GenericResource<T extends BaseDomainObject>
 		return genericService.getAll();
 	}
 	
-	protected T getItemById(@PathParam("id") String id)
+	protected T getItemById(@PathParam("id") String id) throws WebApplicationException
 	{
 		return genericService.getById(id);
 	}

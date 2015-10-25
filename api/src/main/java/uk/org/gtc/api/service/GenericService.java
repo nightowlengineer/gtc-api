@@ -3,6 +3,10 @@ package uk.org.gtc.api.service;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.ws.rs.WebApplicationException;
+
+import org.bson.types.ObjectId;
+import org.eclipse.jetty.server.Response;
 import org.mongojack.DBCursor;
 import org.mongojack.DBQuery;
 import org.mongojack.JacksonDBCollection;
@@ -22,9 +26,20 @@ public class GenericService<T extends BaseDomainObject>
 		this.collection = collection;
 	}
 	
-	public T getById(String id)
+	public T getById(String id) throws WebApplicationException
 	{
-		return collection.findOneById(id);
+		if (!ObjectId.isValid(id))
+		{
+			throw new WebApplicationException(Response.SC_BAD_REQUEST);
+		}
+		
+		T item = collection.findOneById(id);
+		
+		if (item == null)
+		{
+			throw new WebApplicationException(Response.SC_NOT_FOUND);
+		}
+		return item;
 	}
 	
 	public T create(T item)

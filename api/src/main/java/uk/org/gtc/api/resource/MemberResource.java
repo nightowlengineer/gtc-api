@@ -7,6 +7,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
 import com.codahale.metrics.annotation.Timed;
@@ -40,7 +41,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@GET
 	@Timed
 	@Path("id/{id}")
-	public MemberDO getItemById(@PathParam("id") String id)
+	public MemberDO getItemById(@PathParam("id") String id) throws WebApplicationException
 	{
 		return super.getItemById(id);
 	}
