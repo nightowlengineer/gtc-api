@@ -15,10 +15,13 @@ import com.mongodb.MongoClient;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import uk.org.gtc.api.domain.ApplicationDO;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.health.BasicHealthCheck;
 import uk.org.gtc.api.health.MongoHealthCheck;
+import uk.org.gtc.api.resource.ApplicationResource;
 import uk.org.gtc.api.resource.MemberResource;
+import uk.org.gtc.api.service.ApplicationService;
 import uk.org.gtc.api.service.MemberService;
 
 public class GtcApplication extends Application<GtcConfiguration>
@@ -60,6 +63,8 @@ public class GtcApplication extends Application<GtcConfiguration>
 		
 		final JacksonDBCollection<MemberDO, String> members = JacksonDBCollection.wrap(db.getCollection("members"), MemberDO.class,
 				String.class);
+		final JacksonDBCollection<ApplicationDO, String> applications = JacksonDBCollection.wrap(db.getCollection("applications"),
+				ApplicationDO.class, String.class);
 				
 		// Health checks
 		final BasicHealthCheck basicHealthCheck = new BasicHealthCheck();
@@ -67,9 +72,11 @@ public class GtcApplication extends Application<GtcConfiguration>
 		
 		// Services
 		final MemberService memberService = new MemberService(members);
+		final ApplicationService applicationService = new ApplicationService(applications);
 		
 		// Resources
 		final MemberResource memberResource = new MemberResource(memberService);
+		final ApplicationResource applicationResource = new ApplicationResource(applicationService);
 		
 		environment.healthChecks().register("basic", basicHealthCheck);
 		environment.healthChecks().register("mongo", mongoHealthCheck);
