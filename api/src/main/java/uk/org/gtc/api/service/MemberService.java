@@ -2,6 +2,9 @@ package uk.org.gtc.api.service;
 
 import java.util.List;
 
+import javax.ws.rs.WebApplicationException;
+
+import org.eclipse.jetty.server.Response;
 import org.mongojack.DBQuery;
 import org.mongojack.DBSort;
 import org.mongojack.JacksonDBCollection;
@@ -27,7 +30,8 @@ public class MemberService extends GenericService<MemberDO>
 		}
 		else
 		{
-			throw new Exception(members.size() + " members were found with the membership number '" + memberNumber + "'");
+			throw new WebApplicationException(members.size() + " members were found with the membership number '" + memberNumber + "'",
+					Response.SC_NOT_FOUND);
 		}
 	}
 	

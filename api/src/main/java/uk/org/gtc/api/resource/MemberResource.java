@@ -32,6 +32,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@Override
 	@GET
 	@Timed
+	@Path("all")
 	public List<MemberDO> getAll()
 	{
 		return super.getAll();
