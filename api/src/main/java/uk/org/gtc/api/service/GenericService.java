@@ -1,11 +1,11 @@
-package service;
+package uk.org.gtc.api.service;
 
 import java.util.List;
 
 import org.mongojack.JacksonDBCollection;
 import org.mongojack.WriteResult;
 
-import domain.GenericDO;
+import uk.org.gtc.api.domain.GenericDO;
 
 public class GenericService<T extends GenericDO> {
 

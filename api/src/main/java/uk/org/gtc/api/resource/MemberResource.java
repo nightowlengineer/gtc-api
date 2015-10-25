@@ -1,4 +1,4 @@
-package resource;
+package uk.org.gtc.api.resource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -9,10 +9,10 @@ import javax.ws.rs.core.MediaType;
 
 import com.codahale.metrics.annotation.Timed;
 
-import domain.MemberDO;
-import service.MemberService;
+import uk.org.gtc.api.domain.MemberDO;
+import uk.org.gtc.api.service.MemberService;
 
-@Path("/member")
+@Path("member")
 @Produces(MediaType.APPLICATION_JSON)
 public class MemberResource extends GenericResource<MemberDO> {
 
@@ -25,7 +25,7 @@ public class MemberResource extends GenericResource<MemberDO> {
 
 	@GET
 	@Timed
-	@Path("/{memberNumber}")
+	@Path("{memberNumber}")
 	public MemberDO getMemberByNumber(@PathParam("memberNumber") Long memberNumber) throws Exception {
 		return memberService.getByMemberNumber(memberNumber);
 	}

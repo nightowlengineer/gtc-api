@@ -1,4 +1,4 @@
-package resource;
+package uk.org.gtc.api.resource;
 
 import java.util.List;
 
@@ -8,8 +8,8 @@ import javax.ws.rs.PathParam;
 
 import com.codahale.metrics.annotation.Timed;
 
-import domain.GenericDO;
-import service.GenericService;
+import uk.org.gtc.api.domain.GenericDO;
+import uk.org.gtc.api.service.GenericService;
 
 public class GenericResource<T extends GenericDO> {
 	private GenericService<T> genericService;
@@ -26,7 +26,7 @@ public class GenericResource<T extends GenericDO> {
 
 	@GET
 	@Timed
-	@Path("/id/{id}")
+	@Path("id/{id}")
 	public T getItemById(@PathParam("id") String id) {
 		return genericService.getById(id);
 	}

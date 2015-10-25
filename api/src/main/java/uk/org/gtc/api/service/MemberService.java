@@ -1,11 +1,11 @@
-package service;
+package uk.org.gtc.api.service;
 
 import java.util.List;
 
 import org.mongojack.DBQuery;
 import org.mongojack.JacksonDBCollection;
 
-import domain.MemberDO;
+import uk.org.gtc.api.domain.MemberDO;
 
 public class MemberService extends GenericService<MemberDO> {
 

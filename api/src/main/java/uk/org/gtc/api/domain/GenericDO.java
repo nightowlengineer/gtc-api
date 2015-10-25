@@ -1,4 +1,4 @@
-package domain;
+package uk.org.gtc.api.domain;
 
 import org.mongojack.ObjectId;
 

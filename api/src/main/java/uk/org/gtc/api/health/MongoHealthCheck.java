@@ -1,4 +1,4 @@
-package health;
+package uk.org.gtc.api.health;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.mongodb.MongoClient;
