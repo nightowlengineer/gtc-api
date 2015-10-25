@@ -1,8 +1,10 @@
 package uk.org.gtc.api.service;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.mongojack.DBCursor;
+import org.mongojack.DBQuery;
 import org.mongojack.JacksonDBCollection;
 import org.mongojack.WriteResult;
 
@@ -67,5 +69,12 @@ public class GenericService<T extends BaseDomainObject>
 	public T getLastBy(DBObject sort)
 	{
 		return getAllLightweightSorted(sort, new BasicDBObject(), 1).get(0);
+	}
+	
+	protected List<T> searchByField(final String field, final String text)
+	{
+		final String regexPattern = "/.*" + text + ".*/i";
+		final Pattern regex = Pattern.compile(regexPattern);
+		return collection.find(DBQuery.regex(field, regex)).toArray();
 	}
 }
