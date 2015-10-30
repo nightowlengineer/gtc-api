@@ -11,12 +11,15 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
 import com.codahale.metrics.annotation.Timed;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
 
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.domain.MemberStatus;
 import uk.org.gtc.api.service.MemberService;
 
 @Path("member")
+@Api("member")
 @Produces(MediaType.APPLICATION_JSON)
 public class MemberResource extends GenericResource<MemberDO>
 {
@@ -33,16 +36,17 @@ public class MemberResource extends GenericResource<MemberDO>
 	@GET
 	@Timed
 	@Path("all")
+	@ApiOperation(value = "Return a list of all members", response = MemberDO.class, responseContainer = "List")
 	public List<MemberDO> getAll()
 	{
 		return super.getAll();
 	}
 	
-	@Override
 	@GET
 	@Timed
 	@Path("id/{id}")
-	public MemberDO getItemById(@PathParam("id") String id) throws WebApplicationException
+	@ApiOperation("Get member by GUID")
+	public MemberDO getMemberById(@PathParam("id") String id) throws WebApplicationException
 	{
 		return super.getItemById(id);
 	}
@@ -50,6 +54,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@GET
 	@Timed
 	@Path("{memberNumber}")
+	@ApiOperation("Get member by Membership Number")
 	public MemberDO getMemberByNumber(@PathParam("memberNumber") Long memberNumber) throws Exception
 	{
 		return memberService.getByMemberNumber(memberNumber);
@@ -58,6 +63,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@GET
 	@Timed
 	@Path("{membershipNumber}/{lastName}/verify")
+	@ApiOperation("Verify a member by their Membership Number and their Last Name")
 	public Boolean verifyMemberByNumberAndSurname(final @PathParam("membershipNumber") Long membershipNumber,
 			final @PathParam("lastName") String lastName) throws Exception
 	{
@@ -81,7 +87,9 @@ public class MemberResource extends GenericResource<MemberDO>
 	}
 	
 	@GET
+	@Timed
 	@Path("nextMemberNumber")
+	@ApiOperation(value = "Fetch the next logical membership number")
 	public Long getNextMembershipNumber()
 	{
 		return memberService.getNextMemberNumber();
@@ -89,6 +97,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	
 	@POST
 	@Timed
+	@ApiOperation("Create a new member")
 	public MemberDO createMember(MemberDO member) throws Exception
 	{
 		if (memberService.findByMemberNumber(member.getMembershipNumber()).isEmpty())

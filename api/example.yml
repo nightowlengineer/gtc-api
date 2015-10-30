@@ -14,6 +14,9 @@ server:
 
 mandrillApiKey: REPLACE
 
+swagger:
+  resourcePackage: uk.org.gtc.api.resource
+
 logging:
   # The default level of all loggers. Can be OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
   level: INFO

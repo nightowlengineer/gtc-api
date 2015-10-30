@@ -11,12 +11,15 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
 import com.codahale.metrics.annotation.Timed;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
 
 import uk.org.gtc.api.domain.BookDO;
 import uk.org.gtc.api.service.BookService;
 import uk.org.gtc.api.service.MemberService;
 
 @Path("book")
+@Api("book")
 @Produces(MediaType.APPLICATION_JSON)
 public class BookResource extends GenericResource<BookDO>
 {
@@ -33,6 +36,7 @@ public class BookResource extends GenericResource<BookDO>
 	@Override
 	@GET
 	@Timed
+	@ApiOperation("Get a list of all books")
 	public List<BookDO> getAll()
 	{
 		return super.getAll();
@@ -42,6 +46,7 @@ public class BookResource extends GenericResource<BookDO>
 	@GET
 	@Timed
 	@Path("id/{id}")
+	@ApiOperation("Get a book by GUID")
 	public BookDO getItemById(@PathParam("id") String id) throws WebApplicationException
 	{
 		return super.getItemById(id);
@@ -50,6 +55,7 @@ public class BookResource extends GenericResource<BookDO>
 	@GET
 	@Timed
 	@Path("title/{title}")
+	@ApiOperation("Get a list of books by title")
 	public List<BookDO> findByTitle(@PathParam("title") String title) throws Exception
 	{
 		return bookService.findByTitle(title);
@@ -58,6 +64,7 @@ public class BookResource extends GenericResource<BookDO>
 	@GET
 	@Timed
 	@Path("author/{author}")
+	@ApiOperation("Get a list of books by author")
 	public List<BookDO> findByAuthor(@PathParam("author") String author) throws Exception
 	{
 		return bookService.findByAuthor(author);
@@ -65,6 +72,7 @@ public class BookResource extends GenericResource<BookDO>
 	
 	@POST
 	@Timed
+	@ApiOperation("Create a new book")
 	public BookDO createBook(BookDO book) throws Exception
 	{
 		if (true) // book doesn't exist

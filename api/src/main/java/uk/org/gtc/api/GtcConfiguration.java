@@ -8,6 +8,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.dropwizard.Configuration;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 public class GtcConfiguration extends Configuration
 {
@@ -27,4 +28,7 @@ public class GtcConfiguration extends Configuration
 	@JsonProperty
 	@NotEmpty
 	public String mandrillApiKey;
+	
+	@JsonProperty("swagger")
+	public SwaggerBundleConfiguration swaggerBundleConfiguration;
 }

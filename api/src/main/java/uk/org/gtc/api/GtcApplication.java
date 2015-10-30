@@ -16,6 +16,8 @@ import com.mongodb.MongoClient;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.federecio.dropwizard.swagger.SwaggerBundle;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import uk.org.gtc.api.domain.ApplicationDO;
 import uk.org.gtc.api.domain.BookDO;
 import uk.org.gtc.api.domain.MemberDO;
@@ -44,7 +46,14 @@ public class GtcApplication extends Application<GtcConfiguration>
 	@Override
 	public void initialize(Bootstrap<GtcConfiguration> bootstrap)
 	{
-		// nothing to do yet
+		bootstrap.addBundle(new SwaggerBundle<GtcConfiguration>()
+		{
+			@Override
+			protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(GtcConfiguration configuration)
+			{
+				return configuration.swaggerBundleConfiguration;
+			}
+		});
 	}
 	
 	@Override
