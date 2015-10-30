@@ -1,6 +1,6 @@
 package uk.org.gtc.api.resource;
 
-import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -25,7 +25,7 @@ public class ApplicationResource extends GenericResource<ApplicationDO>
 		this.memberService = memberService;
 	}
 	
-	@GET
+	@POST
 	@Path("{id}/accept")
 	public void acceptMembership(@PathParam("id") String id, ApplicationDO application)
 	{
