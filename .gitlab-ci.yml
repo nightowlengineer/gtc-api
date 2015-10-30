@@ -1,0 +1,4 @@
+Build and package:
+  script:
+  - cd api
+  - mvn clean package
