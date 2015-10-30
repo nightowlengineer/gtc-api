@@ -12,6 +12,11 @@ public class GenericResource<T extends BaseDomainObject>
 {
 	private GenericService<T> genericService;
 	
+	public GenericResource()
+	{
+		// Empty constructor
+	}
+	
 	public GenericResource(GenericService<T> genericService)
 	{
 		this.genericService = genericService;

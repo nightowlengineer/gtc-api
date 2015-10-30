@@ -36,6 +36,7 @@ public class BookResource extends GenericResource<BookDO>
 	@Override
 	@GET
 	@Timed
+	@Path("all")
 	@ApiOperation("Get a list of all books")
 	public List<BookDO> getAll()
 	{

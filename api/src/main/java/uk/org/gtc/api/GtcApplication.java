@@ -23,6 +23,7 @@ import uk.org.gtc.api.domain.BookDO;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.health.BasicHealthCheck;
 import uk.org.gtc.api.health.MongoHealthCheck;
+import uk.org.gtc.api.resource.ApiResource;
 import uk.org.gtc.api.resource.ApplicationResource;
 import uk.org.gtc.api.resource.BookResource;
 import uk.org.gtc.api.resource.MemberResource;
@@ -91,12 +92,14 @@ public class GtcApplication extends Application<GtcConfiguration>
 		final BookService bookService = new BookService(books);
 		
 		// Resources
+		final ApiResource apiResource = new ApiResource();
 		final MemberResource memberResource = new MemberResource(memberService);
 		final ApplicationResource applicationResource = new ApplicationResource(applicationService, memberService);
 		final BookResource bookResource = new BookResource(bookService, memberService);
 		
 		environment.healthChecks().register("basic", basicHealthCheck);
 		environment.healthChecks().register("mongo", mongoHealthCheck);
+		environment.jersey().register(apiResource);
 		environment.jersey().register(memberResource);
 		environment.jersey().register(applicationResource);
 		environment.jersey().register(bookResource);
