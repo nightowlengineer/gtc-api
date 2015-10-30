@@ -11,9 +11,9 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
 import com.codahale.metrics.annotation.Timed;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import uk.org.gtc.api.domain.BookDO;
 import uk.org.gtc.api.service.BookService;
 import uk.org.gtc.api.service.MemberService;

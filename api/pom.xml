@@ -39,9 +39,9 @@
 			<version>0.0.6</version>
 		</dependency>
 		<dependency>
-			<groupId>io.federecio</groupId>
+			<groupId>com.smoketurner</groupId>
 			<artifactId>dropwizard-swagger</artifactId>
-			<version>0.7.0</version>
+			<version>0.7.2</version>
 		</dependency>
 	</dependencies>
 
