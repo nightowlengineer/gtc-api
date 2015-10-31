@@ -10,13 +10,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.codahale.metrics.annotation.Timed;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import uk.org.gtc.api.domain.BookDO;
 import uk.org.gtc.api.service.BookService;
-import uk.org.gtc.api.service.MemberService;
 
 @Path("book")
 @Api("book")
@@ -24,13 +26,11 @@ import uk.org.gtc.api.service.MemberService;
 public class BookResource extends GenericResource<BookDO>
 {
 	private BookService bookService;
-	private MemberService memberService;
 	
-	public BookResource(BookService bookService, MemberService memberService)
+	public BookResource(BookService bookService)
 	{
 		super(bookService);
 		this.bookService = bookService;
-		this.memberService = memberService;
 	}
 	
 	@Override
@@ -51,6 +51,15 @@ public class BookResource extends GenericResource<BookDO>
 	public BookDO getItemById(@PathParam("id") String id) throws WebApplicationException
 	{
 		return super.getItemById(id);
+	}
+	
+	@GET
+	@Timed
+	@Path("isbn/{isbn}")
+	@ApiOperation("Get a book by ISBN")
+	public List<BookDO> getItemByIsbn(@PathParam("isbn") String isbn) throws Exception
+	{
+		return bookService.findByIsbn(isbn);
 	}
 	
 	@GET

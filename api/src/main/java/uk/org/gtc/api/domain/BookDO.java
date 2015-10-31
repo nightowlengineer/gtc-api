@@ -12,17 +12,20 @@ public class BookDO extends BaseDomainObject
 	
 	private List<String> owners;
 	
+	private String isbn;
+	
 	public BookDO()
 	{
 		// Jackson Mapping
 	}
 	
-	public BookDO(String title, String author, String language, List<String> owners)
+	public BookDO(String title, String author, String language, List<String> owners, String isbn)
 	{
 		setTitle(title);
 		setAuthor(author);
 		setLanguage(language);
 		setOwners(owners);
+		setIsbn(isbn);
 	}
 	
 	public String getTitle()
@@ -65,6 +68,16 @@ public class BookDO extends BaseDomainObject
 		this.owners = owners;
 	}
 	
+	public String getIsbn()
+	{
+		return isbn;
+	}
+	
+	public void setIsbn(String isbn)
+	{
+		this.isbn = isbn;
+	}
+	
 	@Override
 	public int hashCode()
 	{
@@ -74,6 +87,7 @@ public class BookDO extends BaseDomainObject
 		result = prime * result + ((owners == null) ? 0 : owners.hashCode());
 		result = prime * result + ((language == null) ? 0 : language.hashCode());
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
+		result = prime * result + ((isbn == null) ? 0 : isbn.hashCode());
 		return result;
 	}
 	
@@ -114,6 +128,13 @@ public class BookDO extends BaseDomainObject
 				return false;
 		}
 		else if (!title.equals(other.title))
+			return false;
+		if (isbn == null)
+		{
+			if (other.isbn != null)
+				return false;
+		}
+		else if (!isbn.equals(other.isbn))
 			return false;
 		return true;
 	}

@@ -21,6 +21,11 @@ public class BookService extends GenericService<BookDO>
 		return searchByField("title", title);
 	}
 	
+	public List<BookDO> findByIsbn(String isbn) throws Exception
+	{
+		return searchByField("isbn", isbn);
+	}
+	
 	public List<BookDO> findByAuthor(String author) throws Exception
 	{
 		return searchByField("author", author);
