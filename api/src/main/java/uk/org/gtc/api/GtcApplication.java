@@ -24,6 +24,7 @@ import uk.org.gtc.api.domain.ApplicationDO;
 import uk.org.gtc.api.domain.BookDO;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.health.BasicHealthCheck;
+import uk.org.gtc.api.health.MandrillHealthCheck;
 import uk.org.gtc.api.health.MongoHealthCheck;
 import uk.org.gtc.api.resource.ApiResource;
 import uk.org.gtc.api.resource.ApplicationResource;
@@ -93,6 +94,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		// Health checks
 		final BasicHealthCheck basicHealthCheck = new BasicHealthCheck();
 		final MongoHealthCheck mongoHealthCheck = new MongoHealthCheck(mongo);
+		final MandrillHealthCheck mandrillHealthCheck = new MandrillHealthCheck(mandrill);
 		
 		// Services
 		final MemberService memberService = new MemberService(members);
@@ -107,6 +109,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		
 		environment.healthChecks().register("basic", basicHealthCheck);
 		environment.healthChecks().register("mongo", mongoHealthCheck);
+		environment.healthChecks().register("mandrill", mandrillHealthCheck);
 		environment.jersey().register(apiResource);
 		environment.jersey().register(memberResource);
 		environment.jersey().register(applicationResource);

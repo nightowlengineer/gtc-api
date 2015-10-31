@@ -1,11 +1,15 @@
 package uk.org.gtc.api.service;
 
+import java.io.IOException;
+
 import org.mongojack.JacksonDBCollection;
 
 import com.microtripit.mandrillapp.lutung.MandrillApi;
-import com.microtripit.mandrillapp.lutung.view.MandrillMessage;
+import com.microtripit.mandrillapp.lutung.model.MandrillApiError;
 
+import uk.org.gtc.api.EmailHelper;
 import uk.org.gtc.api.domain.ApplicationDO;
+import uk.org.gtc.api.domain.MemberDO;
 
 public class ApplicationService extends GenericService<ApplicationDO>
 {
@@ -19,11 +23,9 @@ public class ApplicationService extends GenericService<ApplicationDO>
 		this.mandrill = mandrill;
 	}
 	
-	public Boolean sendEmail(ApplicationDO application)
+	public Object sendEmail(MemberDO member) throws MandrillApiError, IOException
 	{
-		MandrillMessage message = new MandrillMessage();
-		//mandrill.messages().sendTemplate(templateName, templateContent, m, async)
-		return Boolean.TRUE;
+		return EmailHelper.singleRecipient(mandrill, "welcome", member, Boolean.TRUE);
 	}
 	
 }
