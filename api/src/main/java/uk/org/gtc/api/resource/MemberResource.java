@@ -114,6 +114,14 @@ public class MemberResource extends GenericResource<MemberDO>
 			throw new Exception("A member already exists with this membership number");
 	}
 	
+	@GET
+	@Path("{memberNumber}/welcome")
+	public Object welcomeEmail(@PathParam("memberNumber") Long memberNumber) throws Exception
+	{
+		final MemberDO app = memberService.getByMemberNumber(memberNumber);
+		return memberService.sendEmail(app);
+	}
+	
 	@Override
 	Logger logger()
 	{

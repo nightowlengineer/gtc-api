@@ -28,11 +28,8 @@ public class AppTest extends TestCase
 		return new TestSuite(AppTest.class);
 	}
 	
-	/**
-	 * Rigourous Test :-)
-	 */
-	public void testApp()
+	public void testName() throws Exception
 	{
-		assertTrue(true);
+		assertEquals("gtc-api", new GtcApplication().getName());
 	}
 }

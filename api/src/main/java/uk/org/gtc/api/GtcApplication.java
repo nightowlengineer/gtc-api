@@ -69,6 +69,11 @@ public class GtcApplication extends Application<GtcConfiguration>
 	@Override
 	public void run(GtcConfiguration configuration, Environment environment) throws UnknownHostException
 	{
+		// Managed resources
+		final MongoClient mongo = new MongoClient(configuration.mongoHost, configuration.mongoPort);
+		environment.lifecycle().manage(new MongoManaged(mongo));
+		
+		// Servlet configuration
 		FilterRegistration.Dynamic filter = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
 		filter.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,PUT,POST,DELETE,OPTIONS");
 		filter.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*");
@@ -77,13 +82,16 @@ public class GtcApplication extends Application<GtcConfiguration>
 				"Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin");
 		filter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 		
-		final MongoClient mongo = new MongoClient(configuration.mongoHost, configuration.mongoPort);
-		final MongoManaged mongoManaged = new MongoManaged(mongo);
-		environment.lifecycle().manage(mongoManaged);
-		
-		final DB db = mongo.getDB("gtc-dev");
-		
+		// Integrations
 		final MandrillApi mandrill = new MandrillApi(configuration.mandrillApiKey);
+		
+		// Health checks
+		environment.healthChecks().register("basic", new BasicHealthCheck());
+		environment.healthChecks().register("mongo", new MongoHealthCheck(mongo));
+		environment.healthChecks().register("mandrill", new MandrillHealthCheck(mandrill));
+		
+		// Database and Jackson mappings
+		final DB db = mongo.getDB("gtc-dev");
 		
 		final JacksonDBCollection<MemberDO, String> members = JacksonDBCollection.wrap(db.getCollection("members"), MemberDO.class,
 				String.class);
@@ -91,28 +99,15 @@ public class GtcApplication extends Application<GtcConfiguration>
 				ApplicationDO.class, String.class);
 		final JacksonDBCollection<BookDO, String> books = JacksonDBCollection.wrap(db.getCollection("books"), BookDO.class, String.class);
 		
-		// Health checks
-		final BasicHealthCheck basicHealthCheck = new BasicHealthCheck();
-		final MongoHealthCheck mongoHealthCheck = new MongoHealthCheck(mongo);
-		final MandrillHealthCheck mandrillHealthCheck = new MandrillHealthCheck(mandrill);
-		
 		// Services
-		final MemberService memberService = new MemberService(members);
-		final ApplicationService applicationService = new ApplicationService(applications, mandrill);
+		final MemberService memberService = new MemberService(members, mandrill);
+		final ApplicationService applicationService = new ApplicationService(applications);
 		final BookService bookService = new BookService(books);
 		
-		// Resources
-		final ApiResource apiResource = new ApiResource();
-		final MemberResource memberResource = new MemberResource(memberService);
-		final ApplicationResource applicationResource = new ApplicationResource(applicationService, memberService);
-		final BookResource bookResource = new BookResource(bookService);
-		
-		environment.healthChecks().register("basic", basicHealthCheck);
-		environment.healthChecks().register("mongo", mongoHealthCheck);
-		environment.healthChecks().register("mandrill", mandrillHealthCheck);
-		environment.jersey().register(apiResource);
-		environment.jersey().register(memberResource);
-		environment.jersey().register(applicationResource);
-		environment.jersey().register(bookResource);
+		// Resource registration
+		environment.jersey().register(new ApiResource());
+		environment.jersey().register(new MemberResource(memberService));
+		environment.jersey().register(new ApplicationResource(applicationService, memberService));
+		environment.jersey().register(new BookResource(bookService));
 	}
 }
