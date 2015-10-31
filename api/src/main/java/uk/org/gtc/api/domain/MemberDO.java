@@ -17,10 +17,11 @@ public class MemberDO extends ApplicationDO
 	
 	public MemberDO(final Long membershipNumber, final ApplicationDO application)
 	{
-		new MemberDO(membershipNumber, application.getType(), application.getStatus(), application.getSalutation(),
-				application.getFirstName(), application.getLastName(), application.getEmail(), application.getPhoneNumbers(),
-				application.getAddresses(), application.getCurrentPost(), application.getCareerStartDate(), application.getSponsorMembers(),
+		super(application.getType(), application.getStatus(), application.getSalutation(), application.getFirstName(),
+				application.getLastName(), application.getEmail(), application.getPhoneNumbers(), application.getAddresses(),
+				application.getCurrentPost(), application.getCareerStartDate(), application.getSponsorMembers(),
 				application.getReferralSource());
+		setMembershipNumber(membershipNumber);
 	}
 	
 	public MemberDO(final Long membershipNumber, final MemberType type, final MemberStatus status, final Salutation salutation,
@@ -28,8 +29,8 @@ public class MemberDO extends ApplicationDO
 			final List<Address> addresses, final String currentPost, final Year careerStartDate, final List<Long> sponsorMembers,
 			final String referralSource)
 	{
-		super(type, status, salutation, firstName, lastName, email, phoneNumbers, addresses, referralSource, careerStartDate,
-				sponsorMembers, referralSource);
+		super(type, status, salutation, firstName, lastName, email, phoneNumbers, addresses, currentPost, careerStartDate, sponsorMembers,
+				referralSource);
 		setMembershipNumber(membershipNumber);
 	}
 	
