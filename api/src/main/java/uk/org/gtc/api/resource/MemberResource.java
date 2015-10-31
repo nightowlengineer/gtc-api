@@ -10,6 +10,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.codahale.metrics.annotation.Timed;
 
 import io.swagger.annotations.Api;
@@ -39,6 +42,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@ApiOperation(value = "Return a list of all members", response = MemberDO.class, responseContainer = "List")
 	public List<MemberDO> getAll()
 	{
+		logger().debug("Fetching all members");
 		return super.getAll();
 	}
 	
@@ -48,6 +52,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@ApiOperation("Get member by GUID")
 	public MemberDO getMemberById(@PathParam("id") String id) throws WebApplicationException
 	{
+		logger().debug("Fetching member by ID " + id);
 		return super.getItemById(id);
 	}
 	
@@ -57,6 +62,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@ApiOperation("Get member by Membership Number")
 	public MemberDO getMemberByNumber(@PathParam("memberNumber") Long memberNumber) throws Exception
 	{
+		logger().debug("Fetching member by membership number " + memberNumber);
 		return memberService.getByMemberNumber(memberNumber);
 	}
 	
@@ -106,5 +112,11 @@ public class MemberResource extends GenericResource<MemberDO>
 		}
 		else
 			throw new Exception("A member already exists with this membership number");
+	}
+	
+	@Override
+	Logger logger()
+	{
+		return LoggerFactory.getLogger(MemberResource.class);
 	}
 }

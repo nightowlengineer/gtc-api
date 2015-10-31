@@ -8,6 +8,8 @@ import javax.servlet.FilterRegistration;
 
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.mongojack.JacksonDBCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.microtripit.mandrillapp.lutung.MandrillApi;
 import com.mongodb.DB;
@@ -33,6 +35,7 @@ import uk.org.gtc.api.service.MemberService;
 
 public class GtcApplication extends Application<GtcConfiguration>
 {
+	
 	public static void main(String[] args) throws Exception
 	{
 		new GtcApplication().run(args);
@@ -42,6 +45,11 @@ public class GtcApplication extends Application<GtcConfiguration>
 	public String getName()
 	{
 		return "gtc-api";
+	}
+	
+	Logger logger()
+	{
+		return LoggerFactory.getLogger(GtcApplication.class);
 	}
 	
 	@Override
@@ -95,7 +103,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		final ApiResource apiResource = new ApiResource();
 		final MemberResource memberResource = new MemberResource(memberService);
 		final ApplicationResource applicationResource = new ApplicationResource(applicationService, memberService);
-		final BookResource bookResource = new BookResource(bookService, memberService);
+		final BookResource bookResource = new BookResource(bookService);
 		
 		environment.healthChecks().register("basic", basicHealthCheck);
 		environment.healthChecks().register("mongo", mongoHealthCheck);
@@ -103,6 +111,5 @@ public class GtcApplication extends Application<GtcConfiguration>
 		environment.jersey().register(memberResource);
 		environment.jersey().register(applicationResource);
 		environment.jersey().register(bookResource);
-		
 	}
 }

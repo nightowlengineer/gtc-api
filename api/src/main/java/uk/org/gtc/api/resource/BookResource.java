@@ -92,4 +92,10 @@ public class BookResource extends GenericResource<BookDO>
 		else
 			throw new Exception("A book already exists with this title");
 	}
+	
+	@Override
+	Logger logger()
+	{
+		return LoggerFactory.getLogger(BookResource.class);
+	}
 }

@@ -6,6 +6,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.org.gtc.api.domain.ApplicationDO;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.service.ApplicationService;
@@ -38,5 +41,11 @@ public class ApplicationResource extends GenericResource<ApplicationDO>
 			logger().error("Couldn't delete application with ID " + application.getId());
 		}
 		return createdMember;
+	}
+	
+	@Override
+	Logger logger()
+	{
+		return LoggerFactory.getLogger(ApplicationResource.class);
 	}
 }

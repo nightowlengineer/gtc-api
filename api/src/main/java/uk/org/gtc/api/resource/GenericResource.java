@@ -5,11 +5,15 @@ import java.util.List;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
 
+import org.slf4j.Logger;
+
 import uk.org.gtc.api.domain.BaseDomainObject;
 import uk.org.gtc.api.service.GenericService;
 
-public class GenericResource<T extends BaseDomainObject>
+abstract class GenericResource<T extends BaseDomainObject>
 {
+	abstract Logger logger();
+	
 	private GenericService<T> genericService;
 	
 	public GenericResource()
