@@ -34,7 +34,7 @@ public class AddressTest extends TestCase
 	public void testBlankConstructor() throws Exception
 	{
 		final Address address = new Address();
-		assertEquals(new Address(), address);
+		assertNotSame(new Address(), address);
 	}
 	
 	public void testConstructor() throws Exception
