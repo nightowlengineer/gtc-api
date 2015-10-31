@@ -48,6 +48,11 @@ public class GenericService<T extends BaseDomainObject>
 		return result.getSavedObject();
 	}
 	
+	public Boolean delete(T item)
+	{
+		return collection.removeById(item.getId()).getWriteResult().wasAcknowledged();
+	}
+	
 	public List<T> getAll()
 	{
 		return collection.find().toArray();
@@ -86,6 +91,15 @@ public class GenericService<T extends BaseDomainObject>
 		return getAllLightweightSorted(sort, new BasicDBObject(), 1).get(0);
 	}
 	
+	/**
+	 * Find a list of items by named field
+	 * 
+	 * @param field
+	 *            - what field to search over
+	 * @param text
+	 *            - what text to search for
+	 * @return a list of matching items
+	 */
 	protected List<T> searchByField(final String field, final String text)
 	{
 		final String regexPattern = "/.*" + text + ".*/i";

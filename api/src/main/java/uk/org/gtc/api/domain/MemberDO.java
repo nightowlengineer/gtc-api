@@ -1,10 +1,11 @@
 package uk.org.gtc.api.domain;
 
+import java.time.Year;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-public class MemberDO extends Person
+public class MemberDO extends ApplicationDO
 {
 	@NotNull
 	private Long membershipNumber;
@@ -14,17 +15,21 @@ public class MemberDO extends Person
 		// Jackson Mapping
 	}
 	
-	public MemberDO(ApplicationDO application, Long membershipNumber)
+	public MemberDO(final Long membershipNumber, final ApplicationDO application)
 	{
 		new MemberDO(membershipNumber, application.getType(), application.getStatus(), application.getSalutation(),
 				application.getFirstName(), application.getLastName(), application.getEmail(), application.getPhoneNumbers(),
-				application.getAddresses());
+				application.getAddresses(), application.getCurrentPost(), application.getCareerStartDate(), application.getSponsorMembers(),
+				application.getReferralSource());
 	}
 	
-	public MemberDO(Long membershipNumber, MemberType type, MemberStatus status, Salutation salutation, String firstName, String lastName,
-			String email, List<PhoneNumber> phoneNumbers, List<Address> addresses)
+	public MemberDO(final Long membershipNumber, final MemberType type, final MemberStatus status, final Salutation salutation,
+			final String firstName, final String lastName, final String email, final List<PhoneNumber> phoneNumbers,
+			final List<Address> addresses, final String currentPost, final Year careerStartDate, final List<Long> sponsorMembers,
+			final String referralSource)
 	{
-		super(type, status, salutation, firstName, lastName, email, phoneNumbers, addresses);
+		super(type, status, salutation, firstName, lastName, email, phoneNumbers, addresses, referralSource, careerStartDate,
+				sponsorMembers, referralSource);
 		setMembershipNumber(membershipNumber);
 	}
 	
@@ -33,7 +38,7 @@ public class MemberDO extends Person
 		return membershipNumber;
 	}
 	
-	public void setMembershipNumber(Long membershipNumber)
+	public void setMembershipNumber(final Long membershipNumber)
 	{
 		this.membershipNumber = membershipNumber;
 	}

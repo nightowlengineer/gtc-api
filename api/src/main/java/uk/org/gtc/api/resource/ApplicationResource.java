@@ -27,10 +27,16 @@ public class ApplicationResource extends GenericResource<ApplicationDO>
 	
 	@POST
 	@Path("{id}/accept")
-	public void acceptMembership(@PathParam("id") String id, ApplicationDO application)
+	public MemberDO acceptMembership(@PathParam("id") String id, ApplicationDO application)
 	{
-		MemberDO member = new MemberDO(application, memberService.getNextMemberNumber());
-		member.setId(id);
-		memberService.create(member);
+		final MemberDO memberToCreate = new MemberDO(memberService.getNextMemberNumber(), application);
+		final MemberDO createdMember = memberService.create(memberToCreate);
+		
+		final Boolean deletedApplication = applicationService.delete(application);
+		if (!deletedApplication)
+		{
+			logger().error("Couldn't delete application with ID " + application.getId());
+		}
+		return createdMember;
 	}
 }
