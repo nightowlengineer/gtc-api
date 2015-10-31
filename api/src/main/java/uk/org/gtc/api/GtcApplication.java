@@ -96,7 +96,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		
 		// Services
 		final MemberService memberService = new MemberService(members);
-		final ApplicationService applicationService = new ApplicationService(applications);
+		final ApplicationService applicationService = new ApplicationService(applications, mandrill);
 		final BookService bookService = new BookService(books);
 		
 		// Resources
