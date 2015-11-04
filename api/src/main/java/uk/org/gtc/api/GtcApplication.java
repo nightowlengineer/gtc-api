@@ -7,6 +7,7 @@ import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.mongojack.JacksonDBCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,9 @@ import com.mongodb.DB;
 import com.mongodb.MongoClient;
 
 import io.dropwizard.Application;
+import io.dropwizard.auth.AuthDynamicFeature;
+import io.dropwizard.auth.AuthValueFactoryProvider;
+import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
@@ -23,6 +27,7 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import uk.org.gtc.api.domain.ApplicationDO;
 import uk.org.gtc.api.domain.BookDO;
 import uk.org.gtc.api.domain.MemberDO;
+import uk.org.gtc.api.domain.User;
 import uk.org.gtc.api.health.BasicHealthCheck;
 import uk.org.gtc.api.health.MandrillHealthCheck;
 import uk.org.gtc.api.health.MongoHealthCheck;
@@ -69,6 +74,11 @@ public class GtcApplication extends Application<GtcConfiguration>
 	@Override
 	public void run(GtcConfiguration configuration, Environment environment) throws UnknownHostException
 	{
+		// Authentication
+		environment.jersey().register(new AuthDynamicFeature(new BasicCredentialAuthFilter.Builder<User>()
+				.setAuthenticator(new GtcAuthenticator()).setAuthorizer(new GtcAuthoriser()).setRealm("GTC API").buildAuthFilter()));
+		environment.jersey().register(RolesAllowedDynamicFeature.class);
+		environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
 		// Managed resources
 		final MongoClient mongo = new MongoClient(configuration.mongoHost, configuration.mongoPort);
 		environment.lifecycle().manage(new MongoManaged(mongo));
