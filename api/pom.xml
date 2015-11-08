@@ -46,7 +46,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.java.version>1.8</project.java.version>
 		<dropwizard.version>0.9.1</dropwizard.version>
-		<mongojack.version>2.5.0</mongojack.version>
+		<mongojack.version>2.5.1</mongojack.version>
 		<mandrill.version>0.0.6</mandrill.version>
 		<dropbox.version>2.0-beta-1</dropbox.version>
 		<swagger.version>0.7.2</swagger.version>
