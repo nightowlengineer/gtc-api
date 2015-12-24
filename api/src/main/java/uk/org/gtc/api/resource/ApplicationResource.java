@@ -1,5 +1,8 @@
 package uk.org.gtc.api.resource;
 
+import java.util.List;
+
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -41,6 +44,13 @@ public class ApplicationResource extends GenericResource<ApplicationDO>
 			logger().error("Couldn't delete application with ID " + application.getId());
 		}
 		return createdMember;
+	}
+	
+	@GET
+	@Path("all")
+	public List<ApplicationDO> getAll()
+	{
+		return applicationService.getAll();
 	}
 	
 	@Override
