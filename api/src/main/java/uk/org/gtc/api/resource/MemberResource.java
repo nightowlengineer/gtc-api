@@ -1,5 +1,6 @@
 package uk.org.gtc.api.resource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -64,6 +65,45 @@ public class MemberResource extends GenericResource<MemberDO>
 	{
 		logger().debug("Fetching member by membership number " + memberNumber);
 		return memberService.getByMemberNumber(memberNumber);
+	}
+	
+	@GET
+	@Timed
+	@Path("search/{query}")
+	@ApiOperation("Get member by Membership Number")
+	public List<MemberDO> findMember(@PathParam("query") String query) throws Exception
+	{
+		logger().debug("Finding member using " + query);
+		final List<MemberDO> results = new ArrayList<MemberDO>();
+		final List<MemberDO> members = memberService.getAll();
+		for (final MemberDO member : members)
+		{
+			if (member.getFirstName().toLowerCase().contains(query.toLowerCase()))
+			{
+				if (!results.contains(member))
+				{
+					results.add(member);
+				}
+				continue;
+			}
+			if (member.getLastName().toLowerCase().contains(query.toLowerCase()))
+			{
+				if (!results.contains(member))
+				{
+					results.add(member);
+				}
+				continue;
+			}
+			if (member.getMembershipNumber().toString().toLowerCase().contains(query.toLowerCase()))
+			{
+				if (!results.contains(member))
+				{
+					results.add(member);
+				}
+				continue;
+			}
+		}
+		return results;
 	}
 	
 	@GET
