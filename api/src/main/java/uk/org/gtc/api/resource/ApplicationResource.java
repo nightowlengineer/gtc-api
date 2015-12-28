@@ -12,12 +12,14 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.swagger.annotations.Api;
 import uk.org.gtc.api.domain.ApplicationDO;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.service.ApplicationService;
 import uk.org.gtc.api.service.MemberService;
 
 @Path("application")
+@Api("application")
 @Produces(MediaType.APPLICATION_JSON)
 public class ApplicationResource extends GenericResource<ApplicationDO>
 {
@@ -46,6 +48,7 @@ public class ApplicationResource extends GenericResource<ApplicationDO>
 		return createdMember;
 	}
 	
+	@Override
 	@GET
 	@Path("all")
 	public List<ApplicationDO> getAll()
