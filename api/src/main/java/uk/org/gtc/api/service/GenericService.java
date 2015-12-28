@@ -21,19 +21,19 @@ public class GenericService<T extends BaseDomainObject>
 {
 	private JacksonDBCollection<T, String> collection;
 	
-	public GenericService(JacksonDBCollection<T, String> collection)
+	public GenericService(final JacksonDBCollection<T, String> collection)
 	{
 		this.collection = collection;
 	}
 	
-	public T getById(String id) throws WebApplicationException
+	public T getById(final String id) throws WebApplicationException
 	{
 		if (!ObjectId.isValid(id))
 		{
 			throw new WebApplicationException(Response.SC_BAD_REQUEST);
 		}
 		
-		T item = collection.findOneById(id);
+		final T item = collection.findOneById(id);
 		
 		if (item == null)
 		{
@@ -42,13 +42,32 @@ public class GenericService<T extends BaseDomainObject>
 		return item;
 	}
 	
-	public T create(T item)
+	public T create(final T item)
 	{
-		WriteResult<T, String> result = collection.insert(item);
+		final WriteResult<T, String> result = collection.insert(item);
 		return result.getSavedObject();
 	}
 	
-	public Boolean delete(T item)
+	/**
+	 * Update an existing item
+	 * 
+	 * @param oldItem
+	 *            - the item that already exists in the system. This will be
+	 *            used in the future to generate a difference object.
+	 * @param newItem
+	 *            - the item that contains one or more updates to the oldItem.
+	 * @return the updated item from the database
+	 */
+	public T update(final T oldItem, final T newItem)
+	{
+		final String id = newItem.getId();
+		
+		final T existingItem = getById(id);
+		
+		return collection.updateById(id, newItem).getSavedObject();
+	}
+	
+	public Boolean delete(final T item)
 	{
 		return collection.removeById(item.getId()).getWriteResult().wasAcknowledged();
 	}
@@ -58,7 +77,7 @@ public class GenericService<T extends BaseDomainObject>
 		return collection.find().toArray();
 	}
 	
-	public DBCursor<T> getAllSorted(DBObject sort)
+	public DBCursor<T> getAllSorted(final DBObject sort)
 	{
 		return collection.find().sort(sort);
 	}
@@ -72,7 +91,7 @@ public class GenericService<T extends BaseDomainObject>
 	 *            - what to return out of the retrieved objects
 	 * @return a sorted, lightweight list of T
 	 */
-	public List<T> getAllLightweightSorted(DBObject sort, DBObject projection, Integer limit)
+	public List<T> getAllLightweightSorted(final DBObject sort, final DBObject projection, Integer limit)
 	{
 		return collection.find(new BasicDBObject(), projection).sort(sort).limit(limit).toArray();
 	}
@@ -86,7 +105,7 @@ public class GenericService<T extends BaseDomainObject>
 	 *            - what to return out of the retrieved objects
 	 * @return a sorted, lightweight list of T
 	 */
-	public T getLastBy(DBObject sort)
+	public T getLastBy(final DBObject sort)
 	{
 		return getAllLightweightSorted(sort, new BasicDBObject(), 1).get(0);
 	}
