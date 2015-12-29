@@ -76,7 +76,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		// Servlet configuration
 		FilterRegistration.Dynamic filter = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
 		filter.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,PUT,POST,DELETE,OPTIONS");
-		filter.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*");
+		filter.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, configuration.corsOrigins);
 		filter.setInitParameter(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*");
 		filter.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM,
 				"Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin");

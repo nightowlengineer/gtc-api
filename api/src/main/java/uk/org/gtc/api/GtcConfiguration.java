@@ -27,6 +27,10 @@ public class GtcConfiguration extends Configuration
 	
 	@JsonProperty
 	@NotEmpty
+	public String corsOrigins = "*";
+	
+	@JsonProperty
+	@NotEmpty
 	public String mandrillApiKey;
 	
 	@JsonProperty("swagger")
