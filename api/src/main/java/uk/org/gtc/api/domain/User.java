@@ -1,12 +1,14 @@
 package uk.org.gtc.api.domain;
 
-import java.security.Principal;
+import java.util.List;
 
 import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
-public class User extends BaseDomainObject implements Principal
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class User extends BaseDomainObject
 {
 	@Email
 	@NotEmpty
@@ -15,9 +17,9 @@ public class User extends BaseDomainObject implements Principal
 	@NotEmpty
 	private String username;
 	
-	@Length(min = 8)
-	private String password;
+	private List<ApplicationRole> roles;
 	
+	// @JsonIgnoreProperties(ignoreUnknown = true)
 	public User()
 	{
 		// Jackson Mapping
@@ -28,12 +30,6 @@ public class User extends BaseDomainObject implements Principal
 		setUsername(username);
 	}
 	
-	@Override
-	public String getName()
-	{
-		return getUsername();
-	}
-
 	public String getEmail()
 	{
 		return email;
@@ -54,14 +50,14 @@ public class User extends BaseDomainObject implements Principal
 		this.username = username;
 	}
 	
-	public String getPassword()
+	public List<ApplicationRole> getRoles()
 	{
-		return password;
+		return roles;
 	}
 	
-	public void setPassword(String password)
+	public void setRoles(List<ApplicationRole> roles)
 	{
-		this.password = password;
+		this.roles = roles;
 	}
 	
 	@Override
@@ -70,7 +66,6 @@ public class User extends BaseDomainObject implements Principal
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
-		result = prime * result + ((password == null) ? 0 : password.hashCode());
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
 		return result;
 	}
@@ -91,13 +86,6 @@ public class User extends BaseDomainObject implements Principal
 				return false;
 		}
 		else if (!email.equals(other.email))
-			return false;
-		if (password == null)
-		{
-			if (other.password != null)
-				return false;
-		}
-		else if (!password.equals(other.password))
 			return false;
 		if (username == null)
 		{

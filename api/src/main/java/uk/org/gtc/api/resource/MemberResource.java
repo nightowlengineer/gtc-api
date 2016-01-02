@@ -3,6 +3,7 @@ package uk.org.gtc.api.resource;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -41,6 +42,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@GET
 	@Timed
 	@Path("all")
+	@RolesAllowed("ADMIN")
 	@ApiOperation(value = "Return a list of all members", response = MemberDO.class, responseContainer = "List")
 	public List<MemberDO> getAll()
 	{
