@@ -1,9 +1,11 @@
 package uk.org.gtc.api.resource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -56,6 +58,59 @@ public class MemberResource extends GenericResource<MemberDO>
 		return super.getItemById(id);
 	}
 	
+	@PUT
+	@Timed
+	@Path("id/{id}")
+	@ApiOperation("Update member by GUID")
+	public MemberDO updateMemberById(@PathParam("id") String id, MemberDO member) throws WebApplicationException
+	{
+		final MemberDO existingMember = memberService.getById(id);
+		
+		if (!existingMember.getStatus().equals(member.getStatus()))
+		{
+			final MemberStatus existingStatus = existingMember.getStatus();
+			final MemberStatus newStatus = member.getStatus();
+			switch (newStatus)
+			{
+			case APPLIED:
+				if (!existingStatus.equals(MemberStatus.DECLINED) && !existingStatus.equals(MemberStatus.REMOVED))
+					throw new WebApplicationException();
+				break;
+			case APPROVED:
+			case DECLINED:
+				if (!existingStatus.equals(MemberStatus.APPLIED))
+					throw new WebApplicationException();
+				break;
+			case INVOICED:
+				if (!existingStatus.equals(MemberStatus.APPROVED))
+					throw new WebApplicationException();
+				break;
+			case PAID:
+				if (!existingStatus.equals(MemberStatus.INVOICED))
+					throw new WebApplicationException();
+				break;
+			case CURRENT:
+				if (!existingStatus.equals(MemberStatus.PAID))
+					throw new WebApplicationException();
+				break;
+			case LAPSED:
+				if (!existingStatus.equals(MemberStatus.CURRENT))
+					throw new WebApplicationException();
+				break;
+			case REMOVED:
+				if (!existingStatus.equals(MemberStatus.CURRENT) && !existingStatus.equals(MemberStatus.LAPSED))
+					throw new WebApplicationException();
+				break;
+			default:
+				break;
+			}
+		}
+		
+		final MemberDO updatedMember = memberService.update(existingMember, member);
+		
+		return updatedMember;
+	}
+	
 	@GET
 	@Timed
 	@Path("{memberNumber}")
@@ -64,6 +119,45 @@ public class MemberResource extends GenericResource<MemberDO>
 	{
 		logger().debug("Fetching member by membership number " + memberNumber);
 		return memberService.getByMemberNumber(memberNumber);
+	}
+	
+	@GET
+	@Timed
+	@Path("search/{query}")
+	@ApiOperation("Get member by Membership Number")
+	public List<MemberDO> findMember(@PathParam("query") String query) throws Exception
+	{
+		logger().debug("Finding member using " + query);
+		final List<MemberDO> results = new ArrayList<MemberDO>();
+		final List<MemberDO> members = memberService.getAll();
+		for (final MemberDO member : members)
+		{
+			if (member.getFirstName().toLowerCase().contains(query.toLowerCase()))
+			{
+				if (!results.contains(member))
+				{
+					results.add(member);
+				}
+				continue;
+			}
+			if (member.getLastName().toLowerCase().contains(query.toLowerCase()))
+			{
+				if (!results.contains(member))
+				{
+					results.add(member);
+				}
+				continue;
+			}
+			if (member.getMembershipNumber().toString().toLowerCase().contains(query.toLowerCase()))
+			{
+				if (!results.contains(member))
+				{
+					results.add(member);
+				}
+				continue;
+			}
+		}
+		return results;
 	}
 	
 	@GET

@@ -36,7 +36,7 @@
 		<system>GitLab</system>
 		<url>https://gitlab.com/lake54/gtc-api/issues</url>
 	</issueManagement>
-	
+
 	<ciManagement>
 		<system>GitLab</system>
 		<url>https://gitlab.com/lake54/gtc-api/builds</url>
@@ -46,10 +46,12 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.java.version>1.8</project.java.version>
 		<dropwizard.version>0.9.1</dropwizard.version>
-		<mongojack.version>2.5.0</mongojack.version>
-		<mandrill.version>0.0.6</mandrill.version>
-		<swagger.version>0.7.2</swagger.version>
+		<mongojack.version>2.5.1</mongojack.version>
+		<mandrill.version>0.0.7</mandrill.version>
+		<dropbox.version>2.0-beta-4</dropbox.version>
+		<swagger.version>0.9.1-1</swagger.version>
 		<junit.version>4.12</junit.version>
+		<mockito.version>2.0.33-beta</mockito.version>
 	</properties>
 
 	<dependencies>
@@ -70,6 +72,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.mongojack</groupId>
 			<artifactId>mongojack</artifactId>
 			<version>${mongojack.version}</version>
@@ -78,6 +86,11 @@
 			<groupId>com.mandrillapp.wrapper.lutung</groupId>
 			<artifactId>lutung</artifactId>
 			<version>${mandrill.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dropbox.core</groupId>
+			<artifactId>dropbox-core-sdk</artifactId>
+			<version>${dropbox.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.smoketurner</groupId>

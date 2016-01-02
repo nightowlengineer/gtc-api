@@ -1,4 +1,4 @@
-Build and package:
+Compilation and JUnit tests:
   script:
   - cd api
   - mvn clean test
