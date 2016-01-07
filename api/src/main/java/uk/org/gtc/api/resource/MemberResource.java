@@ -50,6 +50,16 @@ public class MemberResource extends GenericResource<MemberDO>
 	
 	@GET
 	@Timed
+	@Path("current")
+	@ApiOperation(value = "Return a list of current members", response = MemberDO.class, responseContainer = "List")
+	public List<MemberDO> getCurrent()
+	{
+		logger().debug("Fetching all current members");
+		return memberService.getByStatus(MemberStatus.CURRENT);
+	}
+	
+	@GET
+	@Timed
 	@Path("id/{id}")
 	@ApiOperation("Get member by GUID")
 	public MemberDO getMemberById(@PathParam("id") String id) throws WebApplicationException

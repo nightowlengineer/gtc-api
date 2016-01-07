@@ -15,6 +15,7 @@ import com.microtripit.mandrillapp.lutung.model.MandrillApiError;
 
 import uk.org.gtc.api.EmailHelper;
 import uk.org.gtc.api.domain.MemberDO;
+import uk.org.gtc.api.domain.MemberStatus;
 
 public class MemberService extends GenericService<MemberDO>
 {
@@ -45,6 +46,11 @@ public class MemberService extends GenericService<MemberDO>
 	public List<MemberDO> findByMemberNumber(Long memberNumber) throws Exception
 	{
 		return collection.find(DBQuery.is("membershipNumber", memberNumber)).toArray();
+	}
+	
+	public List<MemberDO> getByStatus(final MemberStatus... status)
+	{
+		return query(DBQuery.in("status", (Object[]) status));
 	}
 	
 	public Long getNextMemberNumber()
