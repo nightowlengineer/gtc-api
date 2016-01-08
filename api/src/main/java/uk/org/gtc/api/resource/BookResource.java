@@ -85,12 +85,7 @@ public class BookResource extends GenericResource<BookDO>
 	@ApiOperation("Create a new book")
 	public BookDO createBook(BookDO book) throws Exception
 	{
-		if (true) // book doesn't exist
-		{
-			return super.createItem(book);
-		}
-		else
-			throw new Exception("A book already exists with this title");
+		return super.createItem(book);
 	}
 	
 	@Override

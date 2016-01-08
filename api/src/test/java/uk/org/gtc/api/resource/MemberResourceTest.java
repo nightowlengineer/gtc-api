@@ -1,5 +1,8 @@
 package uk.org.gtc.api.resource;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.ws.rs.WebApplicationException;
 
 import org.bson.types.ObjectId;
@@ -47,6 +50,16 @@ public class MemberResourceTest
 		currentMember.setStatus(MemberStatus.CURRENT);
 		lapsedMember.setStatus(MemberStatus.LAPSED);
 		removedMember.setStatus(MemberStatus.REMOVED);
+	}
+	
+	@Test
+	public void testGetCurrent() throws Exception
+	{
+		List<MemberDO> currentMembers = new ArrayList<MemberDO>();
+		currentMembers.add(currentMember);
+		Mockito.when(memberService.getByStatus(MemberStatus.CURRENT)).thenReturn(currentMembers);
+		
+		memberResource.getCurrent();
 	}
 	
 	@Test

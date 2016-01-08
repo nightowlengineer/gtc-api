@@ -9,6 +9,7 @@ import org.bson.types.ObjectId;
 import org.eclipse.jetty.server.Response;
 import org.mongojack.DBCursor;
 import org.mongojack.DBQuery;
+import org.mongojack.DBQuery.Query;
 import org.mongojack.JacksonDBCollection;
 import org.mongojack.WriteResult;
 
@@ -60,16 +61,17 @@ public class GenericService<T extends BaseDomainObject>
 	 */
 	public T update(final T oldItem, final T newItem)
 	{
-		final String id = newItem.getId();
-		
-		final T existingItem = getById(id);
-		
-		return collection.updateById(id, newItem).getSavedObject();
+		return collection.updateById(newItem.getId(), newItem).getSavedObject();
 	}
 	
 	public Boolean delete(final T item)
 	{
 		return collection.removeById(item.getId()).getWriteResult().wasAcknowledged();
+	}
+	
+	public List<T> query(final Query query)
+	{
+		return collection.find(query).toArray();
 	}
 	
 	public List<T> getAll()
