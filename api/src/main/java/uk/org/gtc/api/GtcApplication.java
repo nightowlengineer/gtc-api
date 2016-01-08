@@ -20,17 +20,14 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import uk.org.gtc.api.domain.ApplicationDO;
 import uk.org.gtc.api.domain.BookDO;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.health.BasicHealthCheck;
 import uk.org.gtc.api.health.MandrillHealthCheck;
 import uk.org.gtc.api.health.MongoHealthCheck;
 import uk.org.gtc.api.resource.ApiResource;
-import uk.org.gtc.api.resource.ApplicationResource;
 import uk.org.gtc.api.resource.BookResource;
 import uk.org.gtc.api.resource.MemberResource;
-import uk.org.gtc.api.service.ApplicationService;
 import uk.org.gtc.api.service.BookService;
 import uk.org.gtc.api.service.MemberService;
 
@@ -95,19 +92,15 @@ public class GtcApplication extends Application<GtcConfiguration>
 		
 		final JacksonDBCollection<MemberDO, String> members = JacksonDBCollection.wrap(db.getCollection("members"), MemberDO.class,
 				String.class);
-		final JacksonDBCollection<ApplicationDO, String> applications = JacksonDBCollection.wrap(db.getCollection("applications"),
-				ApplicationDO.class, String.class);
 		final JacksonDBCollection<BookDO, String> books = JacksonDBCollection.wrap(db.getCollection("books"), BookDO.class, String.class);
 		
 		// Services
 		final MemberService memberService = new MemberService(members, mandrill);
-		final ApplicationService applicationService = new ApplicationService(applications);
 		final BookService bookService = new BookService(books);
 		
 		// Resource registration
 		environment.jersey().register(new ApiResource());
 		environment.jersey().register(new MemberResource(memberService));
-		environment.jersey().register(new ApplicationResource(applicationService, memberService));
 		environment.jersey().register(new BookResource(bookService));
 	}
 }

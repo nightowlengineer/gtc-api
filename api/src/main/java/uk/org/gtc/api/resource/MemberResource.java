@@ -58,6 +58,19 @@ public class MemberResource extends GenericResource<MemberDO>
 		return memberService.getByStatus(MemberStatus.CURRENT);
 	}
 	
+	@POST
+	@Path("{id}/accept")
+	public MemberDO acceptMembership(@PathParam("id") String id)
+	{
+		final MemberDO appliedMember = memberService.getById(id);
+		final MemberDO approvedMember = memberService.getById(id);
+		
+		approvedMember.setMembershipNumber(memberService.getNextMemberNumber());
+		
+		final MemberDO acceptedMember = memberService.update(appliedMember, approvedMember);
+		return acceptedMember;
+	}
+	
 	@GET
 	@Timed
 	@Path("id/{id}")
