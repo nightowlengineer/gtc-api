@@ -19,7 +19,7 @@ public enum MemberStatus
 		case REMOVED:
 			return true;
 		default:
-			throw new RuntimeException("No requirement was set for this MemberType");
+			throw new RuntimeException("No requirement was set for this MemberStatus");
 		}
 	}
 }
