@@ -31,6 +31,8 @@ public class MemberDO extends Person
 			final String referralSource, final String company)
 	{
 		super(salutation, firstName, lastName, email, phoneNumbers, addresses, company);
+		setType(type);
+		setStatus(status);
 		setMembershipNumber(membershipNumber);
 		setCurrentPost(currentPost);
 		setCareerStartDate(careerStartDate);
