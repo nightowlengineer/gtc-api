@@ -1,5 +1,6 @@
 package uk.org.gtc.api.resource;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,7 @@ import io.swagger.annotations.ApiOperation;
 import uk.org.gtc.api.UtilityHelper;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.domain.MemberStatus;
+import uk.org.gtc.api.domain.MemberType;
 import uk.org.gtc.api.service.MemberService;
 
 @Path("member")
@@ -52,6 +54,24 @@ public class MemberResource extends GenericResource<MemberDO>
 	{
 		logger().debug("Fetching all members");
 		return super.getAll();
+	}
+	
+	@GET
+	@Timed
+	@Path("statusTypes")
+	@ApiOperation(value = "Return the list of possible statuses", response = Array.class)
+	public MemberStatus[] getStatusTypes()
+	{
+		return MemberStatus.values();
+	}
+	
+	@GET
+	@Timed
+	@Path("memberTypes")
+	@ApiOperation(value = "Return the list of possible member types", response = Array.class)
+	public MemberType[] getMemberTypes()
+	{
+		return MemberType.values();
 	}
 	
 	@GET
