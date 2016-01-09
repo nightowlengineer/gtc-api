@@ -50,11 +50,12 @@ public class MemberDOTest extends TestCase
 		final List<Long> sponsorMembers = new ArrayList<Long>();
 		sponsorMembers.add(1234L);
 		
-		final MemberDO memberFull = new MemberDO(1234L, MemberType.FULL, MemberStatus.CURRENT, Salutation.MR, "John", "Smith",
-				"test@example.com", phoneNumbers, addresses, "Tester", Year.parse("2015"), sponsorMembers, "Website");
+		final MemberDO memberFull = new MemberDO(MemberType.FULL, MemberStatus.CURRENT, 1234L, Salutation.MR, "John", "Smith",
+				"test@example.com", phoneNumbers, addresses, "Tester", Year.parse("2015"), sponsorMembers, "Website", "Company");
 				
 		assertEquals(MemberType.FULL, memberFull.getType());
 		assertEquals(MemberStatus.CURRENT, memberFull.getStatus());
+		assertEquals(1234L, memberFull.getMembershipNumber().longValue());
 		assertEquals(Salutation.MR, memberFull.getSalutation());
 		assertEquals("John", memberFull.getFirstName());
 		assertEquals("Smith", memberFull.getLastName());
@@ -65,7 +66,7 @@ public class MemberDOTest extends TestCase
 		assertEquals(Year.parse("2015"), memberFull.getCareerStartDate());
 		assertEquals(sponsorMembers, memberFull.getSponsorMembers());
 		assertEquals("Website", memberFull.getReferralSource());
-		assertEquals(1234L, memberFull.getMembershipNumber().longValue());
+		assertEquals("Company", memberFull.getCompany());
 		
 		assertSame(memberFull, memberFull);
 		assertEquals(memberFull, memberFull);

@@ -1,8 +1,12 @@
 package uk.org.gtc.api.resource;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ValidationException;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -16,9 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.annotation.Timed;
+import com.mongodb.MongoException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import uk.org.gtc.api.UtilityHelper;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.domain.MemberStatus;
 import uk.org.gtc.api.service.MemberService;
@@ -138,10 +144,67 @@ public class MemberResource extends GenericResource<MemberDO>
 	@Timed
 	@Path("{memberNumber}")
 	@ApiOperation("Get member by Membership Number")
-	public MemberDO getMemberByNumber(@PathParam("memberNumber") Long memberNumber) throws Exception
+	public MemberDO getMemberByNumber(@PathParam("memberNumber") Long memberNumber) throws MongoException
 	{
 		logger().debug("Fetching member by membership number " + memberNumber);
-		return memberService.getByMemberNumber(memberNumber);
+		
+		MemberDO fetchedMember = memberService.getByMemberNumber(memberNumber);
+		checkValidMember(fetchedMember, false);
+		return fetchedMember;
+	}
+	
+	private List<String> checkValidMember(final MemberDO member, final Boolean shouldThrowException)
+	{
+		final List<String> validationMessages = new ArrayList<String>();
+		final Set<ConstraintViolation<MemberDO>> violations = validator.validate(member);
+		if (!violations.isEmpty())
+		{
+			for (ConstraintViolation<MemberDO> v : violations)
+			{
+				String message = "ID [" + member.getId() + "] (#" + member.getMembershipNumber() + ") failed validation: '"
+						+ v.getInvalidValue() + "' " + v.getMessage();
+				if (shouldThrowException)
+				{
+					throw new ValidationException(validationMessages.toString());
+				}
+				validationMessages.add(message);
+			}
+			return validationMessages;
+		}
+		return Collections.emptyList();
+	}
+	
+	private List<List<String>> checkValidMembers(final List<MemberDO> members, final Boolean shouldThrowException)
+	{
+		final List<List<String>> fullMessages = new ArrayList<List<String>>();
+		for (final MemberDO member : members)
+		{
+			final List<String> validationMessages = checkValidMember(member, shouldThrowException);
+			if (!validationMessages.isEmpty())
+			{
+				fullMessages.add(checkValidMember(member, shouldThrowException));
+			}
+		}
+		return fullMessages;
+	}
+	
+	@GET
+	@Timed
+	@Path("cleanup")
+	@ApiOperation("Process members and clean up the data")
+	public List<List<String>> cleanupMembers()
+	{
+		final List<MemberDO> members = memberService.getAll();
+		for (MemberDO member : members)
+		{
+			String email = member.getEmail();
+			if (!UtilityHelper.isNullOrEmpty(email))
+			{
+				member.setEmail(email.trim());
+				memberService.update(member, member);
+			}
+		}
+		return checkValidMembers(members, false);
 	}
 	
 	@GET
@@ -221,7 +284,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@POST
 	@Timed
 	@ApiOperation("Create a new member")
-	public MemberDO createMember(MemberDO member) throws Exception
+	public MemberDO createMember(final MemberDO member) throws Exception
 	{
 		if (memberService.findByMemberNumber(member.getMembershipNumber()).isEmpty())
 		{

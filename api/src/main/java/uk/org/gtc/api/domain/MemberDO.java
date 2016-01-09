@@ -3,28 +3,34 @@ package uk.org.gtc.api.domain;
 import java.time.Year;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
+import javax.xml.bind.ValidationException;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import io.dropwizard.validation.ValidationMethod;
+import uk.org.gtc.api.UtilityHelper;
 
 public class MemberDO extends Person
 {
-	@NotNull
 	private Long membershipNumber;
 	private String currentPost;
 	private Year careerStartDate;
 	private List<Long> sponsorMembers;
 	private String referralSource;
+	private MemberType type;
+	private MemberStatus status;
 	
 	public MemberDO()
 	{
 		// Jackson Mapping
 	}
 	
-	public MemberDO(final Long membershipNumber, final MemberType type, final MemberStatus status, final Salutation salutation,
+	public MemberDO(final MemberType type, final MemberStatus status, final Long membershipNumber, final Salutation salutation,
 			final String firstName, final String lastName, final String email, final List<PhoneNumber> phoneNumbers,
 			final List<Address> addresses, final String currentPost, final Year careerStartDate, final List<Long> sponsorMembers,
-			final String referralSource)
+			final String referralSource, final String company)
 	{
-		super(type, status, salutation, firstName, lastName, email, phoneNumbers, addresses);
+		super(salutation, firstName, lastName, email, phoneNumbers, addresses, company);
 		setMembershipNumber(membershipNumber);
 		setCurrentPost(currentPost);
 		setCareerStartDate(careerStartDate);
@@ -82,6 +88,40 @@ public class MemberDO extends Person
 		this.referralSource = referralSource;
 	}
 	
+	public MemberStatus getStatus()
+	{
+		return status;
+	}
+	
+	public void setStatus(MemberStatus status)
+	{
+		this.status = status;
+	}
+	
+	public MemberType getType()
+	{
+		return type;
+	}
+	
+	public void setType(MemberType type)
+	{
+		this.type = type;
+	}
+	
+	@ValidationMethod(message = "A membership number is required when the memebr is in this status")
+	@JsonIgnore
+	public Boolean isMemberNumberRequired() throws ValidationException
+	{
+		return getStatus().requiresMemberNumber() && UtilityHelper.isNullOrEmpty(getMembershipNumber().toString());
+	}
+	
+	@ValidationMethod(message = "A member can not be a sponsor without a company")
+	@JsonIgnore
+	public Boolean isSponsorAndCompanyValid()
+	{
+		return getType().equals(MemberType.SPONSOR) && UtilityHelper.isNullOrEmpty(super.getCompany());
+	}
+	
 	@Override
 	public int hashCode()
 	{
@@ -92,6 +132,8 @@ public class MemberDO extends Person
 		result = prime * result + ((membershipNumber == null) ? 0 : membershipNumber.hashCode());
 		result = prime * result + ((referralSource == null) ? 0 : referralSource.hashCode());
 		result = prime * result + ((sponsorMembers == null) ? 0 : sponsorMembers.hashCode());
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
 	
@@ -139,6 +181,10 @@ public class MemberDO extends Person
 				return false;
 		}
 		else if (!sponsorMembers.equals(other.sponsorMembers))
+			return false;
+		if (status != other.status)
+			return false;
+		if (type != other.type)
 			return false;
 		return true;
 	}
