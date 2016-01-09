@@ -61,7 +61,8 @@ public class GenericService<T extends BaseDomainObject>
 	 */
 	public T update(final T oldItem, final T newItem)
 	{
-		return collection.updateById(newItem.getId(), newItem).getSavedObject();
+		collection.updateById(newItem.getId(), newItem);
+		return collection.findOneById(newItem.getId());
 	}
 	
 	public Boolean delete(final T item)
