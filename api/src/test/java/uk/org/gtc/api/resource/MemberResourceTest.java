@@ -59,7 +59,7 @@ public class MemberResourceTest
 		currentMembers.add(currentMember);
 		Mockito.when(memberService.getByStatus(MemberStatus.CURRENT)).thenReturn(currentMembers);
 		
-		memberResource.getCurrent();
+		memberResource.getByStatus(MemberStatus.CURRENT.toString());
 	}
 	
 	@Test
@@ -469,8 +469,6 @@ public class MemberResourceTest
 	@Test
 	public void testUpdateMemberLapsedApplied() throws Exception
 	{
-		exception.expect(WebApplicationException.class);
-		
 		Mockito.when(memberService.getById(id)).thenReturn(lapsedMember);
 		
 		memberResource.updateMemberById(id, appliedMember);

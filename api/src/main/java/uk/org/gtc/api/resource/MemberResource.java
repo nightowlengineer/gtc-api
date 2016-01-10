@@ -26,9 +26,11 @@ import com.mongodb.MongoException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import uk.org.gtc.api.UtilityHelper;
+import uk.org.gtc.api.domain.LocationType;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.domain.MemberStatus;
 import uk.org.gtc.api.domain.MemberType;
+import uk.org.gtc.api.domain.Salutation;
 import uk.org.gtc.api.service.MemberService;
 
 @Path("member")
@@ -76,12 +78,40 @@ public class MemberResource extends GenericResource<MemberDO>
 	
 	@GET
 	@Timed
-	@Path("current")
-	@ApiOperation(value = "Return a list of current members", response = MemberDO.class, responseContainer = "List")
-	public List<MemberDO> getCurrent()
+	@Path("salutationTypes")
+	@ApiOperation(value = "Return the list of possible salutations", response = Array.class)
+	public Salutation[] getSalutationTypes()
 	{
-		logger().debug("Fetching all current members");
-		return memberService.getByStatus(MemberStatus.CURRENT);
+		return Salutation.values();
+	}
+	
+	@GET
+	@Timed
+	@Path("locationTypes")
+	@ApiOperation(value = "Return the list of possible locations", response = Array.class)
+	public LocationType[] getLocationTypes()
+	{
+		return LocationType.values();
+	}
+	
+	@GET
+	@Timed
+	@Path("status/{status}")
+	public List<MemberDO> getByStatus(@PathParam("status") final String status)
+	{
+		logger().debug("Fetching all " + status + " members");
+		return memberService.getByStatus(MemberStatus.valueOf(status.toUpperCase()));
+	}
+	
+	@GET
+	@Timed
+	@Path("applications")
+	@ApiOperation(value = "Return a list of people who are in the application stage", response = MemberDO.class, responseContainer = "List")
+	public List<MemberDO> getApplications()
+	{
+		logger().debug("Fetching all members in the application stage");
+		return memberService.getByStatus(MemberStatus.APPLIED, MemberStatus.APPROVED, MemberStatus.INVOICED, MemberStatus.PAID,
+				MemberStatus.DECLINED);
 	}
 	
 	@POST
@@ -122,7 +152,8 @@ public class MemberResource extends GenericResource<MemberDO>
 			switch (newStatus)
 			{
 			case APPLIED:
-				if (!existingStatus.equals(MemberStatus.DECLINED) && !existingStatus.equals(MemberStatus.REMOVED))
+				if (!existingStatus.equals(MemberStatus.DECLINED) && !existingStatus.equals(MemberStatus.REMOVED)
+						&& !existingStatus.equals(MemberStatus.LAPSED))
 					throw new WebApplicationException();
 				break;
 			case APPROVED:
