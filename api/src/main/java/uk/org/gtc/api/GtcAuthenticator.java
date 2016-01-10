@@ -42,7 +42,7 @@ public class GtcAuthenticator implements Authenticator<BasicCredentials, AuthDO>
 	{
 		String username = credentials.getUsername();
 		String password = credentials.getPassword();
-		if (UtilityHelper.isEmptyOrNull(username) || UtilityHelper.isEmptyOrNull(password))
+		if (UtilityHelper.isNullOrEmpty(username) || UtilityHelper.isNullOrEmpty(password))
 		{
 			username = "";
 			password = "";
@@ -73,7 +73,7 @@ public class GtcAuthenticator implements Authenticator<BasicCredentials, AuthDO>
 		{
 			digest = fetchedUser.getPassword();
 			salt = fetchedUser.getSalt();
-			if (UtilityHelper.isEmptyOrNull(salt) || UtilityHelper.isEmptyOrNull(digest))
+			if (UtilityHelper.isNullOrEmpty(salt) || UtilityHelper.isNullOrEmpty(digest))
 			{
 				throw new AuthenticationException("An error occurred during authentication. API error 277");
 			}
@@ -133,7 +133,7 @@ public class GtcAuthenticator implements Authenticator<BasicCredentials, AuthDO>
 		final String username = user.getUsername();
 		final String password = user.getPassword();
 		
-		if (UtilityHelper.isEmptyOrNull(username) || username.length() > 20)
+		if (UtilityHelper.isNullOrEmpty(username) || username.length() > 20)
 		{
 			return false;
 		}

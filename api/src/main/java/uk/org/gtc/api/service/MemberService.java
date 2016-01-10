@@ -12,6 +12,7 @@ import org.mongojack.JacksonDBCollection;
 
 import com.microtripit.mandrillapp.lutung.MandrillApi;
 import com.microtripit.mandrillapp.lutung.model.MandrillApiError;
+import com.mongodb.MongoException;
 
 import uk.org.gtc.api.EmailHelper;
 import uk.org.gtc.api.domain.MemberDO;
@@ -29,7 +30,7 @@ public class MemberService extends GenericService<MemberDO>
 		this.mandrill = mandrill;
 	}
 	
-	public MemberDO getByMemberNumber(Long memberNumber) throws Exception
+	public MemberDO getByMemberNumber(Long memberNumber) throws MongoException
 	{
 		final List<MemberDO> members = findByMemberNumber(memberNumber);
 		if (members.size() == 1)
@@ -43,7 +44,7 @@ public class MemberService extends GenericService<MemberDO>
 		}
 	}
 	
-	public List<MemberDO> findByMemberNumber(Long memberNumber) throws Exception
+	public List<MemberDO> findByMemberNumber(Long memberNumber) throws MongoException
 	{
 		return collection.find(DBQuery.is("membershipNumber", memberNumber)).toArray();
 	}

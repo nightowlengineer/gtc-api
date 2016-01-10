@@ -2,6 +2,9 @@ package uk.org.gtc.api.resource;
 
 import java.util.List;
 
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
 
@@ -13,6 +16,10 @@ import uk.org.gtc.api.service.GenericService;
 abstract class GenericResource<T extends BaseDomainObject>
 {
 	abstract Logger logger();
+	
+	protected ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+	
+	protected Validator validator = factory.getValidator();
 	
 	private GenericService<T> genericService;
 	

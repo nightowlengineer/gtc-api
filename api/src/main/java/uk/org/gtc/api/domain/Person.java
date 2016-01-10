@@ -4,14 +4,9 @@ import java.util.List;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
 
 public class Person extends BaseDomainObject
 {
-	private MemberType type;
-	
-	private MemberStatus status;
-	
 	private Salutation salutation;
 	
 	@Length(max = 50)
@@ -21,29 +16,29 @@ public class Person extends BaseDomainObject
 	private String lastName;
 	
 	@Email
-	@NotEmpty
 	private String email;
 	
 	private List<PhoneNumber> phoneNumbers;
 	
 	private List<Address> addresses;
 	
+	private String company;
+	
 	public Person()
 	{
 		// Jackson Mapping
 	}
 	
-	public Person(MemberType type, MemberStatus status, Salutation salutation, String firstName, String lastName, String email,
-			List<PhoneNumber> phoneNumbers, List<Address> addresses)
+	public Person(Salutation salutation, String firstName, String lastName, String email, List<PhoneNumber> phoneNumbers,
+			List<Address> addresses, String company)
 	{
-		setType(type);
-		setStatus(status);
 		setSalutation(salutation);
 		setFirstName(firstName);
 		setLastName(lastName);
 		setEmail(email);
 		setPhoneNumbers(phoneNumbers);
 		setAddresses(addresses);
+		setCompany(company);
 	}
 	
 	public List<Address> getAddresses()
@@ -54,6 +49,16 @@ public class Person extends BaseDomainObject
 	public void setAddresses(List<Address> addresses)
 	{
 		this.addresses = addresses;
+	}
+	
+	public String getCompany()
+	{
+		return company;
+	}
+	
+	public void setCompany(String company)
+	{
+		this.company = company;
 	}
 	
 	public String getEmail()
@@ -106,26 +111,6 @@ public class Person extends BaseDomainObject
 		this.salutation = salutation;
 	}
 	
-	public MemberStatus getStatus()
-	{
-		return status;
-	}
-	
-	public void setStatus(MemberStatus status)
-	{
-		this.status = status;
-	}
-	
-	public MemberType getType()
-	{
-		return type;
-	}
-	
-	public void setType(MemberType type)
-	{
-		this.type = type;
-	}
-	
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -142,6 +127,13 @@ public class Person extends BaseDomainObject
 				return false;
 		}
 		else if (!addresses.equals(other.addresses))
+			return false;
+		if (company == null)
+		{
+			if (other.company != null)
+				return false;
+		}
+		else if (!company.equals(other.company))
 			return false;
 		if (email == null)
 		{
@@ -173,10 +165,6 @@ public class Person extends BaseDomainObject
 			return false;
 		if (salutation != other.salutation)
 			return false;
-		if (status != other.status)
-			return false;
-		if (type != other.type)
-			return false;
 		return true;
 	}
 	
@@ -186,13 +174,12 @@ public class Person extends BaseDomainObject
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((addresses == null) ? 0 : addresses.hashCode());
+		result = prime * result + ((company == null) ? 0 : company.hashCode());
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
 		result = prime * result + ((firstName == null) ? 0 : firstName.hashCode());
 		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
 		result = prime * result + ((phoneNumbers == null) ? 0 : phoneNumbers.hashCode());
 		result = prime * result + ((salutation == null) ? 0 : salutation.hashCode());
-		result = prime * result + ((status == null) ? 0 : status.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
 	

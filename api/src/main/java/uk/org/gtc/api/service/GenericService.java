@@ -1,5 +1,6 @@
 package uk.org.gtc.api.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -16,6 +17,7 @@ import org.mongojack.WriteResult;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
+import uk.org.gtc.api.UtilityHelper;
 import uk.org.gtc.api.domain.BaseDomainObject;
 
 public class GenericService<T extends BaseDomainObject>
@@ -61,7 +63,13 @@ public class GenericService<T extends BaseDomainObject>
 	 */
 	public T update(final T oldItem, final T newItem)
 	{
-		return collection.updateById(newItem.getId(), newItem).getSavedObject();
+		if (UtilityHelper.isNull(oldItem.getCreatedDate()))
+		{
+			newItem.setCreatedDate(new Date());
+		}
+		newItem.setLastUpdatedDate(new Date());
+		collection.updateById(newItem.getId(), newItem);
+		return collection.findOneById(newItem.getId());
 	}
 	
 	public Boolean delete(final T item)
