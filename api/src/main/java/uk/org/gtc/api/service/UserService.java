@@ -24,9 +24,9 @@ public class UserService extends GenericService<User>
 		return collection.find().toArray();
 	}
 	
-	public User getByUsername(final String username)
+	public User getByEmail(final String email)
 	{
-		final Query userQuery = DBQuery.is("username", username);
+		final Query userQuery = DBQuery.is("email", email);
 		
 		final List<User> userResults = collection.find(userQuery).toArray();
 		

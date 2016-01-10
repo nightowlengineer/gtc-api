@@ -61,11 +61,11 @@ public class AuthResource extends GenericResource<AuthDO>
 	{
 		User newUser = null;
 		Boolean success = false;
-		if (authService.getByUsername(user.getUsername()) == null)
+		if (authService.getByEmail(user.getEmail()) == null)
 		{
 			final GtcAuthenticator authenticator = new GtcAuthenticator(authService, logger());
 			success = authenticator.createUser(user);
-			newUser = userService.getByUsername(user.getUsername());
+			newUser = userService.getByEmail(user.getEmail());
 		}
 		
 		if (success)
@@ -79,7 +79,7 @@ public class AuthResource extends GenericResource<AuthDO>
 	@Path("logout")
 	public Response logout(BasicCredentials credentials)
 	{
-		if (authService.getByUsername(credentials.getUsername()) == null)
+		if (authService.getByEmail(credentials.getUsername()) == null)
 		{
 			return Response.ok().build();
 		}

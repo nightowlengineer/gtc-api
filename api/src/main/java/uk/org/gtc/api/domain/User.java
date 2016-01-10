@@ -14,9 +14,6 @@ public class User extends BaseDomainObject
 	@NotEmpty
 	private String email;
 	
-	@NotEmpty
-	private String username;
-	
 	private List<ApplicationRole> roles;
 	
 	// @JsonIgnoreProperties(ignoreUnknown = true)
@@ -25,9 +22,9 @@ public class User extends BaseDomainObject
 		// Jackson Mapping
 	}
 	
-	public User(String username)
+	public User(final String email)
 	{
-		setUsername(username);
+		setEmail(email);
 	}
 	
 	public String getEmail()
@@ -38,16 +35,6 @@ public class User extends BaseDomainObject
 	public void setEmail(String email)
 	{
 		this.email = email;
-	}
-	
-	public String getUsername()
-	{
-		return username;
-	}
-	
-	public void setUsername(String username)
-	{
-		this.username = username;
 	}
 	
 	public List<ApplicationRole> getRoles()
@@ -66,7 +53,6 @@ public class User extends BaseDomainObject
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
-		result = prime * result + ((username == null) ? 0 : username.hashCode());
 		return result;
 	}
 	
@@ -86,13 +72,6 @@ public class User extends BaseDomainObject
 				return false;
 		}
 		else if (!email.equals(other.email))
-			return false;
-		if (username == null)
-		{
-			if (other.username != null)
-				return false;
-		}
-		else if (!username.equals(other.username))
 			return false;
 		return true;
 	}

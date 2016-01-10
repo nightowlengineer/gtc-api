@@ -24,9 +24,9 @@ public class AuthService extends GenericService<AuthDO>
 		return collection.find().toArray();
 	}
 	
-	public AuthDO getByUsername(final String username)
+	public AuthDO getByEmail(final String email)
 	{
-		final Query userQuery = DBQuery.is("username", username);
+		final Query userQuery = DBQuery.is("email", email);
 		
 		final List<AuthDO> userResults = collection.find(userQuery).toArray();
 		

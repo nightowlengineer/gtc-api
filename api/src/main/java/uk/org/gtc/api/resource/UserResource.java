@@ -46,10 +46,10 @@ public class UserResource extends GenericResource<User>
 	
 	@GET
 	@Timed
-	@Path("{username}")
-	public User getByUsername(@PathParam("username") String username)
+	@Path("{email}")
+	public User getByEmail(@PathParam("email") String email)
 	{
-		return userService.getByUsername(username);
+		return userService.getByEmail(email);
 	}
 	
 	@Override

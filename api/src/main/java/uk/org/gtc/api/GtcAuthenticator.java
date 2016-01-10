@@ -40,16 +40,16 @@ public class GtcAuthenticator implements Authenticator<BasicCredentials, AuthDO>
 	@Override
 	public Optional<AuthDO> authenticate(BasicCredentials credentials) throws AuthenticationException
 	{
-		String username = credentials.getUsername();
+		String email = credentials.getUsername();
 		String password = credentials.getPassword();
-		if (UtilityHelper.isNullOrEmpty(username) || UtilityHelper.isNullOrEmpty(password))
+		if (UtilityHelper.isNullOrEmpty(email) || UtilityHelper.isNullOrEmpty(password))
 		{
-			username = "";
+			email = "";
 			password = "";
 		}
 		else
 		{
-			username = username.trim().toLowerCase();
+			email = email.trim().toLowerCase();
 		}
 		
 		MessageDigest md = null;
@@ -66,7 +66,7 @@ public class GtcAuthenticator implements Authenticator<BasicCredentials, AuthDO>
 		
 		md.reset();
 		
-		final AuthDO fetchedUser = authService.getByUsername(username);
+		final AuthDO fetchedUser = authService.getByEmail(email);
 		
 		String digest, salt;
 		if (fetchedUser != null)
@@ -130,10 +130,10 @@ public class GtcAuthenticator implements Authenticator<BasicCredentials, AuthDO>
 	 */
 	public Boolean createUser(AuthDO user) throws NoSuchAlgorithmException, AuthenticationException
 	{
-		final String username = user.getUsername();
+		final String email = user.getEmail();
 		final String password = user.getPassword();
 		
-		if (UtilityHelper.isNullOrEmpty(username) || username.length() > 20)
+		if (UtilityHelper.isNullOrEmpty(email) || email.length() > 50)
 		{
 			return false;
 		}

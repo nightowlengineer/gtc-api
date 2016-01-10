@@ -21,7 +21,7 @@ public class GtcAuthoriser implements Authorizer<AuthDO>
 	public boolean authorize(AuthDO user, String role)
 	{
 		final ApplicationRole appRole = ApplicationRole.valueOf(role);
-		final User fetchedUser = userService.getByUsername(user.getUsername());
+		final User fetchedUser = userService.getByEmail(user.getEmail());
 		final List<ApplicationRole> userRoles = fetchedUser.getRoles();
 		if (userRoles != null && !userRoles.isEmpty())
 		{

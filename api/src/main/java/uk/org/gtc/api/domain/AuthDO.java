@@ -22,7 +22,7 @@ public class AuthDO extends User implements Principal
 	@JsonIgnore
 	public String getName()
 	{
-		return getUsername();
+		return getEmail();
 	}
 	
 	public String getPassword()
