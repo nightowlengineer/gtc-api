@@ -52,6 +52,7 @@
 		<swagger.version>0.9.1-1</swagger.version>
 		<junit.version>4.12</junit.version>
 		<mockito.version>2.0.33-beta</mockito.version>
+		<auth0.version>2.0.1</auth0.version>
 	</properties>
 
 	<dependencies>
@@ -91,6 +92,16 @@
 			<groupId>com.smoketurner</groupId>
 			<artifactId>dropwizard-swagger</artifactId>
 			<version>${swagger.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.auth0</groupId>
+			<artifactId>java-jwt</artifactId>
+			<version>${auth0.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.4</version>
 		</dependency>
 	</dependencies>
 

@@ -71,13 +71,19 @@ public class GtcApplication extends Application<GtcConfiguration>
 		environment.lifecycle().manage(new MongoManaged(mongo));
 		
 		// Servlet configuration
-		FilterRegistration.Dynamic filter = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
-		filter.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,PUT,POST,DELETE,OPTIONS");
-		filter.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, configuration.corsOrigins);
-		filter.setInitParameter(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*");
-		filter.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM,
+		final FilterRegistration.Dynamic corsFilter = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
+		corsFilter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+		corsFilter.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM,
 				"Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin");
-		filter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+		corsFilter.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,PUT,POST,DELETE,OPTIONS");
+		corsFilter.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, configuration.corsOrigins);
+		corsFilter.setInitParameter(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*");
+		
+		final FilterRegistration.Dynamic jwtFilter = environment.servlets().addFilter("Auth0", JWTFilter.class);
+		jwtFilter.addMappingForServletNames(EnumSet.allOf(DispatcherType.class), true, "*");
+		jwtFilter.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM,
+				"Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization");
+		jwtFilter.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,PUT,POST,DELETE,OPTIONS");
 		
 		// Integrations
 		final MandrillApi mandrill = new MandrillApi(configuration.mandrillApiKey);
