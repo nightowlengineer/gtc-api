@@ -1,7 +1,9 @@
 package uk.org.gtc.api;
 
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
@@ -70,7 +72,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		final MongoClient mongo = new MongoClient(configuration.mongoHost, configuration.mongoPort);
 		environment.lifecycle().manage(new MongoManaged(mongo));
 		
-		// Servlet configuration
+		// CORS configuration
 		final FilterRegistration.Dynamic corsFilter = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
 		corsFilter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 		corsFilter.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM,
@@ -79,8 +81,16 @@ public class GtcApplication extends Application<GtcConfiguration>
 		corsFilter.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, configuration.corsOrigins);
 		corsFilter.setInitParameter(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*");
 		
+		// Authentication configuration
+		final List<String> urlPatterns = new ArrayList<String>();
+		urlPatterns.add("/member/*");
+		urlPatterns.add("");
+		
 		final FilterRegistration.Dynamic jwtFilter = environment.servlets().addFilter("Auth0", JWTFilter.class);
-		jwtFilter.addMappingForServletNames(EnumSet.allOf(DispatcherType.class), true, "*");
+		for (String urlPattern : urlPatterns)
+		{
+			jwtFilter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, urlPattern);
+		}
 		jwtFilter.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM,
 				"Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization");
 		jwtFilter.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,PUT,POST,DELETE,OPTIONS");
