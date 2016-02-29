@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import com.microtripit.mandrillapp.lutung.MandrillApi;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
@@ -69,7 +71,12 @@ public class GtcApplication extends Application<GtcConfiguration>
 	public void run(GtcConfiguration configuration, Environment environment) throws UnknownHostException
 	{
 		// Managed resources
-		final MongoClient mongo = new MongoClient(configuration.mongoHost, configuration.mongoPort);
+		final ServerAddress mongoHost = new ServerAddress(configuration.mongoHost);
+		final List<MongoCredential> mongoCredentials = new ArrayList<MongoCredential>();
+		final MongoCredential credential = MongoCredential.createScramSha1Credential(configuration.mongoUser, "admin",
+				configuration.mongoPassword);
+		mongoCredentials.add(credential);
+		final MongoClient mongo = new MongoClient(mongoHost, mongoCredentials);
 		environment.lifecycle().manage(new MongoManaged(mongo));
 		
 		// CORS configuration
@@ -104,7 +111,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		environment.healthChecks().register("mandrill", new MandrillHealthCheck(mandrill));
 		
 		// Database and Jackson mappings
-		final DB db = mongo.getDB("gtc-dev");
+		final DB db = mongo.getDB(configuration.mongoDatabase);
 		
 		final JacksonDBCollection<MemberDO, String> members = JacksonDBCollection.wrap(db.getCollection("members"), MemberDO.class,
 				String.class);

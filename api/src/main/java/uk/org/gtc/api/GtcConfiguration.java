@@ -22,6 +22,12 @@ public class GtcConfiguration extends Configuration
 	public int mongoPort = 27017;
 	
 	@JsonProperty
+	public String mongoUser;
+	
+	@JsonProperty
+	public char[] mongoPassword;
+	
+	@JsonProperty
 	@NotEmpty
 	public String mongoDatabase = "gtc-dev";
 	
