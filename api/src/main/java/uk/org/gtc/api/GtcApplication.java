@@ -9,6 +9,7 @@ import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.mongojack.JacksonDBCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,20 +21,29 @@ import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 
 import io.dropwizard.Application;
+import io.dropwizard.auth.AuthDynamicFeature;
+import io.dropwizard.auth.AuthValueFactoryProvider;
+import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import uk.org.gtc.api.domain.AuthDO;
 import uk.org.gtc.api.domain.BookDO;
 import uk.org.gtc.api.domain.MemberDO;
+import uk.org.gtc.api.domain.User;
 import uk.org.gtc.api.health.BasicHealthCheck;
 import uk.org.gtc.api.health.MandrillHealthCheck;
 import uk.org.gtc.api.health.MongoHealthCheck;
 import uk.org.gtc.api.resource.ApiResource;
+import uk.org.gtc.api.resource.AuthResource;
 import uk.org.gtc.api.resource.BookResource;
 import uk.org.gtc.api.resource.MemberResource;
+import uk.org.gtc.api.resource.UserResource;
+import uk.org.gtc.api.service.AuthService;
 import uk.org.gtc.api.service.BookService;
 import uk.org.gtc.api.service.MemberService;
+import uk.org.gtc.api.service.UserService;
 
 public class GtcApplication extends Application<GtcConfiguration>
 {
@@ -112,17 +122,32 @@ public class GtcApplication extends Application<GtcConfiguration>
 		// Database and Jackson mappings
 		final DB db = mongo.getDB(configuration.mongoDatabase);
 		
+		final JacksonDBCollection<User, String> users = JacksonDBCollection.wrap(db.getCollection("users"), User.class, String.class);
+		final JacksonDBCollection<AuthDO, String> authUsers = JacksonDBCollection.wrap(db.getCollection("users"), AuthDO.class,
+				String.class);
 		final JacksonDBCollection<MemberDO, String> members = JacksonDBCollection.wrap(db.getCollection("members"), MemberDO.class,
 				String.class);
 		final JacksonDBCollection<BookDO, String> books = JacksonDBCollection.wrap(db.getCollection("books"), BookDO.class, String.class);
 		
 		// Services
+		final UserService userService = new UserService(users);
+		final AuthService authService = new AuthService(authUsers);
 		final MemberService memberService = new MemberService(members, mandrill);
 		final BookService bookService = new BookService(books);
 		
 		// Resource registration
 		environment.jersey().register(new ApiResource());
+		environment.jersey().register(new AuthResource(authService, userService));
+		environment.jersey().register(new UserResource(userService));
 		environment.jersey().register(new MemberResource(memberService));
 		environment.jersey().register(new BookResource(bookService));
+		
+		// Authentication
+		environment.jersey()
+				.register(new AuthDynamicFeature(
+						new BasicCredentialAuthFilter.Builder<AuthDO>().setAuthenticator(new GtcAuthenticator(authService, logger()))
+								.setAuthorizer(new GtcAuthoriser(userService)).setRealm("GTC API").buildAuthFilter()));
+		environment.jersey().register(RolesAllowedDynamicFeature.class);
+		environment.jersey().register(new AuthValueFactoryProvider.Binder<>(AuthDO.class));
 	}
 }

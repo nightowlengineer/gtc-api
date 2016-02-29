@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
 import javax.ws.rs.GET;
@@ -51,6 +52,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@GET
 	@Timed
 	@Path("all")
+	@RolesAllowed("ADMIN")
 	@ApiOperation(value = "Return a list of all members", response = MemberDO.class, responseContainer = "List")
 	public List<MemberDO> getAll()
 	{
