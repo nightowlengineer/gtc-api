@@ -17,7 +17,7 @@ import javax.ws.rs.WebApplicationException;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.internal.org.apache.commons.codec.binary.Base64;
 
-@WebFilter(filterName = "jwt-filter", urlPatterns = { "/member/*" })
+@WebFilter(filterName = "jwt-filter")
 public class JWTFilter implements Filter
 {
 	private JWTVerifier jwtVerifier;

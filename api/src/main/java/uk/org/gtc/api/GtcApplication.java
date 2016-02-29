@@ -91,9 +91,8 @@ public class GtcApplication extends Application<GtcConfiguration>
 		// Authentication configuration
 		final List<String> urlPatterns = new ArrayList<String>();
 		urlPatterns.add("/member/*");
-		urlPatterns.add("");
 		
-		final FilterRegistration.Dynamic jwtFilter = environment.servlets().addFilter("Auth0", JWTFilter.class);
+		final FilterRegistration.Dynamic jwtFilter = environment.servlets().addFilter("jwt-filter", JWTFilter.class);
 		for (String urlPattern : urlPatterns)
 		{
 			jwtFilter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, urlPattern);
