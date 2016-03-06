@@ -1,33 +1,37 @@
 package uk.org.gtc.api;
 
-import java.util.List;
+import com.auth0.Auth0User;
 
 import io.dropwizard.auth.Authorizer;
 import uk.org.gtc.api.domain.ApplicationRole;
-import uk.org.gtc.api.domain.AuthDO;
-import uk.org.gtc.api.domain.User;
-import uk.org.gtc.api.service.UserService;
+import us.monoid.json.JSONArray;
 
-public class GtcAuthoriser implements Authorizer<AuthDO>
+public class GtcAuthoriser implements Authorizer<Auth0User>
 {
-	final UserService userService;
 	
-	public GtcAuthoriser(UserService userService)
+	public GtcAuthoriser()
 	{
-		this.userService = userService;
 	}
 	
 	@Override
-	public boolean authorize(AuthDO user, String role)
+	public boolean authorize(Auth0User user, String role)
 	{
-		final ApplicationRole appRole = ApplicationRole.valueOf(role);
-		final User fetchedUser = userService.getByEmail(user.getEmail());
-		final List<ApplicationRole> userRoles = fetchedUser.getRoles();
-		if (userRoles != null && !userRoles.isEmpty())
+		final String appRole = ApplicationRole.valueOf(role).toString();
+		try
 		{
-			return userRoles.contains(appRole);
+			JSONArray roles = user.getAppMetadata().getJSONArray("roles");
+			if (roles != null && roles.length() > 0)
+			{
+				for (int i = 0; i < roles.length(); i++)
+				{
+					String fetchedRole = roles.getString(i);
+					if (fetchedRole.equalsIgnoreCase(appRole))
+						return true;
+				}
+			}
+			return false;
 		}
-		else
+		catch (Exception e)
 		{
 			return false;
 		}

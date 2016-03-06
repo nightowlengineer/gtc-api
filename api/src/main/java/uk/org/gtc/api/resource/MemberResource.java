@@ -52,7 +52,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@GET
 	@Timed
 	@Path("all")
-	@RolesAllowed("ADMIN")
+	@RolesAllowed("MEMBERSHIPADMIN")
 	@ApiOperation(value = "Return a list of all members", response = MemberDO.class, responseContainer = "List")
 	public List<MemberDO> getAll()
 	{
