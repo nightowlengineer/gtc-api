@@ -54,11 +54,6 @@ public class GtcApplication extends Application<GtcConfiguration>
 		return "gtc-api";
 	}
 	
-	Logger logger()
-	{
-		return LoggerFactory.getLogger(GtcApplication.class);
-	}
-	
 	@Override
 	public void initialize(Bootstrap<GtcConfiguration> bootstrap)
 	{
@@ -70,6 +65,11 @@ public class GtcApplication extends Application<GtcConfiguration>
 				return configuration.swaggerBundleConfiguration;
 			}
 		});
+	}
+	
+	Logger logger()
+	{
+		return LoggerFactory.getLogger(GtcApplication.class);
 	}
 	
 	@Override
@@ -97,7 +97,6 @@ public class GtcApplication extends Application<GtcConfiguration>
 		final List<String> urlPatterns = new ArrayList<String>();
 		urlPatterns.add("/member/*");
 		urlPatterns.add("/user/*");
-		urlPatterns.add("*");
 		
 		final FilterRegistration.Dynamic jwtFilter = environment.servlets().addFilter("jwt-filter", JWTFilter.class);
 		for (String urlPattern : urlPatterns)

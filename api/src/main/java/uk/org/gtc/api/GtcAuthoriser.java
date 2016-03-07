@@ -1,10 +1,14 @@
 package uk.org.gtc.api;
 
+import java.io.IOException;
+import java.util.List;
+
 import com.auth0.Auth0User;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.dropwizard.auth.Authorizer;
 import uk.org.gtc.api.domain.ApplicationRole;
-import us.monoid.json.JSONArray;
+import uk.org.gtc.api.domain.UserAppMetadata;
 
 public class GtcAuthoriser implements Authorizer<Auth0User>
 {
@@ -14,24 +18,30 @@ public class GtcAuthoriser implements Authorizer<Auth0User>
 	}
 	
 	@Override
-	public boolean authorize(Auth0User user, String role)
+	public boolean authorize(final Auth0User user, final String role)
 	{
-		final String appRole = ApplicationRole.valueOf(role).toString();
+		final ApplicationRole appRole = ApplicationRole.valueOf(role);
+		final String userAppMetadataString = user.getAppMetadata().toString();
+		final ObjectMapper om = new ObjectMapper();
+		
+		UserAppMetadata uam = null;
 		try
 		{
-			JSONArray roles = user.getAppMetadata().getJSONArray("roles");
-			if (roles != null && roles.length() > 0)
-			{
-				for (int i = 0; i < roles.length(); i++)
-				{
-					String fetchedRole = roles.getString(i);
-					if (fetchedRole.equalsIgnoreCase(appRole))
-						return true;
-				}
-			}
-			return false;
+			uam = om.readValue(userAppMetadataString, UserAppMetadata.class);
 		}
-		catch (Exception e)
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		final List<ApplicationRole> userRoles = uam.getRoles();
+		
+		if (userRoles.contains(appRole) || userRoles.contains(ApplicationRole.ADMIN))
+		{
+			return true;
+		}
+		else
 		{
 			return false;
 		}
