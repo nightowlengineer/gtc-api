@@ -5,9 +5,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 
-import javax.servlet.ServletRequest;
-import javax.ws.rs.core.Context;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,18 +23,17 @@ import us.monoid.json.JSONObject;
 
 public class GtcAuthenticator implements Authenticator<String, Auth0User>
 {
-	Logger logger;
+	private final Logger logger;
 	
-	@Context
-	ServletRequest req;
+	private final JWTVerifier jwtVerifier;
 	
-	private JWTVerifier jwtVerifier = new JWTVerifier(
-			new Base64(true).decode("4Svpbso0g4QhQcD8rxdOVVuG67OynKRIqRdjBqnPSFa7xDvK99H2DwRYgKzOz7YB"),
-			"y8T1angMINFrNKwwiSec1DDhQaZB7zTq");
+	private final GtcConfiguration configuration;
 	
-	public GtcAuthenticator(Logger logger)
+	public GtcAuthenticator(final Logger logger, final GtcConfiguration configuration)
 	{
 		this.logger = logger;
+		this.configuration = configuration;
+		this.jwtVerifier = new JWTVerifier(new Base64(true).decode(configuration.auth0ApiKey), configuration.auth0ApiId);
 	}
 	
 	Logger logger()
@@ -46,22 +42,28 @@ public class GtcAuthenticator implements Authenticator<String, Auth0User>
 	}
 	
 	@Override
-	public Optional<Auth0User> authenticate(String token) throws AuthenticationException
+	public Optional<Auth0User> authenticate(final String token) throws AuthenticationException
 	{
 		JSONObject userJson = null;
 		Auth0User user = null;
 		try
 		{
 			jwtVerifier.verify(token);
-			userJson = new JSONObject(Unirest.post("https://gtc.eu.auth0.com/tokeninfo").field("id_token", token).asString().getBody());
+			userJson = new JSONObject(Unirest.post(configuration.auth0TokenUrl).field("id_token", token).asString().getBody());
 			user = new Auth0User(userJson);
 		}
 		catch (InvalidKeyException | NoSuchAlgorithmException | IllegalStateException | SignatureException | IOException
 				| JWTVerifyException | UnirestException | JSONException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 			throw new AuthenticationException("Could not authenticate");
+		}
+		if (UtilityHelper.isNull(user))
+		{
+			logger.info("Failed to authenticate with token " + token);
+		}
+		else
+		{
+			logger.info("Authenticated " + user.getEmail() + " (" + user.getUserId() + ")");
 		}
 		return Optional.of(user);
 	}

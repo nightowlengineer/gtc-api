@@ -43,7 +43,7 @@ import uk.org.gtc.api.service.MemberService;
 public class GtcApplication extends Application<GtcConfiguration>
 {
 	
-	public static void main(String[] args) throws Exception
+	public static void main(final String[] args) throws Exception
 	{
 		new GtcApplication().run(args);
 	}
@@ -55,7 +55,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 	}
 	
 	@Override
-	public void initialize(Bootstrap<GtcConfiguration> bootstrap)
+	public void initialize(final Bootstrap<GtcConfiguration> bootstrap)
 	{
 		bootstrap.addBundle(new SwaggerBundle<GtcConfiguration>()
 		{
@@ -73,7 +73,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 	}
 	
 	@Override
-	public void run(GtcConfiguration configuration, Environment environment) throws UnknownHostException
+	public void run(final GtcConfiguration configuration, final Environment environment) throws UnknownHostException
 	{
 		// Managed resources
 		final ServerAddress mongoHost = new ServerAddress(configuration.mongoHost);
@@ -98,7 +98,8 @@ public class GtcApplication extends Application<GtcConfiguration>
 		urlPatterns.add("/member/*");
 		urlPatterns.add("/user/*");
 		
-		final FilterRegistration.Dynamic jwtFilter = environment.servlets().addFilter("jwt-filter", JWTFilter.class);
+		final JWTFilter jwtFilterImpl = new JWTFilter(configuration);
+		final FilterRegistration.Dynamic jwtFilter = environment.servlets().addFilter("jwt-filter", jwtFilterImpl);
 		for (String urlPattern : urlPatterns)
 		{
 			jwtFilter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, urlPattern);
@@ -133,10 +134,14 @@ public class GtcApplication extends Application<GtcConfiguration>
 		environment.jersey().register(new BookResource(bookService));
 		
 		// Authentication
-		environment.jersey()
-				.register(new AuthDynamicFeature(
-						new OAuthCredentialAuthFilter.Builder<Auth0User>().setAuthenticator(new GtcAuthenticator(logger()))
-								.setPrefix("Bearer").setAuthorizer(new GtcAuthoriser()).buildAuthFilter()));
+		final OAuthCredentialAuthFilter.Builder<Auth0User> authFilter = new OAuthCredentialAuthFilter.Builder<Auth0User>();
+		final GtcAuthenticator gtcAuthenticator = new GtcAuthenticator(logger(), configuration);
+		final GtcAuthoriser gtcAuthoriser = new GtcAuthoriser();
+		final String tokenPrefix = "Bearer";
+		final AuthDynamicFeature gtcAuth = new AuthDynamicFeature(
+				authFilter.setAuthenticator(gtcAuthenticator).setPrefix(tokenPrefix).setAuthorizer(gtcAuthoriser).buildAuthFilter());
+		
+		environment.jersey().register(gtcAuth);
 		environment.jersey().register(RolesAllowedDynamicFeature.class);
 		environment.jersey().register(new AuthValueFactoryProvider.Binder<>(Auth0User.class));
 	}

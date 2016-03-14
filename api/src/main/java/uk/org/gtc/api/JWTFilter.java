@@ -1,7 +1,6 @@
 package uk.org.gtc.api;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
@@ -22,37 +21,43 @@ public class JWTFilter implements Filter
 {
 	private JWTVerifier jwtVerifier;
 	
-	@Override
-	public void init(FilterConfig filterConfig) throws WebApplicationException
+	private GtcConfiguration configuration;
+	
+	public JWTFilter(final GtcConfiguration configuration)
 	{
-		jwtVerifier = new JWTVerifier(new Base64(true).decode("4Svpbso0g4QhQcD8rxdOVVuG67OynKRIqRdjBqnPSFa7xDvK99H2DwRYgKzOz7YB"),
-				"y8T1angMINFrNKwwiSec1DDhQaZB7zTq");
+		this.configuration = configuration;
 	}
 	
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
+	public void init(final FilterConfig filterConfig) throws WebApplicationException
 	{
-		HttpServletRequest req = (HttpServletRequest) request;
+		jwtVerifier = new JWTVerifier(new Base64(true).decode(configuration.auth0ApiKey), configuration.auth0ApiId);
+	}
+	
+	@Override
+	public void doFilter(final ServletRequest request, final ServletResponse response, FilterChain chain)
+			throws IOException, ServletException
+	{
+		final HttpServletRequest req = (HttpServletRequest) request;
 		if (req.getMethod().equals("OPTIONS"))
 		{
 			return;
 		}
-		String token = getToken((HttpServletRequest) request);
+		final String token = getToken((HttpServletRequest) request);
 		try
 		{
-			Map<String, Object> decoded = jwtVerifier.verify(token);
+			jwtVerifier.verify(token);
 			// Do something with decoded information like UserId
 			chain.doFilter(request, response);
 		}
-		catch (Exception e)
+		catch (final Exception e)
 		{
 			throw new ServletException("Unauthorized: Token validation failed", e);
 		}
 	}
 	
-	private String getToken(HttpServletRequest httpRequest) throws ServletException
+	private String getToken(final HttpServletRequest httpRequest) throws ServletException
 	{
-		String token = null;
 		final String authorizationHeader = httpRequest.getHeader("authorization");
 		if (authorizationHeader == null)
 		{
@@ -65,21 +70,18 @@ public class JWTFilter implements Filter
 			throw new ServletException("Unauthorized: Format is Authorization: Bearer [token]");
 		}
 		
-		String scheme = parts[0];
-		String credentials = parts[1];
+		final String scheme = parts[0];
+		final String credentials = parts[1];
 		
-		Pattern pattern = Pattern.compile("^Bearer$", Pattern.CASE_INSENSITIVE);
-		if (pattern.matcher(scheme).matches())
-		{
-			token = credentials;
-		}
-		return token;
+		final Pattern pattern = Pattern.compile("^Bearer$", Pattern.CASE_INSENSITIVE);
+		
+		return pattern.matcher(scheme).matches() ? credentials : null;
 	}
 	
 	@Override
 	public void destroy()
 	{
-	
+		
 	}
 	
 }

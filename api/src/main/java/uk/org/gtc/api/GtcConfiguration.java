@@ -14,12 +14,12 @@ public class GtcConfiguration extends Configuration
 {
 	@JsonProperty
 	@NotEmpty
-	public String mongoHost = "localhost";
+	public String mongoHost;
 	
 	@JsonProperty
 	@Min(1)
 	@Max(65535)
-	public int mongoPort = 27017;
+	public int mongoPort;
 	
 	@JsonProperty
 	public String mongoUser;
@@ -29,15 +29,27 @@ public class GtcConfiguration extends Configuration
 	
 	@JsonProperty
 	@NotEmpty
-	public String mongoDatabase = "gtc-dev";
+	public String mongoDatabase;
 	
 	@JsonProperty
 	@NotEmpty
-	public String corsOrigins = "*";
+	public String corsOrigins;
 	
 	@JsonProperty
 	@NotEmpty
 	public String mandrillApiKey;
+	
+	@JsonProperty
+	@NotEmpty
+	public String auth0ApiId;
+	
+	@JsonProperty
+	@NotEmpty
+	public String auth0ApiKey;
+	
+	@JsonProperty
+	@NotEmpty
+	public String auth0TokenUrl;
 	
 	@JsonProperty("swagger")
 	public SwaggerBundleConfiguration swaggerBundleConfiguration;

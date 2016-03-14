@@ -31,8 +31,7 @@ public class GtcAuthoriser implements Authorizer<Auth0User>
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return false;
 		}
 		
 		final List<ApplicationRole> userRoles = uam.getRoles();
