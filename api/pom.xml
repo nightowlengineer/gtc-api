@@ -8,7 +8,7 @@
 	<packaging>jar</packaging>
 
 	<name>GTC API</name>
-	<url>https://api.gtc.org.uk</url>
+	<url>https://services.gtc.org.uk</url>
 	<description>A set of RESTful services for the GTC</description>
 	<inceptionYear>2015</inceptionYear>
 
@@ -34,18 +34,18 @@
 
 	<issueManagement>
 		<system>GitLab</system>
-		<url>https://gitlab.com/lake54/gtc-api/issues</url>
+		<url>https://gitlab.com/TheGTC/gtc-api/issues</url>
 	</issueManagement>
 
 	<ciManagement>
 		<system>GitLab</system>
-		<url>https://gitlab.com/lake54/gtc-api/builds</url>
+		<url>https://gitlab.com/TheGTC/gtc-api/builds</url>
 	</ciManagement>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.java.version>1.8</project.java.version>
-		<dropwizard.version>0.9.2</dropwizard.version>
+		<dropwizard.version>1.0.0-rc1</dropwizard.version>
 		<mongojack.version>2.5.1</mongojack.version>
 		<mandrill.version>0.0.7</mandrill.version>
 		<dropbox.version>2.0-beta-4</dropbox.version>
