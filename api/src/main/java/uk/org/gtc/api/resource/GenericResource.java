@@ -5,7 +5,6 @@ import java.util.List;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
 
 import org.slf4j.Logger;
@@ -28,7 +27,7 @@ abstract class GenericResource<T extends BaseDomainObject>
 		// Empty constructor
 	}
 	
-	public GenericResource(GenericService<T> genericService)
+	public GenericResource(final GenericService<T> genericService)
 	{
 		this.genericService = genericService;
 	}
@@ -38,12 +37,12 @@ abstract class GenericResource<T extends BaseDomainObject>
 		return genericService.getAll();
 	}
 	
-	protected T getItemById(@PathParam("id") String id) throws WebApplicationException
+	protected T getItemById(final String id) throws WebApplicationException
 	{
 		return genericService.getById(id);
 	}
 	
-	protected T createItem(T item) throws Exception
+	protected T createItem(final T item) throws Exception
 	{
 		return genericService.create(item);
 	}

@@ -101,7 +101,7 @@ public class GenericService<T extends BaseDomainObject>
 	 *            - what to return out of the retrieved objects
 	 * @return a sorted, lightweight list of T
 	 */
-	public List<T> getAllLightweightSorted(final DBObject sort, final DBObject projection, Integer limit)
+	public List<T> getAllLightweightSorted(final DBObject sort, final DBObject projection, final Integer limit)
 	{
 		return collection.find(new BasicDBObject(), projection).sort(sort).limit(limit).toArray();
 	}
