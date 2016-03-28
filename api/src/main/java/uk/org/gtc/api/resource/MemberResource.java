@@ -168,6 +168,13 @@ public class MemberResource extends GenericResource<MemberDO>
 				}
 				continue;
 			}
+			if (member.getFirstName().toLowerCase().concat(" ").concat(member.getLastName().toLowerCase()).contains(query.toLowerCase()))
+			{
+				if (!results.contains(member))
+				{
+					results.add(member);
+				}
+			}
 		}
 		return results;
 	}
