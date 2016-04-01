@@ -20,7 +20,7 @@ public class BaseDomainObject
 		return id;
 	}
 	
-	public void setId(String id)
+	public void setId(final String id)
 	{
 		this.id = id;
 	}
@@ -30,7 +30,7 @@ public class BaseDomainObject
 		return createdDate;
 	}
 	
-	public void setCreatedDate(Date createdDate)
+	public void setCreatedDate(final Date createdDate)
 	{
 		this.createdDate = createdDate;
 	}
@@ -40,7 +40,7 @@ public class BaseDomainObject
 		return lastUpdatedDate;
 	}
 	
-	public void setLastUpdatedDate(Date lastUpdatedDate)
+	public void setLastUpdatedDate(final Date lastUpdatedDate)
 	{
 		this.lastUpdatedDate = lastUpdatedDate;
 	}
@@ -57,7 +57,7 @@ public class BaseDomainObject
 	}
 	
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(final Object obj)
 	{
 		if (this == obj)
 			return true;
@@ -65,7 +65,7 @@ public class BaseDomainObject
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		BaseDomainObject other = (BaseDomainObject) obj;
+		final BaseDomainObject other = (BaseDomainObject) obj;
 		if (createdDate == null)
 		{
 			if (other.createdDate != null)

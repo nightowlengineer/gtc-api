@@ -18,7 +18,7 @@ public class AddressTest extends TestCase
 	 * @param testName
 	 *            name of the test case
 	 */
-	public AddressTest(String testName)
+	public AddressTest(final String testName)
 	{
 		super(testName);
 	}

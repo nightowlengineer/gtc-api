@@ -11,7 +11,7 @@ public class PhoneNumber
 		// Jackson Mapping
 	}
 	
-	public PhoneNumber(LocationType phoneType, String number)
+	public PhoneNumber(final LocationType phoneType, final String number)
 	{
 		setPhoneType(phoneType);
 		setNumber(number);
@@ -22,7 +22,7 @@ public class PhoneNumber
 		return phoneType;
 	}
 	
-	public void setPhoneType(LocationType phoneType)
+	public void setPhoneType(final LocationType phoneType)
 	{
 		this.phoneType = phoneType;
 	}
@@ -32,7 +32,7 @@ public class PhoneNumber
 		return number;
 	}
 	
-	public void setNumber(String number)
+	public void setNumber(final String number)
 	{
 		this.number = number;
 	}
@@ -48,7 +48,7 @@ public class PhoneNumber
 	}
 	
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(final Object obj)
 	{
 		if (this == obj)
 			return true;
@@ -56,7 +56,7 @@ public class PhoneNumber
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		PhoneNumber other = (PhoneNumber) obj;
+		final PhoneNumber other = (PhoneNumber) obj;
 		if (number == null)
 		{
 			if (other.number != null)

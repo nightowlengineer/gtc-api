@@ -15,7 +15,7 @@ public class MemberTypeTest extends TestCase
 	 * @param testName
 	 *            name of the test case
 	 */
-	public MemberTypeTest(String testName)
+	public MemberTypeTest(final String testName)
 	{
 		super(testName);
 	}
@@ -40,7 +40,7 @@ public class MemberTypeTest extends TestCase
 		assertEquals("SPONSOR", MemberType.SPONSOR.toString());
 		assertEquals("STUDENT", MemberType.STUDENT.toString());
 		
-		MemberType[] memberTypes = MemberType.values();
+		final MemberType[] memberTypes = MemberType.values();
 		assertEquals(9, memberTypes.length);
 		
 		assertEquals(MemberType.ACADEMIC, MemberType.valueOf("ACADEMIC"));

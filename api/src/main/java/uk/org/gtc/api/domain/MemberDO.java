@@ -55,7 +55,7 @@ public class MemberDO extends Person
 		return currentPost;
 	}
 	
-	public void setCurrentPost(String currentPost)
+	public void setCurrentPost(final String currentPost)
 	{
 		this.currentPost = currentPost;
 	}
@@ -65,7 +65,7 @@ public class MemberDO extends Person
 		return careerStartDate;
 	}
 	
-	public void setCareerStartDate(Year careerStartDate)
+	public void setCareerStartDate(final Year careerStartDate)
 	{
 		this.careerStartDate = careerStartDate;
 	}
@@ -75,7 +75,7 @@ public class MemberDO extends Person
 		return sponsorMembers;
 	}
 	
-	public void setSponsorMembers(List<Long> sponsorMembers)
+	public void setSponsorMembers(final List<Long> sponsorMembers)
 	{
 		this.sponsorMembers = sponsorMembers;
 	}
@@ -85,7 +85,7 @@ public class MemberDO extends Person
 		return referralSource;
 	}
 	
-	public void setReferralSource(String referralSource)
+	public void setReferralSource(final String referralSource)
 	{
 		this.referralSource = referralSource;
 	}
@@ -95,7 +95,7 @@ public class MemberDO extends Person
 		return status;
 	}
 	
-	public void setStatus(MemberStatus status)
+	public void setStatus(final MemberStatus status)
 	{
 		this.status = status;
 	}
@@ -105,7 +105,7 @@ public class MemberDO extends Person
 		return type;
 	}
 	
-	public void setType(MemberType type)
+	public void setType(final MemberType type)
 	{
 		this.type = type;
 	}
@@ -140,7 +140,7 @@ public class MemberDO extends Person
 	}
 	
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(final Object obj)
 	{
 		if (this == obj)
 			return true;
@@ -148,7 +148,7 @@ public class MemberDO extends Person
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		MemberDO other = (MemberDO) obj;
+		final MemberDO other = (MemberDO) obj;
 		if (careerStartDate == null)
 		{
 			if (other.careerStartDate != null)

@@ -22,7 +22,7 @@ import uk.org.gtc.api.domain.BaseDomainObject;
 
 public class GenericService<T extends BaseDomainObject>
 {
-	private JacksonDBCollection<T, String> collection;
+	private final JacksonDBCollection<T, String> collection;
 	
 	public GenericService(final JacksonDBCollection<T, String> collection)
 	{

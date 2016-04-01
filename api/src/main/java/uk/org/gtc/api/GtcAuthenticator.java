@@ -57,6 +57,7 @@ public class GtcAuthenticator implements Authenticator<String, Auth0User>
 		{
 			throw new AuthenticationException("Could not authenticate");
 		}
+		
 		if (UtilityHelper.isNull(user))
 		{
 			logger.info("Failed to authenticate with token " + token);
@@ -65,6 +66,7 @@ public class GtcAuthenticator implements Authenticator<String, Auth0User>
 		{
 			logger.info("Authenticated " + user.getEmail() + " (" + user.getUserId() + ")");
 		}
+		
 		return Optional.of(user);
 	}
 }

@@ -15,7 +15,7 @@ public class LocationTypeTest extends TestCase
 	 * @param testName
 	 *            name of the test case
 	 */
-	public LocationTypeTest(String testName)
+	public LocationTypeTest(final String testName)
 	{
 		super(testName);
 	}
@@ -34,7 +34,7 @@ public class LocationTypeTest extends TestCase
 		assertEquals("WORK", LocationType.WORK.toString());
 		assertEquals("MOBILE", LocationType.MOBILE.toString());
 		
-		LocationType[] locationTypes = LocationType.values();
+		final LocationType[] locationTypes = LocationType.values();
 		assertEquals(3, locationTypes.length);
 		
 		assertEquals(LocationType.HOME, LocationType.valueOf("HOME"));

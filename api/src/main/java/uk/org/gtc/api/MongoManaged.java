@@ -6,9 +6,9 @@ import io.dropwizard.lifecycle.Managed;
 
 public class MongoManaged implements Managed
 {
-	private MongoClient mongo;
+	private final MongoClient mongo;
 	
-	public MongoManaged(MongoClient mongo)
+	public MongoManaged(final MongoClient mongo)
 	{
 		this.mongo = mongo;
 	}

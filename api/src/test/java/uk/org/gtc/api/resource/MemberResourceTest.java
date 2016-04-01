@@ -55,7 +55,7 @@ public class MemberResourceTest
 	@Test
 	public void testGetCurrent() throws Exception
 	{
-		List<MemberDO> currentMembers = new ArrayList<MemberDO>();
+		final List<MemberDO> currentMembers = new ArrayList<MemberDO>();
 		currentMembers.add(currentMember);
 		Mockito.when(memberService.getByStatus(MemberStatus.CURRENT)).thenReturn(currentMembers);
 		

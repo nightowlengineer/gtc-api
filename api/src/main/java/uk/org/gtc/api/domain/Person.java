@@ -29,8 +29,8 @@ public class Person extends BaseDomainObject
 		// Jackson Mapping
 	}
 	
-	public Person(Salutation salutation, String firstName, String lastName, String email, List<PhoneNumber> phoneNumbers,
-			List<Address> addresses, String company)
+	public Person(final Salutation salutation, final String firstName, final String lastName, final String email,
+			final List<PhoneNumber> phoneNumbers, final List<Address> addresses, final String company)
 	{
 		setSalutation(salutation);
 		setFirstName(firstName);
@@ -46,7 +46,7 @@ public class Person extends BaseDomainObject
 		return addresses;
 	}
 	
-	public void setAddresses(List<Address> addresses)
+	public void setAddresses(final List<Address> addresses)
 	{
 		this.addresses = addresses;
 	}
@@ -56,7 +56,7 @@ public class Person extends BaseDomainObject
 		return company;
 	}
 	
-	public void setCompany(String company)
+	public void setCompany(final String company)
 	{
 		this.company = company;
 	}
@@ -66,7 +66,7 @@ public class Person extends BaseDomainObject
 		return email;
 	}
 	
-	public void setEmail(String email)
+	public void setEmail(final String email)
 	{
 		this.email = email;
 	}
@@ -76,7 +76,7 @@ public class Person extends BaseDomainObject
 		return firstName;
 	}
 	
-	public void setFirstName(String firstName)
+	public void setFirstName(final String firstName)
 	{
 		this.firstName = firstName;
 	}
@@ -86,7 +86,7 @@ public class Person extends BaseDomainObject
 		return lastName;
 	}
 	
-	public void setLastName(String lastName)
+	public void setLastName(final String lastName)
 	{
 		this.lastName = lastName;
 	}
@@ -96,7 +96,7 @@ public class Person extends BaseDomainObject
 		return phoneNumbers;
 	}
 	
-	public void setPhoneNumbers(List<PhoneNumber> phoneNumbers)
+	public void setPhoneNumbers(final List<PhoneNumber> phoneNumbers)
 	{
 		this.phoneNumbers = phoneNumbers;
 	}
@@ -106,13 +106,13 @@ public class Person extends BaseDomainObject
 		return salutation;
 	}
 	
-	public void setSalutation(Salutation salutation)
+	public void setSalutation(final Salutation salutation)
 	{
 		this.salutation = salutation;
 	}
 	
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(final Object obj)
 	{
 		if (this == obj)
 			return true;
@@ -120,7 +120,7 @@ public class Person extends BaseDomainObject
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Person other = (Person) obj;
+		final Person other = (Person) obj;
 		if (addresses == null)
 		{
 			if (other.addresses != null)

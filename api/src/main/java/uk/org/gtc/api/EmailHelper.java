@@ -20,15 +20,10 @@ import uk.org.gtc.api.domain.MemberType;
 public class EmailHelper
 {
 	
-	public EmailHelper()
-	{
-	
-	}
-	
 	public static Map<String, String> getTemplateContent(final MergeVar[] mergeValues)
 	{
 		final Map<String, String> templateContent = new HashMap<String, String>();
-		for (MergeVar value : mergeValues)
+		for (final MergeVar value : mergeValues)
 		{
 			templateContent.put(value.getName(), value.getContent().toString());
 		}
@@ -41,7 +36,7 @@ public class EmailHelper
 				new MergeVar("member_grade", member.getType().toString()), new MergeVar("member_number", member.getMembershipNumber()),
 				new MergeVar("initial_password", "still in development"),
 				new MergeVar("sponsor_info", member.getType().equals(MemberType.SPONSOR)) };
-				
+		
 		return mergeValues;
 	}
 	
@@ -79,7 +74,7 @@ public class EmailHelper
 			final MandrillMessageStatus[] status = mandrill.messages().sendTemplate("welcome", templateContent, message, false);
 			Boolean statusResult = Boolean.FALSE;
 			
-			for (MandrillMessageStatus indStatus : status)
+			for (final MandrillMessageStatus indStatus : status)
 			{
 				if (indStatus.getStatus().equalsIgnoreCase("sent"))
 					statusResult = Boolean.TRUE;

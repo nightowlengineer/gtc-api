@@ -11,7 +11,7 @@ public class UserAppMetadata
 		// Jackson Mapping
 	}
 	
-	public UserAppMetadata(List<ApplicationRole> roles)
+	public UserAppMetadata(final List<ApplicationRole> roles)
 	{
 		setRoles(roles);
 	}
@@ -21,7 +21,7 @@ public class UserAppMetadata
 		return roles;
 	}
 	
-	public void setRoles(List<ApplicationRole> roles)
+	public void setRoles(final List<ApplicationRole> roles)
 	{
 		this.roles = roles;
 	}

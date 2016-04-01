@@ -15,7 +15,7 @@ public class MemberStatusTest extends TestCase
 	 * @param testName
 	 *            name of the test case
 	 */
-	public MemberStatusTest(String testName)
+	public MemberStatusTest(final String testName)
 	{
 		super(testName);
 	}
@@ -39,7 +39,7 @@ public class MemberStatusTest extends TestCase
 		assertEquals("PAID", MemberStatus.PAID.toString());
 		assertEquals("REMOVED", MemberStatus.REMOVED.toString());
 		
-		MemberStatus[] memberStatuses = MemberStatus.values();
+		final MemberStatus[] memberStatuses = MemberStatus.values();
 		assertEquals(8, memberStatuses.length);
 		
 		assertEquals(MemberStatus.APPLIED, MemberStatus.valueOf("APPLIED"));

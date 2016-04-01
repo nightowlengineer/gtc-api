@@ -19,7 +19,7 @@ public class BookDO extends BaseDomainObject
 		// Jackson Mapping
 	}
 	
-	public BookDO(String title, String author, String language, List<String> owners, String isbn)
+	public BookDO(final String title, final String author, final String language, final List<String> owners, final String isbn)
 	{
 		setTitle(title);
 		setAuthor(author);
@@ -33,7 +33,7 @@ public class BookDO extends BaseDomainObject
 		return title;
 	}
 	
-	public void setTitle(String title)
+	public void setTitle(final String title)
 	{
 		this.title = title;
 	}
@@ -43,7 +43,7 @@ public class BookDO extends BaseDomainObject
 		return author;
 	}
 	
-	public void setAuthor(String author)
+	public void setAuthor(final String author)
 	{
 		this.author = author;
 	}
@@ -53,7 +53,7 @@ public class BookDO extends BaseDomainObject
 		return language;
 	}
 	
-	public void setLanguage(String language)
+	public void setLanguage(final String language)
 	{
 		this.language = language;
 	}
@@ -63,7 +63,7 @@ public class BookDO extends BaseDomainObject
 		return owners;
 	}
 	
-	public void setOwners(List<String> owners)
+	public void setOwners(final List<String> owners)
 	{
 		this.owners = owners;
 	}
@@ -73,7 +73,7 @@ public class BookDO extends BaseDomainObject
 		return isbn;
 	}
 	
-	public void setIsbn(String isbn)
+	public void setIsbn(final String isbn)
 	{
 		this.isbn = isbn;
 	}
@@ -92,7 +92,7 @@ public class BookDO extends BaseDomainObject
 	}
 	
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(final Object obj)
 	{
 		if (this == obj)
 			return true;
@@ -100,7 +100,7 @@ public class BookDO extends BaseDomainObject
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		BookDO other = (BookDO) obj;
+		final BookDO other = (BookDO) obj;
 		if (author == null)
 		{
 			if (other.author != null)

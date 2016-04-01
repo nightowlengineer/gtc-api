@@ -60,7 +60,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		bootstrap.addBundle(new SwaggerBundle<GtcConfiguration>()
 		{
 			@Override
-			protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(GtcConfiguration configuration)
+			protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(final GtcConfiguration configuration)
 			{
 				return configuration.swaggerBundleConfiguration;
 			}
@@ -100,7 +100,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		
 		final JWTFilter jwtFilterImpl = new JWTFilter(configuration);
 		final FilterRegistration.Dynamic jwtFilter = environment.servlets().addFilter("jwt-filter", jwtFilterImpl);
-		for (String urlPattern : urlPatterns)
+		for (final String urlPattern : urlPatterns)
 		{
 			jwtFilter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, urlPattern);
 		}

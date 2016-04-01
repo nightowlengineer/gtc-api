@@ -26,9 +26,9 @@ import uk.org.gtc.api.service.BookService;
 @Produces(MediaType.APPLICATION_JSON)
 public class BookResource extends GenericResource<BookDO>
 {
-	private BookService bookService;
+	private final BookService bookService;
 	
-	public BookResource(BookService bookService)
+	public BookResource(final BookService bookService)
 	{
 		super(bookService);
 		this.bookService = bookService;
@@ -38,7 +38,7 @@ public class BookResource extends GenericResource<BookDO>
 	@Timed
 	@ApiOperation("Create a new book")
 	@DenyAll
-	public BookDO createBook(BookDO book) throws Exception
+	public BookDO createBook(final BookDO book) throws Exception
 	{
 		return super.createItem(book);
 	}
@@ -48,7 +48,7 @@ public class BookResource extends GenericResource<BookDO>
 	@Path("author/{author}")
 	@ApiOperation("Get a list of books by author")
 	@DenyAll
-	public List<BookDO> findByAuthor(@PathParam("author") String author) throws Exception
+	public List<BookDO> findByAuthor(final @PathParam("author") String author) throws Exception
 	{
 		return bookService.findByAuthor(author);
 	}
@@ -58,7 +58,7 @@ public class BookResource extends GenericResource<BookDO>
 	@Path("title/{title}")
 	@ApiOperation("Get a list of books by title")
 	@DenyAll
-	public List<BookDO> findByTitle(@PathParam("title") String title) throws Exception
+	public List<BookDO> findByTitle(final @PathParam("title") String title) throws Exception
 	{
 		return bookService.findByTitle(title);
 	}
@@ -80,7 +80,7 @@ public class BookResource extends GenericResource<BookDO>
 	@Path("id/{id}")
 	@ApiOperation("Get a book by GUID")
 	@DenyAll
-	public BookDO getItemById(@PathParam("id") String id) throws WebApplicationException
+	public BookDO getItemById(final @PathParam("id") String id) throws WebApplicationException
 	{
 		return super.getItemById(id);
 	}
@@ -90,7 +90,7 @@ public class BookResource extends GenericResource<BookDO>
 	@Path("isbn/{isbn}")
 	@ApiOperation("Get a book by ISBN")
 	@DenyAll
-	public List<BookDO> getItemByIsbn(@PathParam("isbn") String isbn) throws Exception
+	public List<BookDO> getItemByIsbn(final @PathParam("isbn") String isbn) throws Exception
 	{
 		return bookService.findByIsbn(isbn);
 	}

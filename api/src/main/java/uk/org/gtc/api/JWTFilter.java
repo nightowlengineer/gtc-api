@@ -21,7 +21,7 @@ public class JWTFilter implements Filter
 {
 	private JWTVerifier jwtVerifier;
 	
-	private GtcConfiguration configuration;
+	private final GtcConfiguration configuration;
 	
 	public JWTFilter(final GtcConfiguration configuration)
 	{
@@ -35,7 +35,7 @@ public class JWTFilter implements Filter
 	}
 	
 	@Override
-	public void doFilter(final ServletRequest request, final ServletResponse response, FilterChain chain)
+	public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
 			throws IOException, ServletException
 	{
 		final HttpServletRequest req = (HttpServletRequest) request;
@@ -47,7 +47,6 @@ public class JWTFilter implements Filter
 		try
 		{
 			jwtVerifier.verify(token);
-			// Do something with decoded information like UserId
 			chain.doFilter(request, response);
 		}
 		catch (final Exception e)
@@ -64,7 +63,7 @@ public class JWTFilter implements Filter
 			throw new ServletException("Unauthorized: No Authorization header was found");
 		}
 		
-		String[] parts = authorizationHeader.split(" ");
+		final String[] parts = authorizationHeader.split(" ");
 		if (parts.length != 2)
 		{
 			throw new ServletException("Unauthorized: Format is Authorization: Bearer [token]");

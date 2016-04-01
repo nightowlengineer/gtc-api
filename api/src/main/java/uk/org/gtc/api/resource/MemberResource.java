@@ -41,9 +41,9 @@ import uk.org.gtc.api.service.MemberService;
 public class MemberResource extends GenericResource<MemberDO>
 {
 	
-	private MemberService memberService;
+	private final MemberService memberService;
 	
-	public MemberResource(MemberService memberService)
+	public MemberResource(final MemberService memberService)
 	{
 		super(memberService);
 		this.memberService = memberService;
@@ -52,7 +52,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@POST
 	@Path("{id}/accept")
 	@RolesAllowed("MEMBERSHIPADMIN")
-	public MemberDO acceptMembership(@PathParam("id") String id)
+	public MemberDO acceptMembership(final @PathParam("id") String id)
 	{
 		final MemberDO appliedMember = memberService.getById(id);
 		final MemberDO approvedMember = memberService.getById(id);
@@ -69,9 +69,9 @@ public class MemberResource extends GenericResource<MemberDO>
 		final Set<ConstraintViolation<MemberDO>> violations = validator.validate(member);
 		if (!violations.isEmpty())
 		{
-			for (ConstraintViolation<MemberDO> v : violations)
+			for (final ConstraintViolation<MemberDO> v : violations)
 			{
-				String message = "ID [" + member.getId() + "] (#" + member.getMembershipNumber() + ") failed validation: '"
+				final String message = "ID [" + member.getId() + "] (#" + member.getMembershipNumber() + ") failed validation: '"
 						+ v.getInvalidValue() + "' " + v.getMessage();
 				if (shouldThrowException)
 				{
@@ -106,9 +106,9 @@ public class MemberResource extends GenericResource<MemberDO>
 	public List<List<String>> cleanupMembers()
 	{
 		final List<MemberDO> members = memberService.getAll();
-		for (MemberDO member : members)
+		for (final MemberDO member : members)
 		{
-			String email = member.getEmail();
+			final String email = member.getEmail();
 			if (!UtilityHelper.isNullOrEmpty(email))
 			{
 				member.setEmail(email.trim());
@@ -137,7 +137,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@Path("search/{query}")
 	@ApiOperation("Get member by Membership Number")
 	@RolesAllowed("MEMBERSHIPADMIN")
-	public List<MemberDO> findMember(@PathParam("query") String query) throws Exception
+	public List<MemberDO> findMember(final @PathParam("query") String query) throws Exception
 	{
 		logger().debug("Finding member using " + query);
 		final List<MemberDO> results = new ArrayList<MemberDO>();
@@ -207,7 +207,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@Timed
 	@Path("status/{status}")
 	@RolesAllowed("MEMBERSHIPADMIN")
-	public List<MemberDO> getByStatus(@PathParam("status") final String status)
+	public List<MemberDO> getByStatus(final @PathParam("status") String status)
 	{
 		logger().debug("Fetching all " + status + " members");
 		return memberService.getByStatus(MemberStatus.valueOf(status.toUpperCase()));
@@ -228,7 +228,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@Path("id/{id}")
 	@ApiOperation("Get member by GUID")
 	@RolesAllowed("MEMBERSHIPADMIN")
-	public MemberDO getMemberById(@PathParam("id") String id) throws WebApplicationException
+	public MemberDO getMemberById(final @PathParam("id") String id) throws WebApplicationException
 	{
 		logger().debug("Fetching member by ID " + id);
 		return super.getItemById(id);
@@ -239,11 +239,11 @@ public class MemberResource extends GenericResource<MemberDO>
 	@Path("{memberNumber}")
 	@ApiOperation("Get member by Membership Number")
 	@RolesAllowed("MEMBERSHIPADMIN")
-	public MemberDO getMemberByNumber(@PathParam("memberNumber") Long memberNumber) throws MongoException
+	public MemberDO getMemberByNumber(final @PathParam("memberNumber") Long memberNumber) throws MongoException
 	{
 		logger().debug("Fetching member by membership number " + memberNumber);
 		
-		MemberDO fetchedMember = memberService.getByMemberNumber(memberNumber);
+		final MemberDO fetchedMember = memberService.getByMemberNumber(memberNumber);
 		checkValidMember(fetchedMember, false);
 		return fetchedMember;
 	}
@@ -299,7 +299,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@Path("id/{id}")
 	@ApiOperation("Update member by GUID")
 	@RolesAllowed("MEMBERSHIPADMIN")
-	public MemberDO updateMemberById(@PathParam("id") String id, MemberDO member) throws WebApplicationException
+	public MemberDO updateMemberById(final @PathParam("id") String id, final MemberDO member) throws WebApplicationException
 	{
 		final MemberDO existingMember = memberService.getById(id);
 		
@@ -369,7 +369,7 @@ public class MemberResource extends GenericResource<MemberDO>
 				return false;
 			}
 		}
-		catch (Exception e)
+		catch (final Exception e)
 		{
 			return false;
 		}
@@ -379,7 +379,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@GET
 	@Path("{memberNumber}/welcome")
 	@RolesAllowed("MEMBERSHIPADMIN")
-	public Object welcomeEmail(@PathParam("memberNumber") Long memberNumber) throws Exception
+	public Object welcomeEmail(final @PathParam("memberNumber") Long memberNumber) throws Exception
 	{
 		final MemberDO app = memberService.getByMemberNumber(memberNumber);
 		return memberService.sendEmail(app);

@@ -5,9 +5,9 @@ import com.mongodb.MongoClient;
 
 public class MongoHealthCheck extends HealthCheck
 {
-	private MongoClient mongo;
+	private final MongoClient mongo;
 	
-	public MongoHealthCheck(MongoClient mongo)
+	public MongoHealthCheck(final MongoClient mongo)
 	{
 		this.mongo = mongo;
 	}

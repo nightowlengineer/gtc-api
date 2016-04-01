@@ -20,17 +20,17 @@ import uk.org.gtc.api.domain.MemberStatus;
 
 public class MemberService extends GenericService<MemberDO>
 {
-	private JacksonDBCollection<MemberDO, String> collection;
-	private MandrillApi mandrill;
+	private final JacksonDBCollection<MemberDO, String> collection;
+	private final MandrillApi mandrill;
 	
-	public MemberService(JacksonDBCollection<MemberDO, String> members, MandrillApi mandrill)
+	public MemberService(final JacksonDBCollection<MemberDO, String> members, final MandrillApi mandrill)
 	{
 		super(members);
 		this.collection = members;
 		this.mandrill = mandrill;
 	}
 	
-	public MemberDO getByMemberNumber(Long memberNumber) throws MongoException
+	public MemberDO getByMemberNumber(final Long memberNumber) throws MongoException
 	{
 		final List<MemberDO> members = findByMemberNumber(memberNumber);
 		if (members.size() == 1)
@@ -44,7 +44,7 @@ public class MemberService extends GenericService<MemberDO>
 		}
 	}
 	
-	public List<MemberDO> findByMemberNumber(Long memberNumber) throws MongoException
+	public List<MemberDO> findByMemberNumber(final Long memberNumber) throws MongoException
 	{
 		return collection.find(DBQuery.is("membershipNumber", memberNumber)).toArray();
 	}
@@ -56,13 +56,13 @@ public class MemberService extends GenericService<MemberDO>
 	
 	public Long getNextMemberNumber()
 	{
-		MemberDO lastMember = getLastBy(DBSort.desc("membershipNumber"));
+		final MemberDO lastMember = getLastBy(DBSort.desc("membershipNumber"));
 		Long nextMembershipNumber = lastMember.getMembershipNumber();
 		nextMembershipNumber++;
 		return nextMembershipNumber;
 	}
 	
-	public Object sendEmail(MemberDO member) throws MandrillApiError, IOException
+	public Object sendEmail(final MemberDO member) throws MandrillApiError, IOException
 	{
 		return EmailHelper.singleRecipient(mandrill, "welcome", member, Boolean.TRUE);
 	}

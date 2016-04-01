@@ -13,10 +13,6 @@ import uk.org.gtc.api.domain.UserAppMetadata;
 public class GtcAuthoriser implements Authorizer<Auth0User>
 {
 	
-	public GtcAuthoriser()
-	{
-	}
-	
 	@Override
 	public boolean authorize(final Auth0User user, final String role)
 	{
@@ -29,7 +25,7 @@ public class GtcAuthoriser implements Authorizer<Auth0User>
 		{
 			uam = om.readValue(userAppMetadataString, UserAppMetadata.class);
 		}
-		catch (IOException e)
+		catch (final IOException e)
 		{
 			return false;
 		}

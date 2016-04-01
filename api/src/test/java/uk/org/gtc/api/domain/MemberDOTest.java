@@ -19,7 +19,7 @@ public class MemberDOTest extends TestCase
 	 * @param testName
 	 *            name of the test case
 	 */
-	public MemberDOTest(String testName)
+	public MemberDOTest(final String testName)
 	{
 		super(testName);
 	}
@@ -52,7 +52,7 @@ public class MemberDOTest extends TestCase
 		
 		final MemberDO memberFull = new MemberDO(MemberType.FULL, MemberStatus.CURRENT, 1234L, Salutation.MR, "John", "Smith",
 				"test@example.com", phoneNumbers, addresses, "Tester", Year.parse("2015"), sponsorMembers, "Website", "Company");
-				
+		
 		assertEquals(MemberType.FULL, memberFull.getType());
 		assertEquals(MemberStatus.CURRENT, memberFull.getStatus());
 		assertEquals(1234L, memberFull.getMembershipNumber().longValue());

@@ -17,7 +17,7 @@ public class Address
 		// Jackson Mapping
 	}
 	
-	public Address(List<String> lines, String country, String postcode, LocationType addressType)
+	public Address(final List<String> lines, final String country, final String postcode, final LocationType addressType)
 	{
 		setLines(lines);
 		setCountry(country);
@@ -30,7 +30,7 @@ public class Address
 		return addressType;
 	}
 	
-	public void setAddressType(LocationType addressType)
+	public void setAddressType(final LocationType addressType)
 	{
 		this.addressType = addressType;
 	}
@@ -40,7 +40,7 @@ public class Address
 		return lines;
 	}
 	
-	public void setLines(List<String> lines)
+	public void setLines(final List<String> lines)
 	{
 		this.lines = lines;
 	}
@@ -50,7 +50,7 @@ public class Address
 		return country;
 	}
 	
-	public void setCountry(String country)
+	public void setCountry(final String country)
 	{
 		this.country = country;
 	}
@@ -60,7 +60,7 @@ public class Address
 		return postcode;
 	}
 	
-	public void setPostcode(String postcode)
+	public void setPostcode(final String postcode)
 	{
 		this.postcode = postcode;
 	}
@@ -78,7 +78,7 @@ public class Address
 	}
 	
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(final Object obj)
 	{
 		if (this == obj)
 			return true;
@@ -86,7 +86,7 @@ public class Address
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Address other = (Address) obj;
+		final Address other = (Address) obj;
 		if (country == null)
 		{
 			if (other.country != null)

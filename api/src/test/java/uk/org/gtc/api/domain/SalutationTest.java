@@ -11,11 +11,11 @@ public class SalutationTest extends TestCase
 {
 	/**
 	 * Create the test case
-	 *
+	 * 
 	 * @param testName
 	 *            name of the test case
 	 */
-	public SalutationTest(String testName)
+	public SalutationTest(final String testName)
 	{
 		super(testName);
 	}
@@ -37,7 +37,7 @@ public class SalutationTest extends TestCase
 		assertEquals("MS", Salutation.MS.toString());
 		assertEquals("SIR", Salutation.SIR.toString());
 		
-		Salutation[] salutations = Salutation.values();
+		final Salutation[] salutations = Salutation.values();
 		assertEquals(6, salutations.length);
 		assertEquals(Salutation.DR, Salutation.valueOf("DR"));
 		assertEquals(Salutation.MISS, Salutation.valueOf("MISS"));

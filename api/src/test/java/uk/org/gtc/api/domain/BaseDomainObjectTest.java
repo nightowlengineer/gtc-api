@@ -15,7 +15,7 @@ public class BaseDomainObjectTest extends TestCase
 	 * @param testName
 	 *            name of the test case
 	 */
-	public BaseDomainObjectTest(String testName)
+	public BaseDomainObjectTest(final String testName)
 	{
 		super(testName);
 	}
