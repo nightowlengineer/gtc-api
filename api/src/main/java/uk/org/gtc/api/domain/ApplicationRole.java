@@ -2,5 +2,5 @@ package uk.org.gtc.api.domain;
 
 public enum ApplicationRole
 {
-	ADMIN, USER, MEMBERSHIPADMIN;
+	ADMIN, MEMBERSHIP_MANAGE, MEMBERSHIP_READ;
 }
