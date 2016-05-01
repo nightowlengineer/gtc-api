@@ -63,7 +63,7 @@ public class MemberResource extends GenericResource<MemberDO>
 		return acceptedMember;
 	}
 	
-	private List<String> checkValidMember(final MemberDO member, final Boolean shouldThrowException)
+	private List<String> checkValidMember(final MemberDO member, final Boolean shouldThrowException) throws ValidationException
 	{
 		final List<String> validationMessages = new ArrayList<String>();
 		final Set<ConstraintViolation<MemberDO>> violations = validator.validate(member);
@@ -137,7 +137,7 @@ public class MemberResource extends GenericResource<MemberDO>
 		}
 		else
 		{
-			throw new Exception("A member already exists with this membership number");
+			throw new ValidationException("A member already exists with this membership number");
 		}
 		
 	}
