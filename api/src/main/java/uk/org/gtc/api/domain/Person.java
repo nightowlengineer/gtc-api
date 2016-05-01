@@ -4,18 +4,22 @@ import java.util.List;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
 
 public class Person extends BaseDomainObject
 {
 	private Salutation salutation;
 	
 	@Length(max = 50)
+	@NotBlank
 	private String firstName;
 	
 	@Length(max = 50)
+	@NotBlank
 	private String lastName;
 	
 	@Email
+	@NotBlank
 	private String email;
 	
 	private List<PhoneNumber> phoneNumbers;
@@ -41,14 +45,98 @@ public class Person extends BaseDomainObject
 		setCompany(company);
 	}
 	
+	@Override
+	public boolean equals(final Object obj)
+	{
+		if (this == obj)
+		{
+			return true;
+		}
+		if (!super.equals(obj))
+		{
+			return false;
+		}
+		if (getClass() != obj.getClass())
+		{
+			return false;
+		}
+		final Person other = (Person) obj;
+		if (addresses == null)
+		{
+			if (other.addresses != null)
+			{
+				return false;
+			}
+		}
+		else if (!addresses.equals(other.addresses))
+		{
+			return false;
+		}
+		if (company == null)
+		{
+			if (other.company != null)
+			{
+				return false;
+			}
+		}
+		else if (!company.equals(other.company))
+		{
+			return false;
+		}
+		if (email == null)
+		{
+			if (other.email != null)
+			{
+				return false;
+			}
+		}
+		else if (!email.equals(other.email))
+		{
+			return false;
+		}
+		if (firstName == null)
+		{
+			if (other.firstName != null)
+			{
+				return false;
+			}
+		}
+		else if (!firstName.equals(other.firstName))
+		{
+			return false;
+		}
+		if (lastName == null)
+		{
+			if (other.lastName != null)
+			{
+				return false;
+			}
+		}
+		else if (!lastName.equals(other.lastName))
+		{
+			return false;
+		}
+		if (phoneNumbers == null)
+		{
+			if (other.phoneNumbers != null)
+			{
+				return false;
+			}
+		}
+		else if (!phoneNumbers.equals(other.phoneNumbers))
+		{
+			return false;
+		}
+		if (salutation != other.salutation)
+		{
+			return false;
+		}
+		return true;
+	}
+	
 	public List<Address> getAddresses()
 	{
 		return addresses;
-	}
-	
-	public void setAddresses(final List<Address> addresses)
-	{
-		this.addresses = addresses;
 	}
 	
 	public String getCompany()
@@ -56,19 +144,9 @@ public class Person extends BaseDomainObject
 		return company;
 	}
 	
-	public void setCompany(final String company)
-	{
-		this.company = company;
-	}
-	
 	public String getEmail()
 	{
 		return email;
-	}
-	
-	public void setEmail(final String email)
-	{
-		this.email = email;
 	}
 	
 	public String getFirstName()
@@ -76,19 +154,9 @@ public class Person extends BaseDomainObject
 		return firstName;
 	}
 	
-	public void setFirstName(final String firstName)
-	{
-		this.firstName = firstName;
-	}
-	
 	public String getLastName()
 	{
 		return lastName;
-	}
-	
-	public void setLastName(final String lastName)
-	{
-		this.lastName = lastName;
 	}
 	
 	public List<PhoneNumber> getPhoneNumbers()
@@ -96,76 +164,9 @@ public class Person extends BaseDomainObject
 		return phoneNumbers;
 	}
 	
-	public void setPhoneNumbers(final List<PhoneNumber> phoneNumbers)
-	{
-		this.phoneNumbers = phoneNumbers;
-	}
-	
 	public Salutation getSalutation()
 	{
 		return salutation;
-	}
-	
-	public void setSalutation(final Salutation salutation)
-	{
-		this.salutation = salutation;
-	}
-	
-	@Override
-	public boolean equals(final Object obj)
-	{
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		final Person other = (Person) obj;
-		if (addresses == null)
-		{
-			if (other.addresses != null)
-				return false;
-		}
-		else if (!addresses.equals(other.addresses))
-			return false;
-		if (company == null)
-		{
-			if (other.company != null)
-				return false;
-		}
-		else if (!company.equals(other.company))
-			return false;
-		if (email == null)
-		{
-			if (other.email != null)
-				return false;
-		}
-		else if (!email.equals(other.email))
-			return false;
-		if (firstName == null)
-		{
-			if (other.firstName != null)
-				return false;
-		}
-		else if (!firstName.equals(other.firstName))
-			return false;
-		if (lastName == null)
-		{
-			if (other.lastName != null)
-				return false;
-		}
-		else if (!lastName.equals(other.lastName))
-			return false;
-		if (phoneNumbers == null)
-		{
-			if (other.phoneNumbers != null)
-				return false;
-		}
-		else if (!phoneNumbers.equals(other.phoneNumbers))
-			return false;
-		if (salutation != other.salutation)
-			return false;
-		return true;
 	}
 	
 	@Override
@@ -181,6 +182,41 @@ public class Person extends BaseDomainObject
 		result = prime * result + ((phoneNumbers == null) ? 0 : phoneNumbers.hashCode());
 		result = prime * result + ((salutation == null) ? 0 : salutation.hashCode());
 		return result;
+	}
+	
+	public void setAddresses(final List<Address> addresses)
+	{
+		this.addresses = addresses;
+	}
+	
+	public void setCompany(final String company)
+	{
+		this.company = company;
+	}
+	
+	public void setEmail(final String email)
+	{
+		this.email = email;
+	}
+	
+	public void setFirstName(final String firstName)
+	{
+		this.firstName = firstName;
+	}
+	
+	public void setLastName(final String lastName)
+	{
+		this.lastName = lastName;
+	}
+	
+	public void setPhoneNumbers(final List<PhoneNumber> phoneNumbers)
+	{
+		this.phoneNumbers = phoneNumbers;
+	}
+	
+	public void setSalutation(final Salutation salutation)
+	{
+		this.salutation = salutation;
 	}
 	
 }

@@ -124,12 +124,22 @@ public class MemberResource extends GenericResource<MemberDO>
 	@RolesAllowed("MEMBERSHIP_MANAGE")
 	public MemberDO createMember(final MemberDO member) throws Exception
 	{
+		if (UtilityHelper.isNull(member.getMembershipNumber()))
+		{
+			member.setMembershipNumber(memberService.getNextMemberNumber());
+		}
+		
+		checkValidMember(member, true);
+		
 		if (memberService.findByMemberNumber(member.getMembershipNumber()).isEmpty())
 		{
 			return super.createItem(member);
 		}
 		else
+		{
 			throw new Exception("A member already exists with this membership number");
+		}
+		
 	}
 	
 	@GET
@@ -312,32 +322,46 @@ public class MemberResource extends GenericResource<MemberDO>
 			case APPLIED:
 				if (!existingStatus.equals(MemberStatus.DECLINED) && !existingStatus.equals(MemberStatus.REMOVED)
 						&& !existingStatus.equals(MemberStatus.LAPSED))
+				{
 					throw new WebApplicationException();
+				}
 				break;
 			case APPROVED:
 			case DECLINED:
 				if (!existingStatus.equals(MemberStatus.APPLIED))
+				{
 					throw new WebApplicationException();
+				}
 				break;
 			case INVOICED:
 				if (!existingStatus.equals(MemberStatus.APPROVED))
+				{
 					throw new WebApplicationException();
+				}
 				break;
 			case PAID:
 				if (!existingStatus.equals(MemberStatus.INVOICED))
+				{
 					throw new WebApplicationException();
+				}
 				break;
 			case CURRENT:
 				if (!existingStatus.equals(MemberStatus.PAID))
+				{
 					throw new WebApplicationException();
+				}
 				break;
 			case LAPSED:
 				if (!existingStatus.equals(MemberStatus.CURRENT))
+				{
 					throw new WebApplicationException();
+				}
 				break;
 			case REMOVED:
 				if (!existingStatus.equals(MemberStatus.CURRENT) && !existingStatus.equals(MemberStatus.LAPSED))
+				{
 					throw new WebApplicationException();
+				}
 				break;
 			default:
 				break;
