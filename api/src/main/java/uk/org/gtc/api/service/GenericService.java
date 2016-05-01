@@ -29,6 +29,41 @@ public class GenericService<T extends BaseDomainObject>
 		this.collection = collection;
 	}
 	
+	public T create(final T item)
+	{
+		final WriteResult<T, String> result = collection.insert(item);
+		return result.getSavedObject();
+	}
+	
+	public Boolean delete(final T item)
+	{
+		return collection.removeById(item.getId()).getWriteResult().wasAcknowledged();
+	}
+	
+	public List<T> getAll()
+	{
+		return collection.find().toArray();
+	}
+	
+	/**
+	 * Find a list of sorted, lightweight items
+	 * 
+	 * @param sort
+	 *            - how to sort the returned list
+	 * @param projection
+	 *            - what to return out of the retrieved objects
+	 * @return a sorted, lightweight list of T
+	 */
+	public List<T> getAllLightweightSorted(final DBObject sort, final DBObject projection, final Integer limit)
+	{
+		return collection.find(new BasicDBObject(), projection).sort(sort).limit(limit).toArray();
+	}
+	
+	public DBCursor<T> getAllSorted(final DBObject sort)
+	{
+		return collection.find().sort(sort);
+	}
+	
 	public T getById(final String id) throws WebApplicationException
 	{
 		if (!ObjectId.isValid(id))
@@ -45,10 +80,47 @@ public class GenericService<T extends BaseDomainObject>
 		return item;
 	}
 	
-	public T create(final T item)
+	/**
+	 * Find a list of sorted, lightweight items
+	 * 
+	 * @param sort
+	 *            - how to sort the returned list
+	 * @param projection
+	 *            - what to return out of the retrieved objects
+	 * @return a sorted, lightweight list of T
+	 */
+	public T getLastBy(final DBObject sort)
 	{
-		final WriteResult<T, String> result = collection.insert(item);
-		return result.getSavedObject();
+		final List<T> sortedObjects = getAllLightweightSorted(sort, new BasicDBObject(), 1);
+		if (!UtilityHelper.isNull(sortedObjects))
+		{
+			return sortedObjects.get(0);
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	public List<T> query(final Query query)
+	{
+		return collection.find(query).toArray();
+	}
+	
+	/**
+	 * Find a list of items by named field
+	 * 
+	 * @param field
+	 *            - what field to search over
+	 * @param text
+	 *            - what text to search for
+	 * @return a list of matching items
+	 */
+	protected List<T> searchByField(final String field, final String text)
+	{
+		final String regexPattern = "/.*" + text + ".*/i";
+		final Pattern regex = Pattern.compile(regexPattern);
+		return collection.find(DBQuery.regex(field, regex)).toArray();
 	}
 	
 	/**
@@ -70,69 +142,5 @@ public class GenericService<T extends BaseDomainObject>
 		newItem.setLastUpdatedDate(new Date());
 		collection.updateById(newItem.getId(), newItem);
 		return collection.findOneById(newItem.getId());
-	}
-	
-	public Boolean delete(final T item)
-	{
-		return collection.removeById(item.getId()).getWriteResult().wasAcknowledged();
-	}
-	
-	public List<T> query(final Query query)
-	{
-		return collection.find(query).toArray();
-	}
-	
-	public List<T> getAll()
-	{
-		return collection.find().toArray();
-	}
-	
-	public DBCursor<T> getAllSorted(final DBObject sort)
-	{
-		return collection.find().sort(sort);
-	}
-	
-	/**
-	 * Find a list of sorted, lightweight items
-	 * 
-	 * @param sort
-	 *            - how to sort the returned list
-	 * @param projection
-	 *            - what to return out of the retrieved objects
-	 * @return a sorted, lightweight list of T
-	 */
-	public List<T> getAllLightweightSorted(final DBObject sort, final DBObject projection, final Integer limit)
-	{
-		return collection.find(new BasicDBObject(), projection).sort(sort).limit(limit).toArray();
-	}
-	
-	/**
-	 * Find a list of sorted, lightweight items
-	 * 
-	 * @param sort
-	 *            - how to sort the returned list
-	 * @param projection
-	 *            - what to return out of the retrieved objects
-	 * @return a sorted, lightweight list of T
-	 */
-	public T getLastBy(final DBObject sort)
-	{
-		return getAllLightweightSorted(sort, new BasicDBObject(), 1).get(0);
-	}
-	
-	/**
-	 * Find a list of items by named field
-	 * 
-	 * @param field
-	 *            - what field to search over
-	 * @param text
-	 *            - what text to search for
-	 * @return a list of matching items
-	 */
-	protected List<T> searchByField(final String field, final String text)
-	{
-		final String regexPattern = "/.*" + text + ".*/i";
-		final Pattern regex = Pattern.compile(regexPattern);
-		return collection.find(DBQuery.regex(field, regex)).toArray();
 	}
 }

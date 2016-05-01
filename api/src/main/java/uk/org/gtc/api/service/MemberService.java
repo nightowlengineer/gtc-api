@@ -15,6 +15,7 @@ import com.microtripit.mandrillapp.lutung.model.MandrillApiError;
 import com.mongodb.MongoException;
 
 import uk.org.gtc.api.EmailHelper;
+import uk.org.gtc.api.UtilityHelper;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.domain.MemberStatus;
 
@@ -28,6 +29,11 @@ public class MemberService extends GenericService<MemberDO>
 		super(members);
 		this.collection = members;
 		this.mandrill = mandrill;
+	}
+	
+	public List<MemberDO> findByMemberNumber(final Long memberNumber) throws MongoException
+	{
+		return collection.find(DBQuery.is("membershipNumber", memberNumber)).toArray();
 	}
 	
 	public MemberDO getByMemberNumber(final Long memberNumber) throws MongoException
@@ -44,11 +50,6 @@ public class MemberService extends GenericService<MemberDO>
 		}
 	}
 	
-	public List<MemberDO> findByMemberNumber(final Long memberNumber) throws MongoException
-	{
-		return collection.find(DBQuery.is("membershipNumber", memberNumber)).toArray();
-	}
-	
 	public List<MemberDO> getByStatus(final MemberStatus... status)
 	{
 		return query(DBQuery.in("status", (Object[]) status));
@@ -57,7 +58,7 @@ public class MemberService extends GenericService<MemberDO>
 	public Long getNextMemberNumber()
 	{
 		final MemberDO lastMember = getLastBy(DBSort.desc("membershipNumber"));
-		Long nextMembershipNumber = lastMember.getMembershipNumber();
+		Long nextMembershipNumber = UtilityHelper.isNull(lastMember) ? 0 : lastMember.getMembershipNumber();
 		nextMembershipNumber++;
 		return nextMembershipNumber;
 	}
