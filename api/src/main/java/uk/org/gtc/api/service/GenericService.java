@@ -92,7 +92,7 @@ public class GenericService<T extends BaseDomainObject>
 	public T getLastBy(final DBObject sort)
 	{
 		final List<T> sortedObjects = getAllLightweightSorted(sort, new BasicDBObject(), 1);
-		if (!UtilityHelper.isNull(sortedObjects))
+		if (!UtilityHelper.isNull(sortedObjects) && !sortedObjects.isEmpty())
 		{
 			return sortedObjects.get(0);
 		}
