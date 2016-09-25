@@ -2,6 +2,7 @@ package uk.org.gtc.api.domain;
 
 import java.time.Year;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import junit.framework.Test;
@@ -14,6 +15,14 @@ import junit.framework.TestSuite;
 public class MemberDOTest extends TestCase
 {
 	/**
+	 * @return the suite of tests being tested
+	 */
+	public static Test suite()
+	{
+		return new TestSuite(MemberDOTest.class);
+	}
+	
+	/**
 	 * Create the test case
 	 *
 	 * @param testName
@@ -22,14 +31,6 @@ public class MemberDOTest extends TestCase
 	public MemberDOTest(final String testName)
 	{
 		super(testName);
-	}
-	
-	/**
-	 * @return the suite of tests being tested
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(MemberDOTest.class);
 	}
 	
 	public void testBlankConstructor() throws Exception
@@ -50,8 +51,11 @@ public class MemberDOTest extends TestCase
 		final List<Long> sponsorMembers = new ArrayList<Long>();
 		sponsorMembers.add(1234L);
 		
+		final Date applicationDate = new Date();
+		
 		final MemberDO memberFull = new MemberDO(MemberType.FULL, MemberStatus.CURRENT, 1234L, Salutation.MR, "John", "Smith",
-				"test@example.com", phoneNumbers, addresses, "Tester", Year.parse("2015"), sponsorMembers, "Website", "Company");
+				"test@example.com", phoneNumbers, addresses, "Tester", Year.parse("2015"), sponsorMembers, "Website", applicationDate,
+				"Company");
 		
 		assertEquals(MemberType.FULL, memberFull.getType());
 		assertEquals(MemberStatus.CURRENT, memberFull.getStatus());
@@ -66,6 +70,7 @@ public class MemberDOTest extends TestCase
 		assertEquals(Year.parse("2015"), memberFull.getCareerStartDate());
 		assertEquals(sponsorMembers, memberFull.getSponsorMembers());
 		assertEquals("Website", memberFull.getReferralSource());
+		assertEquals(applicationDate, memberFull.getApplicationDate());
 		assertEquals("Company", memberFull.getCompany());
 		
 		assertSame(memberFull, memberFull);
