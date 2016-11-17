@@ -1,6 +1,7 @@
 package uk.org.gtc.api.domain;
 
 import java.time.Year;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.ValidationException;
@@ -17,6 +18,7 @@ public class MemberDO extends Person
 	private Year careerStartDate;
 	private List<Long> sponsorMembers;
 	private String referralSource;
+	private Date applicationDate;
 	private MemberType type;
 	private MemberStatus status;
 	
@@ -28,7 +30,7 @@ public class MemberDO extends Person
 	public MemberDO(final MemberType type, final MemberStatus status, final Long membershipNumber, final Salutation salutation,
 			final String firstName, final String lastName, final String email, final List<PhoneNumber> phoneNumbers,
 			final List<Address> addresses, final String currentPost, final Year careerStartDate, final List<Long> sponsorMembers,
-			final String referralSource, final String company)
+			final String referralSource, final Date applicationDate, final String company)
 	{
 		super(salutation, firstName, lastName, email, phoneNumbers, addresses, company);
 		setType(type);
@@ -38,26 +40,113 @@ public class MemberDO extends Person
 		setCareerStartDate(careerStartDate);
 		setSponsorMembers(sponsorMembers);
 		setReferralSource(referralSource);
+		setApplicationDate(applicationDate);
 	}
 	
-	public Long getMembershipNumber()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj)
 	{
-		return membershipNumber;
+		if (this == obj)
+		{
+			return true;
+		}
+		if (!super.equals(obj))
+		{
+			return false;
+		}
+		if (getClass() != obj.getClass())
+		{
+			return false;
+		}
+		final MemberDO other = (MemberDO) obj;
+		if (applicationDate == null)
+		{
+			if (other.applicationDate != null)
+			{
+				return false;
+			}
+		}
+		else if (!applicationDate.equals(other.applicationDate))
+		{
+			return false;
+		}
+		if (careerStartDate == null)
+		{
+			if (other.careerStartDate != null)
+			{
+				return false;
+			}
+		}
+		else if (!careerStartDate.equals(other.careerStartDate))
+		{
+			return false;
+		}
+		if (currentPost == null)
+		{
+			if (other.currentPost != null)
+			{
+				return false;
+			}
+		}
+		else if (!currentPost.equals(other.currentPost))
+		{
+			return false;
+		}
+		if (membershipNumber == null)
+		{
+			if (other.membershipNumber != null)
+			{
+				return false;
+			}
+		}
+		else if (!membershipNumber.equals(other.membershipNumber))
+		{
+			return false;
+		}
+		if (referralSource == null)
+		{
+			if (other.referralSource != null)
+			{
+				return false;
+			}
+		}
+		else if (!referralSource.equals(other.referralSource))
+		{
+			return false;
+		}
+		if (sponsorMembers == null)
+		{
+			if (other.sponsorMembers != null)
+			{
+				return false;
+			}
+		}
+		else if (!sponsorMembers.equals(other.sponsorMembers))
+		{
+			return false;
+		}
+		if (status != other.status)
+		{
+			return false;
+		}
+		if (type != other.type)
+		{
+			return false;
+		}
+		return true;
 	}
 	
-	public void setMembershipNumber(final Long membershipNumber)
+	/**
+	 * @return the applicationDate
+	 */
+	public Date getApplicationDate()
 	{
-		this.membershipNumber = membershipNumber;
-	}
-	
-	public String getCurrentPost()
-	{
-		return currentPost;
-	}
-	
-	public void setCurrentPost(final String currentPost)
-	{
-		this.currentPost = currentPost;
+		return applicationDate;
 	}
 	
 	public Year getCareerStartDate()
@@ -65,19 +154,14 @@ public class MemberDO extends Person
 		return careerStartDate;
 	}
 	
-	public void setCareerStartDate(final Year careerStartDate)
+	public String getCurrentPost()
 	{
-		this.careerStartDate = careerStartDate;
+		return currentPost;
 	}
 	
-	public List<Long> getSponsorMembers()
+	public Long getMembershipNumber()
 	{
-		return sponsorMembers;
-	}
-	
-	public void setSponsorMembers(final List<Long> sponsorMembers)
-	{
-		this.sponsorMembers = sponsorMembers;
+		return membershipNumber;
 	}
 	
 	public String getReferralSource()
@@ -85,9 +169,9 @@ public class MemberDO extends Person
 		return referralSource;
 	}
 	
-	public void setReferralSource(final String referralSource)
+	public List<Long> getSponsorMembers()
 	{
-		this.referralSource = referralSource;
+		return sponsorMembers;
 	}
 	
 	public MemberStatus getStatus()
@@ -95,19 +179,30 @@ public class MemberDO extends Person
 		return status;
 	}
 	
-	public void setStatus(final MemberStatus status)
-	{
-		this.status = status;
-	}
-	
 	public MemberType getType()
 	{
 		return type;
 	}
 	
-	public void setType(final MemberType type)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
 	{
-		this.type = type;
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((applicationDate == null) ? 0 : applicationDate.hashCode());
+		result = prime * result + ((careerStartDate == null) ? 0 : careerStartDate.hashCode());
+		result = prime * result + ((currentPost == null) ? 0 : currentPost.hashCode());
+		result = prime * result + ((membershipNumber == null) ? 0 : membershipNumber.hashCode());
+		result = prime * result + ((referralSource == null) ? 0 : referralSource.hashCode());
+		result = prime * result + ((sponsorMembers == null) ? 0 : sponsorMembers.hashCode());
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
 	}
 	
 	@ValidationMethod(message = "A membership number is required when the memebr is in this status")
@@ -124,71 +219,48 @@ public class MemberDO extends Person
 		return getType().equals(MemberType.SPONSOR) && UtilityHelper.isNullOrEmpty(super.getCompany());
 	}
 	
-	@Override
-	public int hashCode()
+	/**
+	 * @param applicationDate
+	 *            the applicationDate to set
+	 */
+	public void setApplicationDate(final Date applicationDate)
 	{
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((careerStartDate == null) ? 0 : careerStartDate.hashCode());
-		result = prime * result + ((currentPost == null) ? 0 : currentPost.hashCode());
-		result = prime * result + ((membershipNumber == null) ? 0 : membershipNumber.hashCode());
-		result = prime * result + ((referralSource == null) ? 0 : referralSource.hashCode());
-		result = prime * result + ((sponsorMembers == null) ? 0 : sponsorMembers.hashCode());
-		result = prime * result + ((status == null) ? 0 : status.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		return result;
+		this.applicationDate = applicationDate;
 	}
 	
-	@Override
-	public boolean equals(final Object obj)
+	public void setCareerStartDate(final Year careerStartDate)
 	{
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		final MemberDO other = (MemberDO) obj;
-		if (careerStartDate == null)
-		{
-			if (other.careerStartDate != null)
-				return false;
-		}
-		else if (!careerStartDate.equals(other.careerStartDate))
-			return false;
-		if (currentPost == null)
-		{
-			if (other.currentPost != null)
-				return false;
-		}
-		else if (!currentPost.equals(other.currentPost))
-			return false;
-		if (membershipNumber == null)
-		{
-			if (other.membershipNumber != null)
-				return false;
-		}
-		else if (!membershipNumber.equals(other.membershipNumber))
-			return false;
-		if (referralSource == null)
-		{
-			if (other.referralSource != null)
-				return false;
-		}
-		else if (!referralSource.equals(other.referralSource))
-			return false;
-		if (sponsorMembers == null)
-		{
-			if (other.sponsorMembers != null)
-				return false;
-		}
-		else if (!sponsorMembers.equals(other.sponsorMembers))
-			return false;
-		if (status != other.status)
-			return false;
-		if (type != other.type)
-			return false;
-		return true;
+		this.careerStartDate = careerStartDate;
+	}
+	
+	public void setCurrentPost(final String currentPost)
+	{
+		this.currentPost = currentPost;
+	}
+	
+	public void setMembershipNumber(final Long membershipNumber)
+	{
+		this.membershipNumber = membershipNumber;
+	}
+	
+	public void setReferralSource(final String referralSource)
+	{
+		this.referralSource = referralSource;
+	}
+	
+	public void setSponsorMembers(final List<Long> sponsorMembers)
+	{
+		this.sponsorMembers = sponsorMembers;
+	}
+	
+	public void setStatus(final MemberStatus status)
+	{
+		this.status = status;
+	}
+	
+	public void setType(final MemberType type)
+	{
+		this.type = type;
 	}
 	
 }
