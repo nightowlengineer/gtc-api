@@ -1,4 +1,4 @@
-package uk.org.gtc.api;
+package uk.org.gtc.api.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -23,7 +23,7 @@ import org.hibernate.validator.constraints.ConstraintComposition;
 @Constraint(validatedBy = {})
 @ReportAsSingleViolation
 @Documented
-public @interface EmailValidator
+public @interface ValidEmail
 {
 	String message() default "Not a valid email address.";
 	
