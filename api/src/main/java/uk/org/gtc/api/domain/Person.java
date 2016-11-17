@@ -6,8 +6,6 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
-import uk.org.gtc.api.annotations.ValidEmail;
-
 public class Person extends BaseDomainObject
 {
 	private Salutation salutation;
