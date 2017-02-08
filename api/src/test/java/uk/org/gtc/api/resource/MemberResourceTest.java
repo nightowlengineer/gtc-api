@@ -59,15 +59,7 @@ public class MemberResourceTest
 		currentMembers.add(currentMember);
 		Mockito.when(memberService.getByStatus(MemberStatus.CURRENT)).thenReturn(currentMembers);
 		
-		memberResource.getByStatus(MemberStatus.CURRENT.toString());
-	}
-	
-	@Test
-	public void testUpdateMemberAppliedDeclined() throws Exception
-	{
-		Mockito.when(memberService.getById(id)).thenReturn(appliedMember);
-		
-		memberResource.updateMemberById(id, declinedMember);
+		memberResource.getByStatus(MemberStatus.CURRENT);
 	}
 	
 	@Test
@@ -76,26 +68,6 @@ public class MemberResourceTest
 		Mockito.when(memberService.getById(id)).thenReturn(appliedMember);
 		
 		memberResource.updateMemberById(id, approvedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberAppliedInvoiced() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(appliedMember);
-		
-		memberResource.updateMemberById(id, invoicedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberAppliedPaid() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(appliedMember);
-		
-		memberResource.updateMemberById(id, paidMember);
 	}
 	
 	@Test
@@ -109,6 +81,24 @@ public class MemberResourceTest
 	}
 	
 	@Test
+	public void testUpdateMemberAppliedDeclined() throws Exception
+	{
+		Mockito.when(memberService.getById(id)).thenReturn(appliedMember);
+		
+		memberResource.updateMemberById(id, declinedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberAppliedInvoiced() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(appliedMember);
+		
+		memberResource.updateMemberById(id, invoicedMember);
+	}
+	
+	@Test
 	public void testUpdateMemberAppliedLapsed() throws Exception
 	{
 		exception.expect(WebApplicationException.class);
@@ -119,11 +109,155 @@ public class MemberResourceTest
 	}
 	
 	@Test
+	public void testUpdateMemberAppliedPaid() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(appliedMember);
+		
+		memberResource.updateMemberById(id, paidMember);
+	}
+	
+	@Test
 	public void testUpdateMemberAppliedRemoved() throws Exception
 	{
 		exception.expect(WebApplicationException.class);
 		
 		Mockito.when(memberService.getById(id)).thenReturn(appliedMember);
+		
+		memberResource.updateMemberById(id, removedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberApprovedApplied() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(approvedMember);
+		
+		memberResource.updateMemberById(id, appliedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberApprovedCurrent() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(approvedMember);
+		
+		memberResource.updateMemberById(id, currentMember);
+	}
+	
+	@Test
+	public void testUpdateMemberApprovedDeclined() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(approvedMember);
+		
+		memberResource.updateMemberById(id, declinedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberApprovedInvoiced() throws Exception
+	{
+		Mockito.when(memberService.getById(id)).thenReturn(approvedMember);
+		
+		memberResource.updateMemberById(id, invoicedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberApprovedLapsed() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(approvedMember);
+		
+		memberResource.updateMemberById(id, lapsedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberApprovedPaid() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(approvedMember);
+		
+		memberResource.updateMemberById(id, paidMember);
+	}
+	
+	@Test
+	public void testUpdateMemberApprovedRemoved() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(approvedMember);
+		
+		memberResource.updateMemberById(id, removedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberCurrentApplied() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(currentMember);
+		
+		memberResource.updateMemberById(id, appliedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberCurrentApproved() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(currentMember);
+		
+		memberResource.updateMemberById(id, approvedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberCurrentDeclined() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(currentMember);
+		
+		memberResource.updateMemberById(id, declinedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberCurrentInvoiced() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(currentMember);
+		
+		memberResource.updateMemberById(id, invoicedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberCurrentLapsed() throws Exception
+	{
+		Mockito.when(memberService.getById(id)).thenReturn(currentMember);
+		
+		memberResource.updateMemberById(id, lapsedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberCurrentPaid() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(currentMember);
+		
+		memberResource.updateMemberById(id, paidMember);
+	}
+	
+	@Test
+	public void testUpdateMemberCurrentRemoved() throws Exception
+	{
+		Mockito.when(memberService.getById(id)).thenReturn(currentMember);
 		
 		memberResource.updateMemberById(id, removedMember);
 	}
@@ -147,26 +281,6 @@ public class MemberResourceTest
 	}
 	
 	@Test
-	public void testUpdateMemberDeclinedInvoiced() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(declinedMember);
-		
-		memberResource.updateMemberById(id, invoicedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberDeclinedPaid() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(declinedMember);
-		
-		memberResource.updateMemberById(id, paidMember);
-	}
-	
-	@Test
 	public void testUpdateMemberDeclinedCurrent() throws Exception
 	{
 		exception.expect(WebApplicationException.class);
@@ -174,6 +288,16 @@ public class MemberResourceTest
 		Mockito.when(memberService.getById(id)).thenReturn(declinedMember);
 		
 		memberResource.updateMemberById(id, currentMember);
+	}
+	
+	@Test
+	public void testUpdateMemberDeclinedInvoiced() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(declinedMember);
+		
+		memberResource.updateMemberById(id, invoicedMember);
 	}
 	
 	@Test
@@ -187,79 +311,21 @@ public class MemberResourceTest
 	}
 	
 	@Test
-	public void testUpdateMemberDeclinedRemoved() throws Exception
+	public void testUpdateMemberDeclinedPaid() throws Exception
 	{
 		exception.expect(WebApplicationException.class);
 		
 		Mockito.when(memberService.getById(id)).thenReturn(declinedMember);
 		
-		memberResource.updateMemberById(id, removedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberApprovedApplied() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(approvedMember);
-		
-		memberResource.updateMemberById(id, appliedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberApprovedDeclined() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(approvedMember);
-		
-		memberResource.updateMemberById(id, declinedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberApprovedInvoiced() throws Exception
-	{
-		Mockito.when(memberService.getById(id)).thenReturn(approvedMember);
-		
-		memberResource.updateMemberById(id, invoicedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberApprovedPaid() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(approvedMember);
-		
 		memberResource.updateMemberById(id, paidMember);
 	}
 	
 	@Test
-	public void testUpdateMemberApprovedCurrent() throws Exception
+	public void testUpdateMemberDeclinedRemoved() throws Exception
 	{
 		exception.expect(WebApplicationException.class);
 		
-		Mockito.when(memberService.getById(id)).thenReturn(approvedMember);
-		
-		memberResource.updateMemberById(id, currentMember);
-	}
-	
-	@Test
-	public void testUpdateMemberApprovedLapsed() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(approvedMember);
-		
-		memberResource.updateMemberById(id, lapsedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberApprovedRemoved() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(approvedMember);
+		Mockito.when(memberService.getById(id)).thenReturn(declinedMember);
 		
 		memberResource.updateMemberById(id, removedMember);
 	}
@@ -275,16 +341,6 @@ public class MemberResourceTest
 	}
 	
 	@Test
-	public void testUpdateMemberInvoicedDeclined() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(invoicedMember);
-		
-		memberResource.updateMemberById(id, declinedMember);
-	}
-	
-	@Test
 	public void testUpdateMemberInvoicedApproved() throws Exception
 	{
 		exception.expect(WebApplicationException.class);
@@ -292,14 +348,6 @@ public class MemberResourceTest
 		Mockito.when(memberService.getById(id)).thenReturn(invoicedMember);
 		
 		memberResource.updateMemberById(id, approvedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberInvoicedPaid() throws Exception
-	{
-		Mockito.when(memberService.getById(id)).thenReturn(invoicedMember);
-		
-		memberResource.updateMemberById(id, paidMember);
 	}
 	
 	@Test
@@ -313,6 +361,16 @@ public class MemberResourceTest
 	}
 	
 	@Test
+	public void testUpdateMemberInvoicedDeclined() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(invoicedMember);
+		
+		memberResource.updateMemberById(id, declinedMember);
+	}
+	
+	@Test
 	public void testUpdateMemberInvoicedLapsed() throws Exception
 	{
 		exception.expect(WebApplicationException.class);
@@ -320,6 +378,14 @@ public class MemberResourceTest
 		Mockito.when(memberService.getById(id)).thenReturn(invoicedMember);
 		
 		memberResource.updateMemberById(id, lapsedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberInvoicedPaid() throws Exception
+	{
+		Mockito.when(memberService.getById(id)).thenReturn(invoicedMember);
+		
+		memberResource.updateMemberById(id, paidMember);
 	}
 	
 	@Test
@@ -333,155 +399,11 @@ public class MemberResourceTest
 	}
 	
 	@Test
-	public void testUpdateMemberPaidApplied() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(paidMember);
-		
-		memberResource.updateMemberById(id, appliedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberPaidDeclined() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(paidMember);
-		
-		memberResource.updateMemberById(id, declinedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberPaidApproved() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(paidMember);
-		
-		memberResource.updateMemberById(id, approvedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberPaidInvoiced() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(paidMember);
-		
-		memberResource.updateMemberById(id, invoicedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberPaidCurrent() throws Exception
-	{
-		Mockito.when(memberService.getById(id)).thenReturn(paidMember);
-		
-		memberResource.updateMemberById(id, currentMember);
-	}
-	
-	@Test
-	public void testUpdateMemberPaidLapsed() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(paidMember);
-		
-		memberResource.updateMemberById(id, lapsedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberPaidRemoved() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(paidMember);
-		
-		memberResource.updateMemberById(id, removedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberCurrentApplied() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(currentMember);
-		
-		memberResource.updateMemberById(id, appliedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberCurrentDeclined() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(currentMember);
-		
-		memberResource.updateMemberById(id, declinedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberCurrentApproved() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(currentMember);
-		
-		memberResource.updateMemberById(id, approvedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberCurrentInvoiced() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(currentMember);
-		
-		memberResource.updateMemberById(id, invoicedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberCurrentPaid() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(currentMember);
-		
-		memberResource.updateMemberById(id, paidMember);
-	}
-	
-	@Test
-	public void testUpdateMemberCurrentLapsed() throws Exception
-	{
-		Mockito.when(memberService.getById(id)).thenReturn(currentMember);
-		
-		memberResource.updateMemberById(id, lapsedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberCurrentRemoved() throws Exception
-	{
-		Mockito.when(memberService.getById(id)).thenReturn(currentMember);
-		
-		memberResource.updateMemberById(id, removedMember);
-	}
-	
-	@Test
 	public void testUpdateMemberLapsedApplied() throws Exception
 	{
 		Mockito.when(memberService.getById(id)).thenReturn(lapsedMember);
 		
 		memberResource.updateMemberById(id, appliedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberLapsedDeclined() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(lapsedMember);
-		
-		memberResource.updateMemberById(id, declinedMember);
 	}
 	
 	@Test
@@ -492,6 +414,26 @@ public class MemberResourceTest
 		Mockito.when(memberService.getById(id)).thenReturn(lapsedMember);
 		
 		memberResource.updateMemberById(id, approvedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberLapsedCurrent() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(lapsedMember);
+		
+		memberResource.updateMemberById(id, currentMember);
+	}
+	
+	@Test
+	public void testUpdateMemberLapsedDeclined() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(lapsedMember);
+		
+		memberResource.updateMemberById(id, declinedMember);
 	}
 	
 	@Test
@@ -515,19 +457,77 @@ public class MemberResourceTest
 	}
 	
 	@Test
-	public void testUpdateMemberLapsedCurrent() throws Exception
+	public void testUpdateMemberLapsedRemoved() throws Exception
+	{
+		Mockito.when(memberService.getById(id)).thenReturn(lapsedMember);
+		
+		memberResource.updateMemberById(id, removedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberPaidApplied() throws Exception
 	{
 		exception.expect(WebApplicationException.class);
 		
-		Mockito.when(memberService.getById(id)).thenReturn(lapsedMember);
+		Mockito.when(memberService.getById(id)).thenReturn(paidMember);
+		
+		memberResource.updateMemberById(id, appliedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberPaidApproved() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(paidMember);
+		
+		memberResource.updateMemberById(id, approvedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberPaidCurrent() throws Exception
+	{
+		Mockito.when(memberService.getById(id)).thenReturn(paidMember);
 		
 		memberResource.updateMemberById(id, currentMember);
 	}
 	
 	@Test
-	public void testUpdateMemberLapsedRemoved() throws Exception
+	public void testUpdateMemberPaidDeclined() throws Exception
 	{
-		Mockito.when(memberService.getById(id)).thenReturn(lapsedMember);
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(paidMember);
+		
+		memberResource.updateMemberById(id, declinedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberPaidInvoiced() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(paidMember);
+		
+		memberResource.updateMemberById(id, invoicedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberPaidLapsed() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(paidMember);
+		
+		memberResource.updateMemberById(id, lapsedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberPaidRemoved() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(paidMember);
 		
 		memberResource.updateMemberById(id, removedMember);
 	}
@@ -541,16 +541,6 @@ public class MemberResourceTest
 	}
 	
 	@Test
-	public void testUpdateMemberRemovedDeclined() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(removedMember);
-		
-		memberResource.updateMemberById(id, declinedMember);
-	}
-	
-	@Test
 	public void testUpdateMemberRemovedApproved() throws Exception
 	{
 		exception.expect(WebApplicationException.class);
@@ -558,26 +548,6 @@ public class MemberResourceTest
 		Mockito.when(memberService.getById(id)).thenReturn(removedMember);
 		
 		memberResource.updateMemberById(id, approvedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberRemovedInvoiced() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(removedMember);
-		
-		memberResource.updateMemberById(id, invoicedMember);
-	}
-	
-	@Test
-	public void testUpdateMemberRemovedPaid() throws Exception
-	{
-		exception.expect(WebApplicationException.class);
-		
-		Mockito.when(memberService.getById(id)).thenReturn(removedMember);
-		
-		memberResource.updateMemberById(id, paidMember);
 	}
 	
 	@Test
@@ -591,6 +561,26 @@ public class MemberResourceTest
 	}
 	
 	@Test
+	public void testUpdateMemberRemovedDeclined() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(removedMember);
+		
+		memberResource.updateMemberById(id, declinedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberRemovedInvoiced() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(removedMember);
+		
+		memberResource.updateMemberById(id, invoicedMember);
+	}
+	
+	@Test
 	public void testUpdateMemberRemovedLapsed() throws Exception
 	{
 		exception.expect(WebApplicationException.class);
@@ -598,5 +588,15 @@ public class MemberResourceTest
 		Mockito.when(memberService.getById(id)).thenReturn(removedMember);
 		
 		memberResource.updateMemberById(id, lapsedMember);
+	}
+	
+	@Test
+	public void testUpdateMemberRemovedPaid() throws Exception
+	{
+		exception.expect(WebApplicationException.class);
+		
+		Mockito.when(memberService.getById(id)).thenReturn(removedMember);
+		
+		memberResource.updateMemberById(id, paidMember);
 	}
 }

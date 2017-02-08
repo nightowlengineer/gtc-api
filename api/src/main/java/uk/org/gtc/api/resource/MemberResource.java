@@ -230,10 +230,11 @@ public class MemberResource extends GenericResource<MemberDO>
 	@Timed
 	@Path("status/{status}")
 	@RolesAllowed("MEMBERSHIP_READ")
-	public List<MemberDO> getByStatus(final @PathParam("status") String status)
+	public List<MemberDO> getByStatus(final @PathParam("status") MemberStatus status)
 	{
 		logger().debug("Fetching all " + status + " members");
-		return memberService.getByStatus(MemberStatus.valueOf(status.toUpperCase()));
+		return memberService.getByStatus(status);
+	}
 	}
 	
 	@GET

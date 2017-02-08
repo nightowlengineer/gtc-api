@@ -1,8 +1,23 @@
 package uk.org.gtc.api.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum MemberStatus
 {
 	APPLIED, DECLINED, APPROVED, INVOICED, PAID, CURRENT, LAPSED, REMOVED;
+	
+	@JsonCreator
+	public static MemberStatus fromString(final String key)
+	{
+		for (final MemberStatus type : MemberStatus.values())
+		{
+			if (type.name().equalsIgnoreCase(key))
+			{
+				return type;
+			}
+		}
+		return null;
+	}
 	
 	public Boolean requiresMemberNumber()
 	{
