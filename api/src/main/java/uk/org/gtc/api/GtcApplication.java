@@ -79,7 +79,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		// Managed resources
 		final ServerAddress mongoHost = new ServerAddress(configuration.mongoHost);
 		final List<MongoCredential> mongoCredentials = new ArrayList<MongoCredential>();
-		final MongoCredential credential = MongoCredential.createScramSha1Credential(configuration.mongoUser, "admin",
+		final MongoCredential credential = MongoCredential.createScramSha1Credential(configuration.mongoUser, configuration.mongoDatabase,
 				configuration.mongoPassword);
 		mongoCredentials.add(credential);
 		final MongoClient mongo = new MongoClient(mongoHost, mongoCredentials);
