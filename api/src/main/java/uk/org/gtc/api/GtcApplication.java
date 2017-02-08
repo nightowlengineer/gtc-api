@@ -37,6 +37,7 @@ import uk.org.gtc.api.health.MongoHealthCheck;
 import uk.org.gtc.api.resource.ApiResource;
 import uk.org.gtc.api.resource.BookResource;
 import uk.org.gtc.api.resource.MemberResource;
+import uk.org.gtc.api.resource.UserResource;
 import uk.org.gtc.api.service.BookService;
 import uk.org.gtc.api.service.MemberService;
 
@@ -132,6 +133,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		environment.jersey().register(new ApiResource());
 		environment.jersey().register(new MemberResource(memberService));
 		environment.jersey().register(new BookResource(bookService));
+		environment.jersey().register(new UserResource());
 		
 		// Authentication
 		final OAuthCredentialAuthFilter.Builder<Auth0User> authFilter = new OAuthCredentialAuthFilter.Builder<Auth0User>();

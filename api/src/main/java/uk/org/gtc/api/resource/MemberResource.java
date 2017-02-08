@@ -17,11 +17,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.SecurityContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.auth0.Auth0User;
 import com.codahale.metrics.annotation.Timed;
 import com.mongodb.MongoException;
 
@@ -34,6 +37,7 @@ import uk.org.gtc.api.domain.MemberStatus;
 import uk.org.gtc.api.domain.MemberType;
 import uk.org.gtc.api.domain.Salutation;
 import uk.org.gtc.api.service.MemberService;
+import us.monoid.json.JSONException;
 
 @Path("member")
 @Api("member")
@@ -266,6 +270,19 @@ public class MemberResource extends GenericResource<MemberDO>
 	public MemberType[] getMemberTypes()
 	{
 		return MemberType.values();
+	}
+	
+	@GET
+	@Timed
+	@Path("me")
+	@ApiOperation("Get the current user's member record")
+	@RolesAllowed("MEMBER")
+	public MemberDO getMyMembership(final @Context SecurityContext context) throws JSONException
+	{
+		final Auth0User prin = (Auth0User) context.getUserPrincipal();
+		final Long membershipNumber = prin.getAppMetadata().getLong("membershipNumber");
+		logger().debug("Fetching member by ID " + membershipNumber);
+		return memberService.getByMemberNumber(membershipNumber);
 	}
 	
 	@GET

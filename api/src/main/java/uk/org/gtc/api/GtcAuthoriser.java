@@ -3,6 +3,9 @@ package uk.org.gtc.api;
 import java.io.IOException;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.auth0.Auth0User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -27,11 +30,13 @@ public class GtcAuthoriser implements Authorizer<Auth0User>
 		}
 		catch (final IOException e)
 		{
+			logger().debug("Couldn't read user's app metadata");
+			logger().debug(e.getMessage());
 			return false;
 		}
 		
 		final List<ApplicationRole> userRoles = uam.getRoles();
-		
+		logger().debug(userRoles.toString());
 		if (userRoles.contains(appRole) || userRoles.contains(ApplicationRole.ADMIN))
 		{
 			return true;
@@ -40,6 +45,11 @@ public class GtcAuthoriser implements Authorizer<Auth0User>
 		{
 			return false;
 		}
+	}
+	
+	Logger logger()
+	{
+		return LoggerFactory.getLogger(GtcAuthoriser.class);
 	}
 	
 }
