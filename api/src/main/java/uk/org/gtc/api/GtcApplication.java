@@ -9,6 +9,7 @@ import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.mongojack.JacksonDBCollection;
 import org.slf4j.Logger;
@@ -145,6 +146,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		
 		environment.jersey().register(gtcAuth);
 		environment.jersey().register(RolesAllowedDynamicFeature.class);
+		environment.jersey().register(MultiPartFeature.class);
 		environment.jersey().register(new AuthValueFactoryProvider.Binder<>(Auth0User.class));
 	}
 }

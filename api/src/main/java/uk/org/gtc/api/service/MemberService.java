@@ -43,6 +43,10 @@ public class MemberService extends GenericService<MemberDO>
 		{
 			return members.get(0);
 		}
+		else if (members.isEmpty())
+		{
+			return null;
+		}
 		else
 		{
 			throw new WebApplicationException(members.size() + " members were found with the membership number '" + memberNumber + "'",

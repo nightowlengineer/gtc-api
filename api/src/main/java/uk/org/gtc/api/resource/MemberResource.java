@@ -1,5 +1,7 @@
 package uk.org.gtc.api.resource;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,6 +12,7 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -21,16 +24,23 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
 
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.auth0.Auth0User;
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.mongodb.MongoException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import uk.org.gtc.api.UtilityHelper;
+import uk.org.gtc.api.domain.CsvMember;
+import uk.org.gtc.api.domain.DiffList;
 import uk.org.gtc.api.domain.LocationType;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.domain.MemberStatus;
@@ -44,7 +54,6 @@ import us.monoid.json.JSONException;
 @Produces(MediaType.APPLICATION_JSON)
 public class MemberResource extends GenericResource<MemberDO>
 {
-	
 	private final MemberService memberService;
 	
 	public MemberResource(final MemberService memberService)
@@ -388,6 +397,57 @@ public class MemberResource extends GenericResource<MemberDO>
 		final MemberDO updatedMember = memberService.update(existingMember, member);
 		
 		return updatedMember;
+	}
+	
+	@POST
+	@Timed
+	@Path("upload")
+	@ApiOperation("Administrator can upload new membership information")
+	@RolesAllowed("MEMBERSHIP_MANAGE")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces({ MediaType.APPLICATION_JSON })
+	public DiffList uploadMembers(@FormDataParam("file") final InputStream csv) throws JsonProcessingException, IOException
+	{
+		final CsvMapper mapper = new CsvMapper();
+		final CsvSchema schema = CsvSchema.emptySchema().withHeader().withColumnSeparator(',');
+		final MappingIterator<CsvMember> it = mapper.readerFor(CsvMember.class).with(schema).readValues(csv);
+		final DiffList diffs = new DiffList();
+		final List<Long> updatedList = new ArrayList<Long>();
+		final List<Long> createdList = new ArrayList<Long>();
+		while (it.hasNext())
+		{
+			final CsvMember csvMember = it.next();
+			final MemberDO existingMember = memberService.getByMemberNumber(csvMember.getMembershipNumber());
+			// Check whether the member already exists
+			if (existingMember != null)
+			{
+				final MemberDO updatedMember = memberService.getByMemberNumber(csvMember.getMembershipNumber());
+				if (!updatedMember.getEmail().equals(csvMember.getEmail()))
+				{
+					updatedMember.setEmail(csvMember.getEmail());
+				}
+				if (!updatedMember.getStatus().equals(csvMember.getStatus()))
+				{
+					updatedMember.setStatus(csvMember.getStatus());
+				}
+				if (!updatedMember.getType().equals(csvMember.getType()))
+				{
+					updatedMember.setType(csvMember.getType());
+				}
+				memberService.update(existingMember, updatedMember);
+				updatedList.add(csvMember.getMembershipNumber());
+			}
+			else
+			{
+				memberService.create(new MemberDO(csvMember.getType(), csvMember.getStatus(), csvMember.getMembershipNumber(),
+						csvMember.getSalutation(), csvMember.getFirstName(), csvMember.getLastName(), csvMember.getEmail(), null, null,
+						null, null, null, null, null, null));
+				createdList.add(csvMember.getMembershipNumber());
+			}
+		}
+		diffs.setCreatedList(createdList);
+		diffs.setUpdatedList(updatedList);
+		return diffs;
 	}
 	
 	@GET
