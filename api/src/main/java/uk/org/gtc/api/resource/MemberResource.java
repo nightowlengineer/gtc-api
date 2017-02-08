@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -235,6 +236,17 @@ public class MemberResource extends GenericResource<MemberDO>
 		logger().debug("Fetching all " + status + " members");
 		return memberService.getByStatus(status);
 	}
+	
+	/**
+	 * @param context
+	 * @return
+	 * @throws JSONException
+	 */
+	private Long getCurrentUserMembershipNumber(final SecurityContext context) throws JSONException
+	{
+		final Auth0User prin = (Auth0User) context.getUserPrincipal();
+		final Long membershipNumber = prin.getAppMetadata().getLong("membershipNumber");
+		return membershipNumber;
 	}
 	
 	@GET
@@ -289,9 +301,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@RolesAllowed("MEMBER")
 	public MemberDO getMyMembership(final @Context SecurityContext context) throws JSONException
 	{
-		final Auth0User prin = (Auth0User) context.getUserPrincipal();
-		final Long membershipNumber = prin.getAppMetadata().getLong("membershipNumber");
-		logger().debug("Fetching member by ID " + membershipNumber);
+		final Long membershipNumber = getCurrentUserMembershipNumber(context);
 		return memberService.getByMemberNumber(membershipNumber);
 	}
 	
@@ -396,6 +406,39 @@ public class MemberResource extends GenericResource<MemberDO>
 		}
 		
 		final MemberDO updatedMember = memberService.update(existingMember, member);
+		
+		return updatedMember;
+	}
+	
+	@PUT
+	@Timed
+	@Path("me")
+	@ApiOperation("Update a member's own record")
+	@RolesAllowed("MEMBER")
+	public MemberDO updateMyMembership(final @Context SecurityContext context, final MemberDO newMember)
+			throws WebApplicationException, JSONException
+	{
+		final Long membershipNumber = getCurrentUserMembershipNumber(context);
+		
+		final MemberDO existingMember = memberService.getByMemberNumber(membershipNumber);
+		
+		if (!existingMember.getStatus().equals(newMember.getStatus()))
+		{
+			throw new WebApplicationException("You can not update your own membership status.");
+		}
+		
+		if (!existingMember.getType().equals(newMember.getType()))
+		{
+			throw new WebApplicationException("You can not change your own membership type.");
+		}
+		
+		newMember.setId(existingMember.getId());
+		newMember.setCreatedDate(existingMember.getCreatedDate());
+		newMember.setLastUpdatedDate(new Date());
+		newMember.setStatus(existingMember.getStatus());
+		newMember.setType(existingMember.getType());
+		
+		final MemberDO updatedMember = memberService.update(existingMember, newMember);
 		
 		return updatedMember;
 	}
