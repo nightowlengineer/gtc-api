@@ -1,4 +1,29 @@
-Compilation and JUnit tests:
+stages:
+ - test
+ - build
+ - deploy
+
+test:
+  stage: test
   script:
   - cd api
   - mvn clean test
+
+build:
+  stage: build
+  script:
+  - cd api
+  - mvn clean package
+  artifacts:
+    paths:
+    - target/api-0.0.1-SNAPSHOT.jar
+
+deploy:
+  stage: deploy
+  script:
+  - echo "deploy"
+  environment:
+    name: production
+    url: https://services.gtc.org.uk
+  only:
+  - master
