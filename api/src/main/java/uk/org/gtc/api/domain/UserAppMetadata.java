@@ -6,6 +6,7 @@ public class UserAppMetadata
 {
 	private List<ApplicationRole> roles;
 	private Long membershipNumber;
+	private Object authorization;
 	
 	public UserAppMetadata()
 	{
@@ -42,5 +43,22 @@ public class UserAppMetadata
 	public void setRoles(final List<ApplicationRole> roles)
 	{
 		this.roles = roles;
+	}
+	
+	/**
+	 * @return the authorization
+	 */
+	public Object getAuthorization()
+	{
+		return authorization;
+	}
+	
+	/**
+	 * @param authorization
+	 *            the authorization to set
+	 */
+	public void setAuthorization(final Object authorization)
+	{
+		this.authorization = authorization;
 	}
 }
