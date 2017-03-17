@@ -5,25 +5,32 @@ stages:
  - build
  - deploy
 
-test:
-  stage: test
-  script:
-  - cd api
-  - mvn clean test
+before_script:
+# install ssh-agent
+- 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+# run ssh-agent
+- eval $(ssh-agent -s)
+# add ssh key stored in SSH_PRIVATE_KEY variable to the agent store
+- ssh-add <(echo "$SSH_PRIVATE_KEY")
+# disable host key checking (NOTE: makes you susceptible to man-in-the-middle attacks)
+# WARNING: use only in docker container, if you use it with shell you will overwrite your user's ssh config
+- mkdir -p ~/.ssh
+- echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
 
 build:
-  stage: build
+  stage: test
   script:
   - cd api
   - mvn clean package
   artifacts:
     paths:
-    - target/api-0.0.1-SNAPSHOT.jar
+    - api/target/api-0.0.1-SNAPSHOT.jar
 
 deploy:
   stage: deploy
   script:
-  - echo "deploy"
+  - scp api/target/api-0.0.1-SNAPSHOT.jar webapps@a.services.gtc.org.uk:/var/projects/gtc-api/api-0.0.1-SNAPSHOT.jar
+  - ssh webapps@a.services.gtc.org.uk 'sudo /bin/systemctl restart gtc-api'
   environment:
     name: production
     url: https://services.gtc.org.uk
