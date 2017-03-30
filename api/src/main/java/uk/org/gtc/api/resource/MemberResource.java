@@ -47,6 +47,7 @@ import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.domain.MemberStatus;
 import uk.org.gtc.api.domain.MemberType;
 import uk.org.gtc.api.domain.Salutation;
+import uk.org.gtc.api.exception.MemberNotFoundException;
 import uk.org.gtc.api.service.MemberService;
 import us.monoid.json.JSONException;
 
@@ -79,7 +80,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	
 	private List<String> checkValidMember(final MemberDO member, final Boolean shouldThrowException) throws ValidationException
 	{
-		final List<String> validationMessages = new ArrayList<String>();
+		final List<String> validationMessages = new ArrayList<>();
 		final Set<ConstraintViolation<MemberDO>> violations = validator.validate(member);
 		if (!violations.isEmpty())
 		{
@@ -100,7 +101,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	
 	private List<List<String>> checkValidMembers(final List<MemberDO> members, final Boolean shouldThrowException)
 	{
-		final List<List<String>> fullMessages = new ArrayList<List<String>>();
+		final List<List<String>> fullMessages = new ArrayList<>();
 		for (final MemberDO member : members)
 		{
 			final List<String> validationMessages = checkValidMember(member, shouldThrowException);
@@ -164,7 +165,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	public List<MemberDO> findMember(final @PathParam("query") String query) throws Exception
 	{
 		logger().debug("Finding member using " + query);
-		final List<MemberDO> results = new ArrayList<MemberDO>();
+		final List<MemberDO> results = new ArrayList<>();
 		final List<MemberDO> members = memberService.getAll();
 		for (final MemberDO member : members)
 		{
@@ -240,12 +241,20 @@ public class MemberResource extends GenericResource<MemberDO>
 	/**
 	 * @param context
 	 * @return
-	 * @throws JSONException
 	 */
-	private Long getCurrentUserMembershipNumber(final SecurityContext context) throws JSONException
+	private Long getCurrentUserMembershipNumber(final SecurityContext context)
 	{
 		final Auth0User prin = (Auth0User) context.getUserPrincipal();
-		final Long membershipNumber = prin.getAppMetadata().getLong("membershipNumber");
+		Long membershipNumber = null;
+		try
+		{
+			membershipNumber = prin.getAppMetadata().getLong("membershipNumber");
+		}
+		catch (final JSONException e)
+		{
+			logger().warn("Could not find membership number for this user: " + prin.getUserId());
+			throw new MemberNotFoundException();
+		}
 		return membershipNumber;
 	}
 	
@@ -298,7 +307,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@Timed
 	@Path("me")
 	@ApiOperation("Get the current user's member record")
-	@RolesAllowed("MEMBER")
+	@PermitAll
 	public MemberDO getMyMembership(final @Context SecurityContext context) throws JSONException
 	{
 		final Long membershipNumber = getCurrentUserMembershipNumber(context);
@@ -456,8 +465,8 @@ public class MemberResource extends GenericResource<MemberDO>
 		final CsvSchema schema = CsvSchema.emptySchema().withHeader().withColumnSeparator(',');
 		final MappingIterator<CsvMember> it = mapper.readerFor(CsvMember.class).with(schema).readValues(csv);
 		final DiffList diffs = new DiffList();
-		final List<Long> updatedList = new ArrayList<Long>();
-		final List<Long> createdList = new ArrayList<Long>();
+		final List<Long> updatedList = new ArrayList<>();
+		final List<Long> createdList = new ArrayList<>();
 		while (it.hasNext())
 		{
 			final CsvMember csvMember = it.next();
