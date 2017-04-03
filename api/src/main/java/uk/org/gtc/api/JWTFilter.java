@@ -11,10 +11,14 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response.Status;
 
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.internal.org.apache.commons.codec.binary.Base64;
+
+import io.dropwizard.auth.AuthenticationException;
 
 @WebFilter(filterName = "jwt-filter")
 public class JWTFilter implements Filter
@@ -39,11 +43,26 @@ public class JWTFilter implements Filter
 			throws IOException, ServletException
 	{
 		final HttpServletRequest req = (HttpServletRequest) request;
+		final HttpServletResponse resp = (HttpServletResponse) response;
+		
+		// Allow CORS preflights
 		if (req.getMethod().equals("OPTIONS"))
 		{
 			return;
 		}
-		final String token = getToken((HttpServletRequest) request);
+		
+		// Try to get the token from the request
+		String token = null;
+		try
+		{
+			token = getToken(req);
+		}
+		catch (final Exception e)
+		{
+			resp.sendError(Status.UNAUTHORIZED.getStatusCode(), e.getMessage());
+		}
+		
+		// Valid token has been found, now carry out verification
 		try
 		{
 			jwtVerifier.verify(token);
@@ -51,16 +70,17 @@ public class JWTFilter implements Filter
 		}
 		catch (final Exception e)
 		{
-			throw new ServletException("Unauthorized: Token validation failed", e);
+			resp.sendError(Status.UNAUTHORIZED.getStatusCode(),
+					"Token verification failed (" + e.getClass().getSimpleName() + "): " + e.getMessage());
 		}
 	}
 	
-	private String getToken(final HttpServletRequest httpRequest) throws ServletException
+	private String getToken(final HttpServletRequest httpRequest) throws ServletException, AuthenticationException
 	{
 		final String authorizationHeader = httpRequest.getHeader("authorization");
 		if (authorizationHeader == null)
 		{
-			throw new ServletException("Unauthorized: No Authorization header was found");
+			throw new AuthenticationException("Unauthorized: No Authorization header was found");
 		}
 		
 		final String[] parts = authorizationHeader.split(" ");
