@@ -57,25 +57,26 @@ public class JWTFilter implements Filter
 		{
 			token = getToken(req);
 		}
-		catch (final Exception e)
+		catch (final AuthenticationException ae)
 		{
-			resp.sendError(Status.UNAUTHORIZED.getStatusCode(), e.getMessage());
+			resp.sendError(Status.UNAUTHORIZED.getStatusCode(), ae.getMessage());
 		}
 		
 		// Valid token has been found, now carry out verification
 		try
 		{
 			jwtVerifier.verify(token);
-			chain.doFilter(request, response);
 		}
 		catch (final Exception e)
 		{
 			resp.sendError(Status.UNAUTHORIZED.getStatusCode(),
 					"Token verification failed (" + e.getClass().getSimpleName() + "): " + e.getMessage());
 		}
+		
+		chain.doFilter(request, response);
 	}
 	
-	private String getToken(final HttpServletRequest httpRequest) throws ServletException, AuthenticationException
+	private String getToken(final HttpServletRequest httpRequest) throws AuthenticationException
 	{
 		final String authorizationHeader = httpRequest.getHeader("authorization");
 		if (authorizationHeader == null)
@@ -86,7 +87,7 @@ public class JWTFilter implements Filter
 		final String[] parts = authorizationHeader.split(" ");
 		if (parts.length != 2)
 		{
-			throw new ServletException("Unauthorized: Format is Authorization: Bearer [token]");
+			throw new AuthenticationException("Unauthorized: Format is Authorization: Bearer [token]");
 		}
 		
 		final String scheme = parts[0];
