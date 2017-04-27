@@ -1,6 +1,5 @@
 package uk.org.gtc.api.service;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
@@ -10,11 +9,8 @@ import org.mongojack.DBQuery;
 import org.mongojack.DBSort;
 import org.mongojack.JacksonDBCollection;
 
-import com.microtripit.mandrillapp.lutung.MandrillApi;
-import com.microtripit.mandrillapp.lutung.model.MandrillApiError;
 import com.mongodb.MongoException;
 
-import uk.org.gtc.api.EmailHelper;
 import uk.org.gtc.api.UtilityHelper;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.domain.MemberStatus;
@@ -22,13 +18,11 @@ import uk.org.gtc.api.domain.MemberStatus;
 public class MemberService extends GenericService<MemberDO>
 {
 	private final JacksonDBCollection<MemberDO, String> collection;
-	private final MandrillApi mandrill;
 	
-	public MemberService(final JacksonDBCollection<MemberDO, String> members, final MandrillApi mandrill)
+	public MemberService(final JacksonDBCollection<MemberDO, String> members)
 	{
 		super(members);
 		this.collection = members;
-		this.mandrill = mandrill;
 	}
 	
 	public List<MemberDO> findByMemberNumber(final Long memberNumber) throws MongoException
@@ -65,11 +59,6 @@ public class MemberService extends GenericService<MemberDO>
 		Long nextMembershipNumber = UtilityHelper.isNull(lastMember) ? 0 : lastMember.getMembershipNumber();
 		nextMembershipNumber++;
 		return nextMembershipNumber;
-	}
-	
-	public Object sendEmail(final MemberDO member) throws MandrillApiError, IOException
-	{
-		return EmailHelper.singleRecipient(mandrill, "welcome", member, Boolean.TRUE);
 	}
 	
 }

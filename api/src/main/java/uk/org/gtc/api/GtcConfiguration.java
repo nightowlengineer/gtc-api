@@ -37,7 +37,7 @@ public class GtcConfiguration extends Configuration
 	
 	@JsonProperty
 	@NotEmpty
-	public String mandrillApiKey;
+	public String sendgridApiKey;
 	
 	@JsonProperty
 	@NotEmpty

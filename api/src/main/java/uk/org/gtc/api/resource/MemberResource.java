@@ -23,6 +23,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -532,10 +534,9 @@ public class MemberResource extends GenericResource<MemberDO>
 	
 	@GET
 	@Path("{memberNumber}/welcome")
-	@RolesAllowed("MEMBERSHIP_MANAGE")
-	public Object welcomeEmail(final @PathParam("memberNumber") Long memberNumber) throws Exception
+	@PermitAll
+	public Response welcomeEmail(final @PathParam("memberNumber") Long memberNumber) throws Exception
 	{
-		final MemberDO app = memberService.getByMemberNumber(memberNumber);
-		return memberService.sendEmail(app);
+		return Response.noContent().status(Status.NOT_IMPLEMENTED).build();
 	}
 }

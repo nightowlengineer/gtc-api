@@ -16,11 +16,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.auth0.Auth0User;
-import com.microtripit.mandrillapp.lutung.MandrillApi;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import com.sendgrid.SendGrid;
 
 import io.dropwizard.Application;
 import io.dropwizard.auth.AuthDynamicFeature;
@@ -33,8 +33,8 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import uk.org.gtc.api.domain.BookDO;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.health.BasicHealthCheck;
-import uk.org.gtc.api.health.MandrillHealthCheck;
 import uk.org.gtc.api.health.MongoHealthCheck;
+import uk.org.gtc.api.health.SendGridHealthCheck;
 import uk.org.gtc.api.resource.ApiResource;
 import uk.org.gtc.api.resource.BookResource;
 import uk.org.gtc.api.resource.MemberResource;
@@ -79,7 +79,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 	{
 		// Managed resources
 		final ServerAddress mongoHost = new ServerAddress(configuration.mongoHost);
-		final List<MongoCredential> mongoCredentials = new ArrayList<MongoCredential>();
+		final List<MongoCredential> mongoCredentials = new ArrayList<>();
 		final MongoCredential credential = MongoCredential.createScramSha1Credential(configuration.mongoUser, configuration.mongoDatabase,
 				configuration.mongoPassword);
 		mongoCredentials.add(credential);
@@ -96,7 +96,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		corsFilter.setInitParameter(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*");
 		
 		// Authentication configuration
-		final List<String> urlPatterns = new ArrayList<String>();
+		final List<String> urlPatterns = new ArrayList<>();
 		urlPatterns.add("/member/*");
 		urlPatterns.add("/user/*");
 		
@@ -111,12 +111,12 @@ public class GtcApplication extends Application<GtcConfiguration>
 		jwtFilter.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,PUT,POST,DELETE,OPTIONS");
 		
 		// Integrations
-		final MandrillApi mandrill = new MandrillApi(configuration.mandrillApiKey);
+		final SendGrid sendgrid = new SendGrid(configuration.sendgridApiKey);
 		
 		// Health checks
 		environment.healthChecks().register("basic", new BasicHealthCheck());
 		environment.healthChecks().register("mongo", new MongoHealthCheck(mongo));
-		environment.healthChecks().register("mandrill", new MandrillHealthCheck(mandrill));
+		environment.healthChecks().register("mandrill", new SendGridHealthCheck(sendgrid));
 		
 		// Database and Jackson mappings
 		@SuppressWarnings("deprecation")
@@ -127,7 +127,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		final JacksonDBCollection<BookDO, String> books = JacksonDBCollection.wrap(db.getCollection("books"), BookDO.class, String.class);
 		
 		// Services
-		final MemberService memberService = new MemberService(members, mandrill);
+		final MemberService memberService = new MemberService(members);
 		final BookService bookService = new BookService(books);
 		
 		// Resource registration
@@ -137,7 +137,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		environment.jersey().register(new UserResource());
 		
 		// Authentication
-		final OAuthCredentialAuthFilter.Builder<Auth0User> authFilter = new OAuthCredentialAuthFilter.Builder<Auth0User>();
+		final OAuthCredentialAuthFilter.Builder<Auth0User> authFilter = new OAuthCredentialAuthFilter.Builder<>();
 		final GtcAuthenticator gtcAuthenticator = new GtcAuthenticator(logger(), configuration);
 		final GtcAuthoriser gtcAuthoriser = new GtcAuthoriser();
 		final String tokenPrefix = "Bearer";
