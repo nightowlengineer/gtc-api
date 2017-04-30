@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import com.auth0.Auth0User;
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
@@ -76,11 +75,10 @@ public class MemberResource extends GenericResource<MemberDO>
 		
 		approvedMember.setMembershipNumber(memberService.getNextMemberNumber());
 		
-		final MemberDO acceptedMember = memberService.update(appliedMember, approvedMember);
-		return acceptedMember;
+		return memberService.update(appliedMember, approvedMember);
 	}
 	
-	private List<String> checkValidMember(final MemberDO member, final Boolean shouldThrowException) throws ValidationException
+	private List<String> checkValidMember(final MemberDO member, final Boolean shouldThrowException)
 	{
 		final List<String> validationMessages = new ArrayList<>();
 		final Set<ConstraintViolation<MemberDO>> violations = validator.validate(member);
@@ -164,9 +162,9 @@ public class MemberResource extends GenericResource<MemberDO>
 	@Path("search/{query}")
 	@ApiOperation("Get member by Membership Number")
 	@RolesAllowed("MEMBERSHIP_READ")
-	public List<MemberDO> findMember(final @PathParam("query") String query) throws Exception
+	public List<MemberDO> findMember(final @PathParam("query") String query)
 	{
-		logger().debug("Finding member using " + query);
+		logger().debug("Finding member using %s", query);
 		final List<MemberDO> results = new ArrayList<>();
 		final List<MemberDO> members = memberService.getAll();
 		for (final MemberDO member : members)
@@ -416,9 +414,7 @@ public class MemberResource extends GenericResource<MemberDO>
 			}
 		}
 		
-		final MemberDO updatedMember = memberService.update(existingMember, member);
-		
-		return updatedMember;
+		return memberService.update(existingMember, member);
 	}
 	
 	@PUT
@@ -449,9 +445,7 @@ public class MemberResource extends GenericResource<MemberDO>
 		newMember.setStatus(existingMember.getStatus());
 		newMember.setType(existingMember.getType());
 		
-		final MemberDO updatedMember = memberService.update(existingMember, newMember);
-		
-		return updatedMember;
+		return memberService.update(existingMember, newMember);
 	}
 	
 	@POST
@@ -511,31 +505,16 @@ public class MemberResource extends GenericResource<MemberDO>
 	@ApiOperation("Verify a member by their Membership Number and their Last Name")
 	@PermitAll
 	public Boolean verifyMemberByNumberAndSurname(final @PathParam("membershipNumber") Long membershipNumber,
-			final @PathParam("lastName") String lastName) throws Exception
+			final @PathParam("lastName") String lastName)
 	{
-		try
-		{
-			final MemberDO memberToVerify = memberService.getByMemberNumber(membershipNumber);
-			if (memberToVerify.getLastName().equalsIgnoreCase(lastName) && memberToVerify.getStatus() == MemberStatus.CURRENT)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		catch (final Exception e)
-		{
-			return false;
-		}
-		
+		final MemberDO memberToVerify = memberService.getByMemberNumber(membershipNumber);
+		return memberToVerify.getLastName().equalsIgnoreCase(lastName) && memberToVerify.getStatus() == MemberStatus.CURRENT;
 	}
 	
 	@GET
 	@Path("{memberNumber}/welcome")
 	@PermitAll
-	public Response welcomeEmail(final @PathParam("memberNumber") Long memberNumber) throws Exception
+	public Response welcomeEmail(final @PathParam("memberNumber") Long memberNumber)
 	{
 		return Response.noContent().status(Status.NOT_IMPLEMENTED).build();
 	}

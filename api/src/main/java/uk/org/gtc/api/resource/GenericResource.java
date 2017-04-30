@@ -8,13 +8,17 @@ import javax.validation.ValidatorFactory;
 import javax.ws.rs.WebApplicationException;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.org.gtc.api.domain.BaseDomainObject;
 import uk.org.gtc.api.service.GenericService;
 
-abstract class GenericResource<T extends BaseDomainObject>
+public class GenericResource<T extends BaseDomainObject>
 {
-	abstract Logger logger();
+	Logger logger()
+	{
+		return LoggerFactory.getLogger(GenericResource.class);
+	}
 	
 	protected ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 	

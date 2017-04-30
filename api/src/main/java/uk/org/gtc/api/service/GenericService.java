@@ -13,6 +13,8 @@ import org.mongojack.DBQuery;
 import org.mongojack.DBQuery.Query;
 import org.mongojack.JacksonDBCollection;
 import org.mongojack.WriteResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -22,6 +24,11 @@ import uk.org.gtc.api.domain.BaseDomainObject;
 
 public class GenericService<T extends BaseDomainObject>
 {
+	Logger logger()
+	{
+		return LoggerFactory.getLogger(GenericService.class);
+	}
+	
 	private final JacksonDBCollection<T, String> collection;
 	
 	public GenericService(final JacksonDBCollection<T, String> collection)

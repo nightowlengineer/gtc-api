@@ -1,5 +1,6 @@
 package uk.org.gtc.api.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
@@ -8,12 +9,15 @@ import org.eclipse.jetty.server.Response;
 import org.mongojack.DBQuery;
 import org.mongojack.DBSort;
 import org.mongojack.JacksonDBCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mongodb.MongoException;
 
 import uk.org.gtc.api.UtilityHelper;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.domain.MemberStatus;
+import uk.org.gtc.api.exception.MemberNotFoundException;
 
 public class MemberService extends GenericService<MemberDO>
 {
@@ -25,12 +29,28 @@ public class MemberService extends GenericService<MemberDO>
 		this.collection = members;
 	}
 	
-	public List<MemberDO> findByMemberNumber(final Long memberNumber) throws MongoException
+	@Override
+	Logger logger()
 	{
-		return collection.find(DBQuery.is("membershipNumber", memberNumber)).toArray();
+		return LoggerFactory.getLogger(MemberService.class);
 	}
 	
-	public MemberDO getByMemberNumber(final Long memberNumber) throws MongoException
+	public List<MemberDO> findByMemberNumber(final Long memberNumber)
+	{
+		final List<MemberDO> members = new ArrayList<>();
+		try
+		{
+			members.addAll(collection.find(DBQuery.is("membershipNumber", memberNumber)).toArray());
+		}
+		catch (final MongoException me)
+		{
+			logger().error("Encountered error when looking up member number", me);
+			throw new MemberNotFoundException("Member " + memberNumber + "could not be found");
+		}
+		return members;
+	}
+	
+	public MemberDO getByMemberNumber(final Long memberNumber)
 	{
 		final List<MemberDO> members = findByMemberNumber(memberNumber);
 		if (members.size() == 1)
