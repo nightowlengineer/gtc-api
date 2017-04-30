@@ -1,17 +1,22 @@
 package uk.org.gtc.api.resource;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.WebApplicationException;
 
 import org.bson.types.ObjectId;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
+import uk.org.gtc.api.domain.CsvMember;
+import uk.org.gtc.api.domain.ImportDiff;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.domain.MemberStatus;
 import uk.org.gtc.api.service.MemberService;
@@ -39,6 +44,9 @@ public class MemberResourceTest
 	
 	public final String id = new ObjectId().toString();
 	
+	public final List<MemberDO> members = new ArrayList<>();
+	public final List<MemberDO> lapsedMembers = new ArrayList<>();
+	
 	@Before
 	public void createMembers()
 	{
@@ -48,14 +56,134 @@ public class MemberResourceTest
 		invoicedMember.setStatus(MemberStatus.INVOICED);
 		paidMember.setStatus(MemberStatus.PAID);
 		currentMember.setStatus(MemberStatus.CURRENT);
+		currentMember.setMembershipNumber(1000L);
 		lapsedMember.setStatus(MemberStatus.LAPSED);
+		lapsedMember.setMembershipNumber(2000L);
 		removedMember.setStatus(MemberStatus.REMOVED);
+		removedMember.setMembershipNumber(9000L);
+	}
+	
+	@Before
+	public void setupMemberLists()
+	{
+		members.add(appliedMember);
+		members.add(declinedMember);
+		members.add(approvedMember);
+		members.add(invoicedMember);
+		members.add(paidMember);
+		members.add(currentMember);
+		members.add(lapsedMember);
+		members.add(removedMember);
+		
+		lapsedMembers.add(lapsedMember);
+	}
+	
+	@Test
+	public void testImportMemberNonexistent()
+	{
+		final ImportDiff diffs = new ImportDiff();
+		final Set<Long> errorSet = new HashSet<>();
+		final Set<Long> existingSet = new HashSet<>();
+		final Set<Long> importedSet = new HashSet<>();
+		final Set<Long> createdSet = new HashSet<>();
+		final Set<Long> updatedSet = new HashSet<>();
+		final Set<Long> deletedSet = new HashSet<>();
+		
+		diffs.setImportedSet(importedSet);
+		diffs.setExistingSet(existingSet);
+		diffs.setErrorSet(errorSet);
+		diffs.setDeletedSet(deletedSet);
+		diffs.setUpdatedSet(updatedSet);
+		diffs.setCreatedSet(createdSet);
+		
+		final CsvMember csvMember = new CsvMember();
+		csvMember.setMembershipNumber(1234L);
+		final MemberDO newMember = new MemberDO();
+		newMember.setMembershipNumber(1234L);
+		
+		Mockito.when(memberService.getByMemberNumber(1234L)).thenReturn(null);
+		Mockito.when(memberService.create(newMember)).thenReturn(newMember);
+		final ImportDiff newDiffs = memberResource.importCreateUpdateMember(csvMember, diffs);
+		Assert.assertEquals(1, newDiffs.getCreatedSet().size());
+		Assert.assertEquals(0, newDiffs.getErrorSet().size());
+	}
+	
+	@Test
+	public void testImportMemberAlreadyExists()
+	{
+		final ImportDiff diffs = new ImportDiff();
+		final Set<Long> errorSet = new HashSet<>();
+		final Set<Long> existingSet = new HashSet<>();
+		final Set<Long> importedSet = new HashSet<>();
+		final Set<Long> createdSet = new HashSet<>();
+		final Set<Long> updatedSet = new HashSet<>();
+		final Set<Long> deletedSet = new HashSet<>();
+		
+		diffs.setImportedSet(importedSet);
+		diffs.setExistingSet(existingSet);
+		diffs.setErrorSet(errorSet);
+		diffs.setDeletedSet(deletedSet);
+		diffs.setUpdatedSet(updatedSet);
+		diffs.setCreatedSet(createdSet);
+		
+		final CsvMember csvMember = new CsvMember();
+		csvMember.setMembershipNumber(1000L);
+		
+		Mockito.when(memberService.getByMemberNumber(1000L)).thenReturn(currentMember);
+		Mockito.when(memberService.update(currentMember, currentMember)).thenReturn(currentMember);
+		final ImportDiff newDiffs = memberResource.importCreateUpdateMember(csvMember, diffs);
+		Assert.assertEquals(0, newDiffs.getCreatedSet().size());
+		Assert.assertEquals(1, newDiffs.getUpdatedSet().size());
+		Assert.assertEquals(0, newDiffs.getErrorSet().size());
+	}
+	
+	@Test
+	public void testImportMemberDeleted()
+	{
+		final ImportDiff diffs = new ImportDiff();
+		final Set<Long> errorSet = new HashSet<>();
+		final Set<Long> existingSet = new HashSet<>();
+		final Set<Long> importedSet = new HashSet<>();
+		final Set<Long> deletedSet = new HashSet<>();
+		existingSet.add(9000L);
+		diffs.setImportedSet(importedSet);
+		diffs.setExistingSet(existingSet);
+		diffs.setErrorSet(errorSet);
+		diffs.setDeletedSet(deletedSet);
+		
+		Mockito.when(memberService.findByMemberNumber(9000L)).thenReturn(lapsedMembers);
+		Mockito.when(memberService.delete(lapsedMember)).thenReturn(true);
+		final ImportDiff newDiffs = memberResource.importDeleteMember(diffs);
+		Assert.assertEquals(1, newDiffs.getDeletedSet().size());
+	}
+	
+	@Test
+	public void testErrorImportMemberDeleted()
+	{
+		final ImportDiff diffs = new ImportDiff();
+		final Set<Long> errorSet = new HashSet<>();
+		final Set<Long> existingSet = new HashSet<>();
+		final Set<Long> importedSet = new HashSet<>();
+		final Set<Long> deletedSet = new HashSet<>();
+		existingSet.add(9000L);
+		diffs.setImportedSet(importedSet);
+		diffs.setExistingSet(existingSet);
+		diffs.setErrorSet(errorSet);
+		diffs.setDeletedSet(deletedSet);
+		
+		Mockito.when(memberService.findByMemberNumber(9000L)).thenReturn(lapsedMembers);
+		Mockito.when(memberService.delete(lapsedMember)).thenReturn(false);
+		
+		final ImportDiff newDiffs = memberResource.importDeleteMember(diffs);
+		
+		Assert.assertEquals(0, newDiffs.getDeletedSet().size());
+		Assert.assertEquals(1, newDiffs.getErrorSet().size());
 	}
 	
 	@Test
 	public void testGetCurrent() throws Exception
 	{
-		final List<MemberDO> currentMembers = new ArrayList<MemberDO>();
+		final List<MemberDO> currentMembers = new ArrayList<>();
 		currentMembers.add(currentMember);
 		Mockito.when(memberService.getByStatus(MemberStatus.CURRENT)).thenReturn(currentMembers);
 		

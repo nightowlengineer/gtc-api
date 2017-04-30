@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,12 +44,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import uk.org.gtc.api.UtilityHelper;
 import uk.org.gtc.api.domain.CsvMember;
-import uk.org.gtc.api.domain.DiffList;
+import uk.org.gtc.api.domain.ImportDiff;
 import uk.org.gtc.api.domain.LocationType;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.domain.MemberStatus;
 import uk.org.gtc.api.domain.MemberType;
 import uk.org.gtc.api.domain.Salutation;
+import uk.org.gtc.api.exception.MemberImportException;
 import uk.org.gtc.api.exception.MemberNotFoundException;
 import uk.org.gtc.api.service.MemberService;
 import us.monoid.json.JSONException;
@@ -450,53 +453,180 @@ public class MemberResource extends GenericResource<MemberDO>
 	
 	@POST
 	@Timed
-	@Path("upload")
-	@ApiOperation("Administrator can upload new membership information")
+	@Path("upload/{delete}")
+	@ApiOperation("Administrator can upload new membership information from a CSV file")
 	@RolesAllowed("MEMBERSHIP_MANAGE")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces({ MediaType.APPLICATION_JSON })
-	public DiffList uploadMembers(@FormDataParam("file") final InputStream csv) throws JsonProcessingException, IOException
+	public ImportDiff importMembersFromCsv(@FormDataParam("file") final InputStream csv, @PathParam("delete") final Boolean delete)
 	{
 		final CsvMapper mapper = new CsvMapper();
 		final CsvSchema schema = CsvSchema.emptySchema().withHeader().withColumnSeparator(',');
-		final MappingIterator<CsvMember> it = mapper.readerFor(CsvMember.class).with(schema).readValues(csv);
-		final DiffList diffs = new DiffList();
-		final List<Long> updatedList = new ArrayList<>();
-		final List<Long> createdList = new ArrayList<>();
+		MappingIterator<CsvMember> it;
+		try
+		{
+			it = mapper.readerFor(CsvMember.class).with(schema).readValues(csv);
+		}
+		catch (final IOException ioe)
+		{
+			logger().warn("Could not process import", ioe);
+			throw new MemberImportException("Couldn't process the file that was provided. Please confirm it matches the spec.");
+		}
+		
+		final Set<Long> createdSet = new HashSet<>();
+		final Set<Long> updatedSet = new HashSet<>();
+		final Set<Long> deletedSet = new HashSet<>();
+		final Set<Long> errorSet = new HashSet<>();
+		final Set<Long> importedSet = new HashSet<>();
+		final Set<Long> existingSet = new HashSet<>();
+		
+		existingSet.addAll(getSetOfMemberNumbers());
+		
+		final ImportDiff diffs = new ImportDiff();
+		diffs.setCreatedSet(createdSet);
+		diffs.setUpdatedSet(updatedSet);
+		diffs.setDeletedSet(deletedSet);
+		diffs.setErrorSet(errorSet);
+		diffs.setImportedSet(importedSet);
+		diffs.setExistingSet(existingSet);
+		
+		// Process members to create/update
 		while (it.hasNext())
 		{
 			final CsvMember csvMember = it.next();
-			final MemberDO existingMember = memberService.getByMemberNumber(csvMember.getMembershipNumber());
-			// Check whether the member already exists
-			if (existingMember != null)
-			{
-				final MemberDO updatedMember = memberService.getByMemberNumber(csvMember.getMembershipNumber());
-				if (!updatedMember.getEmail().equals(csvMember.getEmail()))
-				{
-					updatedMember.setEmail(csvMember.getEmail());
-				}
-				if (!updatedMember.getStatus().equals(csvMember.getStatus()))
-				{
-					updatedMember.setStatus(csvMember.getStatus());
-				}
-				if (!updatedMember.getType().equals(csvMember.getType()))
-				{
-					updatedMember.setType(csvMember.getType());
-				}
-				memberService.update(existingMember, updatedMember);
-				updatedList.add(csvMember.getMembershipNumber());
-			}
-			else
-			{
-				memberService.create(new MemberDO(csvMember.getType(), csvMember.getStatus(), csvMember.getMembershipNumber(),
-						csvMember.getSalutation(), csvMember.getFirstName(), csvMember.getLastName(), csvMember.getEmail(), null, null,
-						null, null, null, null, null, null));
-				createdList.add(csvMember.getMembershipNumber());
-			}
+			importCreateUpdateMember(csvMember, diffs);
 		}
-		diffs.setCreatedList(createdList);
-		diffs.setUpdatedList(updatedList);
+		
+		if (delete)
+		{
+			importDeleteMember(diffs);
+		}
+		
 		return diffs;
+	}
+	
+	/**
+	 * Create or update a member from an import.
+	 * 
+	 * @param csvMember
+	 * @param diffs
+	 * @return an updated list of diffs
+	 */
+	public ImportDiff importCreateUpdateMember(final CsvMember csvMember, final ImportDiff diffs)
+	{
+		// Add to overall import set
+		final Set<Long> importedSet = diffs.getImportedSet();
+		final Set<Long> updatedSet = diffs.getUpdatedSet();
+		final Set<Long> createdSet = diffs.getCreatedSet();
+		
+		importedSet.add(csvMember.getMembershipNumber());
+		final MemberDO existingMember = memberService.getByMemberNumber(csvMember.getMembershipNumber());
+		
+		// Member exists
+		if (existingMember != null)
+		{
+			final MemberDO updatedMember = memberService.getByMemberNumber(csvMember.getMembershipNumber());
+			if (updatedMember.getEmail() != null && !updatedMember.getEmail().equals(csvMember.getEmail()))
+			{
+				updatedMember.setEmail(csvMember.getEmail());
+			}
+			if (updatedMember.getStatus() != null && !updatedMember.getStatus().equals(csvMember.getStatus()))
+			{
+				updatedMember.setStatus(csvMember.getStatus());
+			}
+			if (updatedMember.getType() != null && !updatedMember.getType().equals(csvMember.getType()))
+			{
+				updatedMember.setType(csvMember.getType());
+			}
+			memberService.update(existingMember, updatedMember);
+			updatedSet.add(csvMember.getMembershipNumber());
+		}
+		// Member does not exist
+		else
+		{
+			memberService.create(new MemberDO(csvMember.getType(), csvMember.getStatus(), csvMember.getMembershipNumber(),
+					csvMember.getSalutation(), csvMember.getFirstName(), csvMember.getLastName(), csvMember.getEmail(), null, null, null,
+					null, null, null, null, null));
+			createdSet.add(csvMember.getMembershipNumber());
+		}
+		
+		diffs.setCreatedSet(createdSet);
+		diffs.setUpdatedSet(updatedSet);
+		diffs.setImportedSet(importedSet);
+		
+		return diffs;
+	}
+	
+	/**
+	 * Get the existing list of members in the database, and remove all that
+	 * exist in the imported document. From here, we have the intersection of
+	 * members that have a record in this system, but not in the import, and
+	 * should therefore be deleted.
+	 * 
+	 * @param diffs
+	 * @return an updated list of diffs
+	 */
+	public ImportDiff importDeleteMember(final ImportDiff diffs)
+	{
+		final Set<Long> existingSet = diffs.getExistingSet();
+		final Set<Long> importedSet = diffs.getImportedSet();
+		final Set<Long> deletedSet = diffs.getDeletedSet();
+		final Set<Long> errorSet = diffs.getErrorSet();
+		existingSet.removeAll(importedSet);
+		
+		for (final Long memberNumber : existingSet)
+		{
+			String errorMessage = null;
+			final List<MemberDO> memberList = memberService.findByMemberNumber(memberNumber);
+			if (memberList.size() == 1)
+			{
+				final Boolean deleteStatus = memberService.delete(memberList.get(0));
+				if (deleteStatus)
+				{
+					deletedSet.add(memberNumber);
+					continue;
+				}
+				else
+				{
+					errorMessage = memberNumber + " was not deleted due to an unknown error";
+				}
+			}
+			else if (memberList.size() > 1)
+			{
+				errorMessage = memberNumber + " was not deleted as there is more than one existing member with that number.";
+				
+			}
+			else if (memberList.isEmpty())
+			{
+				errorMessage = memberNumber + " could not be deleted, as a record did not exist.";
+			}
+			errorSet.add(memberNumber);
+			logger().error(errorMessage);
+		}
+		
+		diffs.setDeletedSet(deletedSet);
+		diffs.setErrorSet(errorSet);
+		diffs.setImportedSet(importedSet);
+		diffs.setExistingSet(existingSet);
+		
+		return diffs;
+	}
+	
+	/**
+	 * Gets a {@link Set} of member numbers.
+	 * 
+	 * @return a {@link Set} of member numbers;
+	 */
+	private Collection<? extends Long> getSetOfMemberNumbers()
+	{
+		final Set<Long> memberNumbers = new HashSet<>();
+		// Get set of existing membership numbers
+		final List<MemberDO> members = memberService.getAll();
+		for (final MemberDO member : members)
+		{
+			memberNumbers.add(member.getMembershipNumber());
+		}
+		return memberNumbers;
 	}
 	
 	@GET
