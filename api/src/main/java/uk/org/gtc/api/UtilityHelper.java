@@ -2,6 +2,11 @@ package uk.org.gtc.api;
 
 public class UtilityHelper
 {
+	private UtilityHelper()
+	{
+		
+	}
+	
 	public static Boolean isNull(final Object obj)
 	{
 		return obj == null;
