@@ -36,16 +36,17 @@ public class SalutationTest extends TestCase
 		assertEquals("MRS", Salutation.MRS.toString());
 		assertEquals("MS", Salutation.MS.toString());
 		assertEquals("SIR", Salutation.SIR.toString());
+		assertEquals("MX", Salutation.MX.toString());
 		
 		final Salutation[] salutations = Salutation.values();
-		assertEquals(6, salutations.length);
+		assertEquals(7, salutations.length);
 		assertEquals(Salutation.DR, Salutation.valueOf("DR"));
 		assertEquals(Salutation.MISS, Salutation.valueOf("MISS"));
 		assertEquals(Salutation.MR, Salutation.valueOf("MR"));
 		assertEquals(Salutation.MRS, Salutation.valueOf("MRS"));
 		assertEquals(Salutation.MS, Salutation.valueOf("MS"));
 		assertEquals(Salutation.SIR, Salutation.valueOf("SIR"));
-		
+		assertEquals(Salutation.MX, Salutation.valueOf("MX"));
 	}
 	
 }
