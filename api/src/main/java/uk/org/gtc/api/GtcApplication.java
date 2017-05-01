@@ -116,7 +116,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		// Health checks
 		environment.healthChecks().register("basic", new BasicHealthCheck());
 		environment.healthChecks().register("mongo", new MongoHealthCheck(mongo));
-		environment.healthChecks().register("mandrill", new SendGridHealthCheck(sendgrid));
+		environment.healthChecks().register("sendgrid", new SendGridHealthCheck(sendgrid));
 		
 		// Database and Jackson mappings
 		@SuppressWarnings("deprecation")

@@ -55,16 +55,16 @@ public class GtcAuthenticator implements Authenticator<String, Auth0User>
 		catch (InvalidKeyException | NoSuchAlgorithmException | IllegalStateException | SignatureException | IOException
 				| JWTVerifyException | UnirestException | JSONException e)
 		{
-			throw new AuthenticationException("Could not authenticate");
+			throw new AuthenticationException("Could not authenticate", e);
 		}
 		
 		if (UtilityHelper.isNull(user))
 		{
-			logger.info("Failed to authenticate with token " + token);
+			logger.debug("Failed to authenticate with token %s", token);
 		}
 		else
 		{
-			logger.info("Authenticated " + user.getEmail() + " (" + user.getUserId() + ")");
+			logger.debug("Authenticated " + user.getEmail() + " (" + user.getUserId() + ")");
 		}
 		
 		return Optional.of(user);

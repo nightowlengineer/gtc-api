@@ -28,25 +28,18 @@ public class GtcAuthoriser implements Authorizer<Auth0User>
 		{
 			uam = om.readValue(userAppMetadataString, UserAppMetadata.class);
 		}
-		catch (final IOException e)
+		catch (final IOException ioe)
 		{
-			logger().debug("Couldn't read user's app metadata");
-			logger().debug(e.getMessage());
+			logger().debug("Couldn't read user's app metadata", ioe);
 			return false;
 		}
 		
 		final List<ApplicationRole> userRoles = uam.getRoles();
 		if (userRoles != null)
 		{
-			logger().debug("User's roles: " + userRoles.toString());
-			if (userRoles.contains(appRole) || userRoles.contains(ApplicationRole.ADMIN))
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			final String userRolesString = userRoles.toString();
+			logger().debug("User's roles: %s", userRolesString);
+			return userRoles.contains(appRole) || userRoles.contains(ApplicationRole.ADMIN);
 		}
 		else
 		{
