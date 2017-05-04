@@ -493,7 +493,16 @@ public class MemberResource extends GenericResource<MemberDO>
 		// Process members to create/update
 		while (it.hasNext())
 		{
-			final CsvMember csvMember = it.next();
+			CsvMember csvMember = null;
+			try
+			{
+				csvMember = it.next();
+			}
+			catch (final Exception e)
+			{
+				logger().warn("Invalid row in member import", e);
+				continue;
+			}
 			importCreateUpdateMember(csvMember, diffs);
 		}
 		
