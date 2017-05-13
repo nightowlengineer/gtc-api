@@ -1,8 +1,24 @@
 package uk.org.gtc.api.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum MemberType
 {
-	FULL, ASSOCIATE, STUDENT, ACADEMIC, SPONSOR, AFFILIATE, RETIRED, FELLOW, HONORARY;
+	FULL, ASSOCIATE, STUDENT, ACADEMIC, SPONSOR, AFFILIATE, RETIRED, FELLOW, HONORARY, IAWF, IAWF_ASSOCIATE;
+	
+	@JsonCreator
+	public static MemberType fromString(final String key)
+	{
+		for (final MemberType type : MemberType.values())
+		{
+			
+			if (type.name().equalsIgnoreCase(key.replace(" ", "_")))
+			{
+				return type;
+			}
+		}
+		return null;
+	}
 	
 	public Boolean canUseLogo()
 	{
@@ -12,6 +28,7 @@ public enum MemberType
 		case SPONSOR:
 		case FELLOW:
 		case HONORARY:
+		case IAWF:
 			return true;
 		case ASSOCIATE:
 		case STUDENT:
