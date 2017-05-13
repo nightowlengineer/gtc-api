@@ -276,10 +276,27 @@ public class MemberResource extends GenericResource<MemberDO>
 	@Path("id/{id}")
 	@ApiOperation("Get member by GUID")
 	@RolesAllowed("MEMBERSHIP_READ")
-	public MemberDO getMemberById(final @PathParam("id") String id) throws WebApplicationException
+	public MemberDO getMemberById(final @PathParam("id") String id)
 	{
 		logger().debug("Fetching member by ID " + id);
-		return super.getItemById(id);
+		MemberDO member = null;
+		try
+		{
+			member = super.getItemById(id);
+		}
+		catch (final WebApplicationException wae)
+		{
+			if (wae.getResponse().equals(org.eclipse.jetty.server.Response.SC_NOT_FOUND))
+			{
+				throw new MemberNotFoundException();
+			}
+			else
+			{
+				throw new WebApplicationException(wae);
+			}
+		}
+		
+		return member;
 	}
 	
 	@GET
@@ -337,6 +354,23 @@ public class MemberResource extends GenericResource<MemberDO>
 		return Salutation.values();
 	}
 	
+	/**
+	 * Gets a {@link Set} of member numbers.
+	 * 
+	 * @return a {@link Set} of member numbers;
+	 */
+	private Collection<? extends Long> getSetOfMemberNumbers()
+	{
+		final Set<Long> memberNumbers = new HashSet<>();
+		// Get set of existing membership numbers
+		final List<MemberDO> members = memberService.getAll();
+		for (final MemberDO member : members)
+		{
+			memberNumbers.add(member.getMembershipNumber());
+		}
+		return memberNumbers;
+	}
+	
 	@GET
 	@Timed
 	@Path("statusTypes")
@@ -345,164 +379,6 @@ public class MemberResource extends GenericResource<MemberDO>
 	public MemberStatus[] getStatusTypes()
 	{
 		return MemberStatus.values();
-	}
-	
-	@Override
-	Logger logger()
-	{
-		return LoggerFactory.getLogger(MemberResource.class);
-	}
-	
-	@PUT
-	@Timed
-	@Path("id/{id}")
-	@ApiOperation("Update member by GUID")
-	@RolesAllowed("MEMBERSHIP_MANAGE")
-	public MemberDO updateMemberById(final @PathParam("id") String id, final MemberDO member) throws WebApplicationException
-	{
-		final MemberDO existingMember = memberService.getById(id);
-		
-		if (!existingMember.getStatus().equals(member.getStatus()))
-		{
-			final MemberStatus existingStatus = existingMember.getStatus();
-			final MemberStatus newStatus = member.getStatus();
-			switch (newStatus)
-			{
-			case APPLIED:
-				if (!existingStatus.equals(MemberStatus.DECLINED) && !existingStatus.equals(MemberStatus.REMOVED)
-						&& !existingStatus.equals(MemberStatus.LAPSED))
-				{
-					throw new WebApplicationException();
-				}
-				break;
-			case APPROVED:
-			case DECLINED:
-				if (!existingStatus.equals(MemberStatus.APPLIED))
-				{
-					throw new WebApplicationException();
-				}
-				break;
-			case INVOICED:
-				if (!existingStatus.equals(MemberStatus.APPROVED))
-				{
-					throw new WebApplicationException();
-				}
-				break;
-			case PAID:
-				if (!existingStatus.equals(MemberStatus.INVOICED))
-				{
-					throw new WebApplicationException();
-				}
-				break;
-			case CURRENT:
-				if (!existingStatus.equals(MemberStatus.PAID))
-				{
-					throw new WebApplicationException();
-				}
-				break;
-			case LAPSED:
-				if (!existingStatus.equals(MemberStatus.CURRENT))
-				{
-					throw new WebApplicationException();
-				}
-				break;
-			case REMOVED:
-				if (!existingStatus.equals(MemberStatus.CURRENT) && !existingStatus.equals(MemberStatus.LAPSED))
-				{
-					throw new WebApplicationException();
-				}
-				break;
-			default:
-				break;
-			}
-		}
-		
-		return memberService.update(existingMember, member);
-	}
-	
-	@PUT
-	@Timed
-	@Path("me")
-	@ApiOperation("Update a member's own record")
-	@RolesAllowed("MEMBER")
-	public MemberDO updateMyMembership(final @Context SecurityContext context, final MemberDO newMember)
-			throws WebApplicationException, JSONException
-	{
-		final Long membershipNumber = getCurrentUserMembershipNumber(context);
-		
-		final MemberDO existingMember = memberService.getByMemberNumber(membershipNumber);
-		
-		if (!existingMember.getStatus().equals(newMember.getStatus()))
-		{
-			throw new WebApplicationException("You can not update your own membership status.");
-		}
-		
-		if (!existingMember.getType().equals(newMember.getType()))
-		{
-			throw new WebApplicationException("You can not change your own membership type.");
-		}
-		
-		newMember.setId(existingMember.getId());
-		newMember.setCreatedDate(existingMember.getCreatedDate());
-		newMember.setLastUpdatedDate(new Date());
-		newMember.setStatus(existingMember.getStatus());
-		newMember.setType(existingMember.getType());
-		
-		return memberService.update(existingMember, newMember);
-	}
-	
-	@POST
-	@Timed
-	@Path("upload/{delete}")
-	@ApiOperation("Administrator can upload new membership information from a CSV file")
-	@RolesAllowed("MEMBERSHIP_MANAGE")
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@Produces({ MediaType.APPLICATION_JSON })
-	public ImportDiff importMembersFromCsv(@FormDataParam("file") final InputStream csv, @PathParam("delete") final Boolean delete)
-	{
-		final CsvMapper mapper = new CsvMapper();
-		final CsvSchema schema = CsvSchema.emptySchema().withHeader().withColumnSeparator(',');
-		MappingIterator<CsvMember> it;
-		try
-		{
-			it = mapper.readerFor(CsvMember.class).with(schema).readValues(csv);
-		}
-		catch (final IOException ioe)
-		{
-			logger().warn("Could not process import", ioe);
-			throw new MemberImportException("Couldn't process the file that was provided. Please confirm it matches the spec.");
-		}
-		
-		final Set<Long> createdSet = new HashSet<>();
-		final Set<Long> updatedSet = new HashSet<>();
-		final Set<Long> deletedSet = new HashSet<>();
-		final Set<Long> errorSet = new HashSet<>();
-		final Set<Long> importedSet = new HashSet<>();
-		final Set<Long> existingSet = new HashSet<>();
-		
-		existingSet.addAll(getSetOfMemberNumbers());
-		
-		final ImportDiff diffs = new ImportDiff();
-		diffs.setCreatedSet(createdSet);
-		diffs.setUpdatedSet(updatedSet);
-		diffs.setDeletedSet(deletedSet);
-		diffs.setErrorSet(errorSet);
-		diffs.setImportedSet(importedSet);
-		diffs.setExistingSet(existingSet);
-		
-		// Process members to create/update
-		while (it.hasNext())
-		{
-			final CsvMember csvMember = it.next();
-			importCreateUpdateMember(csvMember, diffs);
-		}
-		
-		if (delete)
-		{
-			importDeleteMember(diffs);
-		}
-		
-		return diffs;
 	}
 	
 	/**
@@ -612,21 +488,162 @@ public class MemberResource extends GenericResource<MemberDO>
 		return diffs;
 	}
 	
-	/**
-	 * Gets a {@link Set} of member numbers.
-	 * 
-	 * @return a {@link Set} of member numbers;
-	 */
-	private Collection<? extends Long> getSetOfMemberNumbers()
+	@POST
+	@Timed
+	@Path("upload/{delete}")
+	@ApiOperation("Administrator can upload new membership information from a CSV file")
+	@RolesAllowed("MEMBERSHIP_MANAGE")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces({ MediaType.APPLICATION_JSON })
+	public ImportDiff importMembersFromCsv(@FormDataParam("file") final InputStream csv, @PathParam("delete") final Boolean delete)
 	{
-		final Set<Long> memberNumbers = new HashSet<>();
-		// Get set of existing membership numbers
-		final List<MemberDO> members = memberService.getAll();
-		for (final MemberDO member : members)
+		final CsvMapper mapper = new CsvMapper();
+		final CsvSchema schema = CsvSchema.emptySchema().withHeader().withColumnSeparator(',');
+		MappingIterator<CsvMember> it;
+		try
 		{
-			memberNumbers.add(member.getMembershipNumber());
+			it = mapper.readerFor(CsvMember.class).with(schema).readValues(csv);
 		}
-		return memberNumbers;
+		catch (final IOException ioe)
+		{
+			logger().warn("Could not process import", ioe);
+			throw new MemberImportException("Couldn't process the file that was provided. Please confirm it matches the spec.");
+		}
+		
+		final Set<Long> createdSet = new HashSet<>();
+		final Set<Long> updatedSet = new HashSet<>();
+		final Set<Long> deletedSet = new HashSet<>();
+		final Set<Long> errorSet = new HashSet<>();
+		final Set<Long> importedSet = new HashSet<>();
+		final Set<Long> existingSet = new HashSet<>();
+		
+		existingSet.addAll(getSetOfMemberNumbers());
+		
+		final ImportDiff diffs = new ImportDiff();
+		diffs.setCreatedSet(createdSet);
+		diffs.setUpdatedSet(updatedSet);
+		diffs.setDeletedSet(deletedSet);
+		diffs.setErrorSet(errorSet);
+		diffs.setImportedSet(importedSet);
+		diffs.setExistingSet(existingSet);
+		
+		// Process members to create/update
+		while (it.hasNext())
+		{
+			final CsvMember csvMember = it.next();
+			importCreateUpdateMember(csvMember, diffs);
+		}
+		
+		if (delete)
+		{
+			importDeleteMember(diffs);
+		}
+		
+		return diffs;
+	}
+	
+	@Override
+	Logger logger()
+	{
+		return LoggerFactory.getLogger(MemberResource.class);
+	}
+	
+	@PUT
+	@Timed
+	@Path("id/{id}")
+	@ApiOperation("Update member by GUID")
+	@RolesAllowed("MEMBERSHIP_MANAGE")
+	public MemberDO updateMemberById(final @PathParam("id") String id, final MemberDO member) throws WebApplicationException
+	{
+		final MemberDO existingMember = memberService.getById(id);
+		
+		if (!existingMember.getStatus().equals(member.getStatus()))
+		{
+			final MemberStatus existingStatus = existingMember.getStatus();
+			final MemberStatus newStatus = member.getStatus();
+			switch (newStatus)
+			{
+			case APPLIED:
+				if (!existingStatus.equals(MemberStatus.DECLINED) && !existingStatus.equals(MemberStatus.REMOVED)
+						&& !existingStatus.equals(MemberStatus.LAPSED))
+				{
+					throw new WebApplicationException();
+				}
+				break;
+			case APPROVED:
+			case DECLINED:
+				if (!existingStatus.equals(MemberStatus.APPLIED))
+				{
+					throw new WebApplicationException();
+				}
+				break;
+			case INVOICED:
+				if (!existingStatus.equals(MemberStatus.APPROVED))
+				{
+					throw new WebApplicationException();
+				}
+				break;
+			case PAID:
+				if (!existingStatus.equals(MemberStatus.INVOICED))
+				{
+					throw new WebApplicationException();
+				}
+				break;
+			case CURRENT:
+				if (!existingStatus.equals(MemberStatus.PAID))
+				{
+					throw new WebApplicationException();
+				}
+				break;
+			case LAPSED:
+				if (!existingStatus.equals(MemberStatus.CURRENT))
+				{
+					throw new WebApplicationException();
+				}
+				break;
+			case REMOVED:
+				if (!existingStatus.equals(MemberStatus.CURRENT) && !existingStatus.equals(MemberStatus.LAPSED))
+				{
+					throw new WebApplicationException();
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		
+		return memberService.update(existingMember, member);
+	}
+	
+	@PUT
+	@Timed
+	@Path("me")
+	@ApiOperation("Update a member's own record")
+	@RolesAllowed("MEMBER")
+	public MemberDO updateMyMembership(final @Context SecurityContext context, final MemberDO newMember)
+			throws WebApplicationException, JSONException
+	{
+		final Long membershipNumber = getCurrentUserMembershipNumber(context);
+		
+		final MemberDO existingMember = memberService.getByMemberNumber(membershipNumber);
+		
+		if (!existingMember.getStatus().equals(newMember.getStatus()))
+		{
+			throw new WebApplicationException("You can not update your own membership status.");
+		}
+		
+		if (!existingMember.getType().equals(newMember.getType()))
+		{
+			throw new WebApplicationException("You can not change your own membership type.");
+		}
+		
+		newMember.setId(existingMember.getId());
+		newMember.setCreatedDate(existingMember.getCreatedDate());
+		newMember.setLastUpdatedDate(new Date());
+		newMember.setStatus(existingMember.getStatus());
+		newMember.setType(existingMember.getType());
+		
+		return memberService.update(existingMember, newMember);
 	}
 	
 	@GET

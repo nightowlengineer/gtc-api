@@ -24,11 +24,6 @@ import uk.org.gtc.api.domain.BaseDomainObject;
 
 public class GenericService<T extends BaseDomainObject>
 {
-	Logger logger()
-	{
-		return LoggerFactory.getLogger(GenericService.class);
-	}
-	
 	private final JacksonDBCollection<T, String> collection;
 	
 	public GenericService(final JacksonDBCollection<T, String> collection)
@@ -107,6 +102,11 @@ public class GenericService<T extends BaseDomainObject>
 		{
 			return null;
 		}
+	}
+	
+	Logger logger()
+	{
+		return LoggerFactory.getLogger(GenericService.class);
 	}
 	
 	public List<T> query(final Query query)
