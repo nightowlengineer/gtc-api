@@ -1,5 +1,9 @@
 package uk.org.gtc.api.resource;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -30,5 +34,23 @@ public class ApiResource extends GenericResource
 	public Response swagger()
 	{
 		return Response.temporaryRedirect(UriBuilder.fromPath("{arg1}").build("swagger")).build();
+	}
+	
+	@GET
+	@Path("version")
+	public String getVersion()
+	{
+		final Properties prop = new Properties();
+		String version = null;
+		try (final InputStream input = this.getClass().getClassLoader().getResourceAsStream("config.properties"))
+		{
+			prop.load(input);
+			version = prop.getProperty("version");
+		}
+		catch (final IOException ioe)
+		{
+			logger().warn("Unable to open config.properties", ioe);
+		}
+		return version;
 	}
 }
