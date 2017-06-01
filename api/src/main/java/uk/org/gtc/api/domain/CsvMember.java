@@ -33,6 +33,45 @@ public class CsvMember
 	}
 	
 	/**
+	 * Compare this {@link CsvMember} to a {@link MemberDO}.
+	 * 
+	 * @param member
+	 * @return true if the provided member has any field which differs to the current {@link CsvMember}
+	 */
+	public boolean isDifferentToMember(final MemberDO member)
+	{
+		if (member.getEmail() != null && !member.getEmail().equals(getEmail()))
+		{
+			return true;
+		}
+		if (member.getStatus() != null && !member.getStatus().equals(getStatus()))
+		{
+			return true;
+		}
+		if (member.getType() != null && !member.getType().equals(getType()))
+		{
+			return true;
+		}
+		if (member.getFirstName() != null && !member.getFirstName().equals(getFirstName()))
+		{
+			return true;
+		}
+		if (member.getLastName() != null && !member.getLastName().equals(getLastName()))
+		{
+			return true;
+		}
+		if (member.getSalutation() != null && !member.getSalutation().equals(getSalutation()))
+		{
+			return true;
+		}
+		if (member.getMembershipNumber() != null && !member.getMembershipNumber().equals(getMembershipNumber()))
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * @return the email
 	 */
 	public String getEmail()

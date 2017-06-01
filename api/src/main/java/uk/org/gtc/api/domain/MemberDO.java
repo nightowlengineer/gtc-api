@@ -43,6 +43,24 @@ public class MemberDO extends Person
 		setApplicationDate(applicationDate);
 	}
 	
+	/**
+	 * Update this {@link MemberDO} with fields from a {@link CsvMember}.
+	 * 
+	 * @param csvMember
+	 * @return an updated {@link MemberDO}
+	 */
+	public MemberDO updateFromCsvMember(final CsvMember csvMember)
+	{
+		setEmail(csvMember.getEmail());
+		setFirstName(csvMember.getFirstName());
+		setLastName(csvMember.getLastName());
+		setMembershipNumber(csvMember.getMembershipNumber());
+		setSalutation(csvMember.getSalutation());
+		setStatus(csvMember.getStatus());
+		setType(csvMember.getType());
+		return this;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

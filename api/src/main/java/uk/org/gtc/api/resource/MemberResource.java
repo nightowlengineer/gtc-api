@@ -401,21 +401,13 @@ public class MemberResource extends GenericResource<MemberDO>
 		// Member exists
 		if (existingMember != null)
 		{
-			final MemberDO updatedMember = memberService.getByMemberNumber(csvMember.getMembershipNumber());
-			if (updatedMember.getEmail() != null && !updatedMember.getEmail().equals(csvMember.getEmail()))
+			final MemberDO originalMember = memberService.getByMemberNumber(csvMember.getMembershipNumber());
+			if (csvMember.isDifferentToMember(originalMember))
 			{
-				updatedMember.setEmail(csvMember.getEmail());
+				final MemberDO updatedMember = originalMember.updateFromCsvMember(csvMember);
+				memberService.update(existingMember, updatedMember);
+				updatedSet.add(csvMember.getMembershipNumber());
 			}
-			if (updatedMember.getStatus() != null && !updatedMember.getStatus().equals(csvMember.getStatus()))
-			{
-				updatedMember.setStatus(csvMember.getStatus());
-			}
-			if (updatedMember.getType() != null && !updatedMember.getType().equals(csvMember.getType()))
-			{
-				updatedMember.setType(csvMember.getType());
-			}
-			memberService.update(existingMember, updatedMember);
-			updatedSet.add(csvMember.getMembershipNumber());
 		}
 		// Member does not exist
 		else
@@ -470,7 +462,6 @@ public class MemberResource extends GenericResource<MemberDO>
 			else if (memberList.size() > 1)
 			{
 				errorMessage = memberNumber + " was not deleted as there is more than one existing member with that number.";
-				
 			}
 			else if (memberList.isEmpty())
 			{
