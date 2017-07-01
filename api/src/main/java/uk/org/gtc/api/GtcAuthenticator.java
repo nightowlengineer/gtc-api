@@ -33,7 +33,7 @@ public class GtcAuthenticator implements Authenticator<String, Auth0User>
 	{
 		this.logger = logger;
 		this.configuration = configuration;
-		this.jwtVerifier = new JWTVerifier(new Base64(true).decode(configuration.auth0ApiKey), configuration.auth0ApiId);
+		this.jwtVerifier = new JWTVerifier(new Base64(true).decode(configuration.auth0OfficeApiKey), configuration.auth0OfficeApiId);
 	}
 	
 	Logger logger()

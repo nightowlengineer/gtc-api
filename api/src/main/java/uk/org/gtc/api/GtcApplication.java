@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.auth0.Auth0User;
+import com.auth0.exception.Auth0Exception;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
@@ -75,7 +76,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 	}
 	
 	@Override
-	public void run(final GtcConfiguration configuration, final Environment environment) throws UnknownHostException
+	public void run(final GtcConfiguration configuration, final Environment environment) throws UnknownHostException, Auth0Exception
 	{
 		// Managed resources
 		final ServerAddress mongoHost = new ServerAddress(configuration.mongoHost);
@@ -134,7 +135,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		environment.jersey().register(new ApiResource());
 		environment.jersey().register(new MemberResource(memberService));
 		environment.jersey().register(new BookResource(bookService));
-		environment.jersey().register(new UserResource());
+		environment.jersey().register(new UserResource(configuration));
 		
 		// Authentication
 		final OAuthCredentialAuthFilter.Builder<Auth0User> authFilter = new OAuthCredentialAuthFilter.Builder<>();

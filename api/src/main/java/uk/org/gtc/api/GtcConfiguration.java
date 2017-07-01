@@ -41,11 +41,23 @@ public class GtcConfiguration extends Configuration
 	
 	@JsonProperty
 	@NotEmpty
-	public String auth0ApiId;
+	public String auth0OfficeApiId;
 	
 	@JsonProperty
 	@NotEmpty
-	public String auth0ApiKey;
+	public String auth0OfficeApiKey;
+	
+	@JsonProperty
+	@NotEmpty
+	public String auth0MgmtApiId;
+	
+	@JsonProperty
+	@NotEmpty
+	public String auth0MgmtApiKey;
+	
+	@JsonProperty
+	@NotEmpty
+	public String auth0Domain;
 	
 	@JsonProperty
 	@NotEmpty

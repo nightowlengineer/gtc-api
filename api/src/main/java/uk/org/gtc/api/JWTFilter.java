@@ -35,7 +35,7 @@ public class JWTFilter implements Filter
 	@Override
 	public void init(final FilterConfig filterConfig) throws WebApplicationException
 	{
-		jwtVerifier = new JWTVerifier(new Base64(true).decode(configuration.auth0ApiKey), configuration.auth0ApiId);
+		jwtVerifier = new JWTVerifier(new Base64(true).decode(configuration.auth0OfficeApiKey), configuration.auth0OfficeApiId);
 	}
 	
 	@Override
