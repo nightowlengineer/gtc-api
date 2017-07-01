@@ -38,7 +38,7 @@ public class GtcAuthoriser implements Authorizer<Auth0User>
 		if (userRoles != null)
 		{
 			final String userRolesString = userRoles.toString();
-			logger().debug("User's roles: %s", userRolesString);
+			logger().debug("User's roles: {}", userRolesString);
 			return userRoles.contains(appRole) || userRoles.contains(ApplicationRole.ADMIN);
 		}
 		else

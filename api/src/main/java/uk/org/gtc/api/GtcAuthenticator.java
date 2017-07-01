@@ -60,7 +60,7 @@ public class GtcAuthenticator implements Authenticator<String, Auth0User>
 		
 		if (UtilityHelper.isNull(user))
 		{
-			logger.debug("Failed to authenticate with token %s", token);
+			logger.debug("Failed to authenticate with token {}", token);
 		}
 		else
 		{

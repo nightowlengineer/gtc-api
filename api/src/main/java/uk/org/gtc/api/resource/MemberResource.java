@@ -167,7 +167,7 @@ public class MemberResource extends GenericResource<MemberDO>
 	@RolesAllowed("MEMBERSHIP_READ")
 	public List<MemberDO> findMember(final @PathParam("query") String query)
 	{
-		logger().debug("Finding member using %s", query);
+		logger().debug("Finding member using {}", query);
 		final List<MemberDO> results = new ArrayList<>();
 		final List<MemberDO> members = memberService.getAll();
 		for (final MemberDO member : members)
