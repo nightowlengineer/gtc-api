@@ -135,7 +135,7 @@ public class GtcApplication extends Application<GtcConfiguration>
 		environment.jersey().register(new ApiResource());
 		environment.jersey().register(new MemberResource(memberService));
 		environment.jersey().register(new BookResource(bookService));
-		environment.jersey().register(new UserResource(configuration));
+		environment.jersey().register(new UserResource(configuration, memberService));
 		
 		// Authentication
 		final OAuthCredentialAuthFilter.Builder<Auth0User> authFilter = new OAuthCredentialAuthFilter.Builder<>();

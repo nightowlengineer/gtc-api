@@ -1,9 +1,13 @@
 package uk.org.gtc.api.resource;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -13,9 +17,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.Response.Status;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +25,11 @@ import org.slf4j.LoggerFactory;
 import com.auth0.Auth0User;
 import com.auth0.client.auth.AuthAPI;
 import com.auth0.client.mgmt.ManagementAPI;
+import com.auth0.client.mgmt.filter.UserFilter;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.auth.TokenHolder;
+import com.auth0.json.mgmt.users.User;
+import com.auth0.json.mgmt.users.UsersPage;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -32,7 +37,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import uk.org.gtc.api.GtcConfiguration;
 import uk.org.gtc.api.domain.ApplicationRole;
+import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.domain.UserAppMetadata;
+import uk.org.gtc.api.service.MemberService;
 
 @SuppressWarnings("rawtypes")
 @Path("user")
@@ -41,14 +48,16 @@ import uk.org.gtc.api.domain.UserAppMetadata;
 public class UserResource extends GenericResource
 {
 	private GtcConfiguration configuration;
+	private MemberService memberService;
 	
 	private String accessToken;
 	private Date accessTokenExpiresAt;
 	
-	public UserResource(final GtcConfiguration configuration) throws Auth0Exception
+	public UserResource(final GtcConfiguration configuration, final MemberService memberService) throws Auth0Exception
 	{
 		this.configuration = configuration;
 		this.accessToken = getAccessToken();
+		this.memberService = memberService;
 	}
 	
 	@GET
@@ -94,12 +103,199 @@ public class UserResource extends GenericResource
 	
 	@GET
 	@Timed
-	@Path("auth0/syncAuth0Users")
-	@ApiOperation("Syncs Auth0 users with membership records")
-	@RolesAllowed("MEMBERSHIP_MANAGE")
-	public Response syncAuth0Users()
+	@Path("auth0/users")
+	@ApiOperation("Get a list of all Auth0 users")
+	@RolesAllowed("ADMIN")
+	public List<User> getAuth0Users() throws Auth0Exception
 	{
-		return Response.noContent().status(Status.NOT_IMPLEMENTED).build();
+		return getAllAuth0Users();
+	}
+	
+	private List<User> getAllAuth0Users() throws Auth0Exception
+	{
+		List<User> users = new ArrayList<>();
+		users = getNextUserPage(users, 0);
+		return users;
+	}
+	
+	private List<User> getNextUserPage(final List<User> users, Integer pageNumber) throws Auth0Exception
+	{
+		final ManagementAPI mgmt = new ManagementAPI(configuration.auth0Domain, getAccessToken());
+		final UserFilter filter = new UserFilter();
+		filter.withSort("email:1");
+		filter.withTotals(true);
+		filter.withPage(pageNumber, 50);
+		UsersPage page = mgmt.users().list(filter).execute();
+		users.addAll(page.getItems());
+		if (page.getTotal() > users.size())
+		{
+			getNextUserPage(users, pageNumber + 1);
+		}
+		return users;
+	}
+	
+	@GET
+	@Timed
+	@Path("auth0/syncAuth0Users")
+	@ApiOperation("Syncs Auth0 users with membership records. Returns number of accounts updated.")
+	@RolesAllowed("MEMBERSHIP_MANAGE")
+	public Integer syncAuth0Users() throws Auth0Exception, UnsupportedEncodingException
+	{
+		final ManagementAPI mgmt = new ManagementAPI(configuration.auth0Domain, getAccessToken());
+		final String emailField = "email.raw";
+		final String membershipNumberKey = "membershipNumber";
+		
+		Integer updateCount = 0;
+		final List<MemberDO> members = memberService.getAll();
+		for (final MemberDO member : members)
+		{
+			final List<User> usersByEmail = getAuth0UsersByField(emailField, member.getEmail());
+			
+			// No match found for any information we hold.
+			if (usersByEmail.isEmpty())
+			{
+				// No-op currently
+				// Skip to next member
+				break;
+			}
+			
+			// Update membership numbers & roles when matched by email
+			for (User user : usersByEmail)
+			{
+				Boolean updated = false;
+				final User newUser = new User(configuration.auth0UserConnection);
+				final String rolesKey = "roles";
+				final Map<String, Object> appMetadata = user.getAppMetadata();
+				final Map<String, Object> newAppMetadata = new HashMap<>();
+				
+				Integer membershipNumberAppMetadata = null;
+				if (appMetadata.containsKey(membershipNumberKey))
+				{
+					membershipNumberAppMetadata = (Integer) appMetadata.get(membershipNumberKey);
+				}
+				
+				// Update membership number
+				if (membershipNumberAppMetadata == null || !membershipNumberAppMetadata.equals(member.getMembershipNumber()))
+				{
+					logger().debug("User {} doesn't have membership number", user.getEmail());
+					newAppMetadata.put(membershipNumberKey, member.getMembershipNumber());
+					updated = true;
+				}
+				
+				// Update relevant roles for the member
+				@SuppressWarnings("unchecked")
+				List<String> roles = (List<String>) appMetadata.getOrDefault(rolesKey, new ArrayList<>());
+				logger().debug("Found {} as roles", roles);
+				if (!roles.contains(ApplicationRole.MEMBER.toString()))
+				{
+					logger().debug("User {} doesn't have MEMBER role", user.getEmail());
+					roles.add(ApplicationRole.MEMBER.toString());
+					newAppMetadata.put(rolesKey, roles);
+					updated = true;
+				}
+				if (!roles.contains(ApplicationRole.FORUM.toString()))
+				{
+					logger().debug("User {} doesn't have FORUM role", user.getEmail());
+					roles.add(ApplicationRole.FORUM.toString());
+					newAppMetadata.put(rolesKey, roles);
+					updated = true;
+				}
+				
+				// Update user object with roles and/or membership number
+				if (updated)
+				{
+					appMetadata.putAll(newAppMetadata);
+					newUser.setAppMetadata(appMetadata);
+					// Update Auth0 with new user object
+					logger().debug("Updating user {} with {}", user.getEmail(), newAppMetadata);
+					updateCount++;
+					mgmt.users().update(user.getId(), newUser).execute();
+				}
+			}
+		}
+		
+		final List<User> users = getAllAuth0Users();
+		for (User user : users)
+		{
+			Integer membershipNumberAppMetadata = null;
+			final Map<String, Object> appMetadata = user.getAppMetadata();
+			if (appMetadata.containsKey(membershipNumberKey))
+			{
+				membershipNumberAppMetadata = (Integer) appMetadata.get(membershipNumberKey);
+			}
+			List<MemberDO> memberResults = new ArrayList<>();
+			if (membershipNumberAppMetadata != null)
+			{
+				memberResults = memberService.findByMemberNumber(membershipNumberAppMetadata.longValue());
+			}
+			if (memberResults.isEmpty())
+			{
+				// Update user account to remove membership number
+				Boolean updated = false;
+				final User newUser = new User(configuration.auth0UserConnection);
+				final String rolesKey = "roles";
+				final Map<String, Object> newAppMetadata = new HashMap<>();
+				
+				// Remove membership number
+				if (membershipNumberAppMetadata != null)
+				{
+					logger().debug("User {} has membership number", user.getEmail());
+					newAppMetadata.put(membershipNumberKey, null);
+					updated = true;
+				}
+				
+				// Update relevant roles for the member
+				@SuppressWarnings("unchecked")
+				List<String> roles = (List<String>) appMetadata.getOrDefault(rolesKey, new ArrayList<>());
+				logger().debug("Found {} as roles", roles);
+				if (roles.contains(ApplicationRole.MEMBER.toString()))
+				{
+					logger().debug("User {} has MEMBER role", user.getEmail());
+					roles.remove(ApplicationRole.MEMBER.toString());
+					newAppMetadata.put(rolesKey, roles);
+					updated = true;
+				}
+				if (roles.contains(ApplicationRole.FORUM.toString()))
+				{
+					logger().debug("User {} has FORUM role", user.getEmail());
+					roles.remove(ApplicationRole.FORUM.toString());
+					newAppMetadata.put(rolesKey, roles);
+					updated = true;
+				}
+				
+				// Update user object with roles and/or membership number
+				if (updated)
+				{
+					newUser.setAppMetadata(newAppMetadata);
+					// Update Auth0 with new user object
+					logger().debug("Updating user {} with {}", user.getEmail(), newAppMetadata);
+					updateCount++;
+					mgmt.users().update(user.getId(), newUser).execute();
+				}
+			}
+		}
+		
+		return updateCount;
+	}
+	
+	private List<User> getAuth0UsersByField(final String field, final String value) throws UnsupportedEncodingException, Auth0Exception
+	{
+		// Only search for users with a verified email, otherwise
+		// they could be handed control of another member's details
+		// by spoofing the email
+		final String query = new StringBuilder()
+				.append("email_verified : true AND ")
+				.append(field + " ")
+				.append(": ")
+				.append(value + " ")
+				.toString().trim();
+		final UserFilter filter = new UserFilter();
+		filter.withQuery(query);
+		
+		final ManagementAPI mgmt = new ManagementAPI(configuration.auth0Domain, getAccessToken());
+		List<User> users = mgmt.users().list(filter).execute().getItems();
+		logger().debug("Querying with {} matched {} users", query, users.size());
+		return users;
 	}
 	
 	/**

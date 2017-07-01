@@ -57,6 +57,10 @@ public class GtcConfiguration extends Configuration
 	
 	@JsonProperty
 	@NotEmpty
+	public String auth0UserConnection;
+	
+	@JsonProperty
+	@NotEmpty
 	public String auth0Domain;
 	
 	@JsonProperty
