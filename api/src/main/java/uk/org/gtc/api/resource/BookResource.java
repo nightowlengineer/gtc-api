@@ -22,7 +22,7 @@ import uk.org.gtc.api.domain.BookDO;
 import uk.org.gtc.api.service.BookService;
 
 @Path("book")
-@Api("book")
+//@Api("book")
 @Produces(MediaType.APPLICATION_JSON)
 public class BookResource extends GenericResource<BookDO>
 {
