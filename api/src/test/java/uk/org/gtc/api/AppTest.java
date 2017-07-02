@@ -9,27 +9,27 @@ import junit.framework.TestSuite;
  */
 public class AppTest extends TestCase
 {
-	/**
-	 * Create the test case
-	 *
-	 * @param testName
-	 *            name of the test case
-	 */
-	public AppTest(final String testName)
-	{
-		super(testName);
-	}
-	
-	/**
-	 * @return the suite of tests being tested
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(AppTest.class);
-	}
-	
-	public void testName() throws Exception
-	{
-		assertEquals("gtc-api", new GtcApplication().getName());
-	}
+    /**
+     * @return the suite of tests being tested
+     */
+    public static Test suite()
+    {
+        return new TestSuite(AppTest.class);
+    }
+
+    /**
+     * Create the test case
+     *
+     * @param testName
+     *            name of the test case
+     */
+    public AppTest(final String testName)
+    {
+        super(testName);
+    }
+
+    public void testName() throws Exception
+    {
+        assertEquals("gtc-api", new GtcApplication().getName());
+    }
 }

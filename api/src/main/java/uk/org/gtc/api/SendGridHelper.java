@@ -1,5 +1,12 @@
 package uk.org.gtc.api;
 
+import static j2html.TagCreator.body;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.each;
+import static j2html.TagCreator.h2;
+import static j2html.TagCreator.span;
+import static j2html.TagCreator.strong;
+
 import java.io.IOException;
 
 import com.sendgrid.Content;
@@ -17,65 +24,71 @@ import uk.org.gtc.api.domain.ImportDiff;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.service.MemberService;
 
-import static j2html.TagCreator.*;
+public class SendGridHelper
+{
+    final SendGrid sendgrid;
+    final MemberService memberService;
 
-public class SendGridHelper {
-	final SendGrid sendgrid;
-	final MemberService memberService;
+    final Email defaultNoReplyAddress = new Email("no-reply@gtc.org.uk", "The GTC");
 
-	final Email defaultNoReplyAddress = new Email("no-reply@gtc.org.uk", "The GTC");
+    public SendGridHelper(final SendGrid sendgrid, final MemberService memberService)
+    {
+        this.sendgrid = sendgrid;
+        this.memberService = memberService;
+    }
 
-	public SendGridHelper(final SendGrid sendgrid, final MemberService memberService) {
-		this.sendgrid = sendgrid;
-		this.memberService = memberService;
-	}
+    private String buildDiffContent(final ImportDiff diff)
+    {
+        return body(
+                div(h2("New members"),
+                        each(diff.getCreatedSet(),
+                                createdMemberNumber -> generateHtmlForMember(createdMemberNumber))),
+                div(h2("Updated members"),
+                        each(diff.getUpdatedSet(),
+                                updatedMemberNumber -> generateHtmlForMember(updatedMemberNumber))),
+                div(h2("Deleted members"), each(diff.getDeletedSet(),
+                        deletedMemberNumber -> generateHtmlForMember(deletedMemberNumber)))
 
-	public boolean sendImportNotificationEmail(final ImportDiff diff) {
-		// Setup template and default content
-		final EmailTemplate template = EmailTemplate.OFFICE_MEMBER_UPDATE;
-		final Mail mail = new Mail();
-		mail.setFrom(defaultNoReplyAddress);
-		mail.setTemplateId(template.getSendGridTemplateId());
+        ).render();
+    }
 
-		final Personalization p = new Personalization();
-		p.addTo(new Email(template.getDefaultRecipient()));
-		mail.addPersonalization(p);
+    public ContainerTag generateHtmlForMember(final Long memberNumber)
+    {
+        final MemberDO member = memberService.getByMemberNumber(memberNumber);
+        return div(strong(memberNumber.toString()), span(member.getEmail()), span(member.getType().toString()),
+                span(member.getFirstName()), span(member.getLastName()));
+    }
 
-		final Content emailContent = new Content("text/plain", buildDiffContent(diff));
-		mail.addContent(emailContent);
+    public boolean sendImportNotificationEmail(final ImportDiff diff)
+    {
+        // Setup template and default content
+        final EmailTemplate template = EmailTemplate.OFFICE_MEMBER_UPDATE;
+        final Mail mail = new Mail();
+        mail.setFrom(defaultNoReplyAddress);
+        mail.setTemplateId(template.getSendGridTemplateId());
 
-		// Send request to SendGrid
-		Request request = new Request();
-		request.method = Method.POST;
-		request.endpoint = "mail/send";
-		try {
-			request.body = mail.build();
-			Response response = sendgrid.api(request);
-			return true;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
+        final Personalization p = new Personalization();
+        p.addTo(new Email(template.getDefaultRecipient()));
+        mail.addPersonalization(p);
 
-	private String buildDiffContent(final ImportDiff diff) {
-		return body(
-				div(h2("New members"),
-						each(diff.getCreatedSet(),
-								createdMemberNumber -> generateHtmlForMember(createdMemberNumber))),
-				div(h2("Updated members"),
-						each(diff.getUpdatedSet(),
-								updatedMemberNumber -> generateHtmlForMember(updatedMemberNumber))),
-				div(h2("Deleted members"), each(diff.getDeletedSet(),
-						deletedMemberNumber -> generateHtmlForMember(deletedMemberNumber)))
+        final Content emailContent = new Content("text/plain", buildDiffContent(diff));
+        mail.addContent(emailContent);
 
-		).render();
-	}
-
-	public ContainerTag generateHtmlForMember(final Long memberNumber) {
-		final MemberDO member = memberService.getByMemberNumber(memberNumber);
-		return div(strong(memberNumber.toString()), span(member.getEmail()), span(member.getType().toString()),
-				span(member.getFirstName()), span(member.getLastName()));
-	}
+        // Send request to SendGrid
+        final Request request = new Request();
+        request.method = Method.POST;
+        request.endpoint = "mail/send";
+        try
+        {
+            request.body = mail.build();
+            final Response response = sendgrid.api(request);
+            return true;
+        }
+        catch (final IOException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 }

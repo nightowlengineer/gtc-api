@@ -25,9 +25,9 @@ import org.hibernate.validator.constraints.ConstraintComposition;
 @Documented
 public @interface ValidEmail
 {
-	String message() default "Not a valid email address.";
-	
-	Class<?>[] groups() default {};
-	
-	Class<? extends Payload>[] payload() default {};
+    Class<?>[] groups() default {};
+
+    String message() default "Not a valid email address.";
+
+    Class<? extends Payload>[] payload() default {};
 }

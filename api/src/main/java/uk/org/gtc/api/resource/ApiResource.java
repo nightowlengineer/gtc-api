@@ -23,34 +23,34 @@ import io.swagger.annotations.ApiOperation;
 @Produces(MediaType.APPLICATION_JSON)
 public class ApiResource extends GenericResource
 {
-	@Override
-	Logger logger()
-	{
-		return LoggerFactory.getLogger(ApiResource.class);
-	}
-	
-	@GET
-	@ApiOperation("Redirect to API documentation")
-	public Response swagger()
-	{
-		return Response.temporaryRedirect(UriBuilder.fromPath("{arg1}").build("swagger")).build();
-	}
-	
-	@GET
-	@Path("version")
-	public String getVersion()
-	{
-		final Properties prop = new Properties();
-		String version = null;
-		try (final InputStream input = this.getClass().getClassLoader().getResourceAsStream("config.properties"))
-		{
-			prop.load(input);
-			version = prop.getProperty("version");
-		}
-		catch (final IOException ioe)
-		{
-			logger().warn("Unable to open config.properties", ioe);
-		}
-		return version;
-	}
+    @GET
+    @Path("version")
+    public String getVersion()
+    {
+        final Properties prop = new Properties();
+        String version = null;
+        try (final InputStream input = this.getClass().getClassLoader().getResourceAsStream("config.properties"))
+        {
+            prop.load(input);
+            version = prop.getProperty("version");
+        }
+        catch (final IOException ioe)
+        {
+            logger().warn("Unable to open config.properties", ioe);
+        }
+        return version;
+    }
+
+    @Override
+    Logger logger()
+    {
+        return LoggerFactory.getLogger(ApiResource.class);
+    }
+
+    @GET
+    @ApiOperation("Redirect to API documentation")
+    public Response swagger()
+    {
+        return Response.temporaryRedirect(UriBuilder.fromPath("{arg1}").build("swagger")).build();
+    }
 }
