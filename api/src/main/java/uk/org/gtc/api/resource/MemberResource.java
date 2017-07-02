@@ -486,12 +486,13 @@ public class MemberResource extends GenericResource<MemberDO>
 
     @POST
     @Timed
-    @Path("upload/{delete}")
+    @Path("upload")
     @ApiOperation("Administrator can upload new membership information from a CSV file")
     @RolesAllowed("MEMBERSHIP_MANAGE")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces({ MediaType.APPLICATION_JSON })
-    public ImportDiff importMembersFromCsv(@FormDataParam("file") final InputStream csv, @PathParam("delete") final Boolean delete)
+    public ImportDiff importMembersFromCsv(@FormDataParam("file") final InputStream csv,
+            @FormDataParam("overwrite") final Boolean overwrite)
     {
         final CsvMapper mapper = new CsvMapper();
         final CsvSchema schema = CsvSchema.emptySchema().withHeader().withColumnSeparator(',');
@@ -530,7 +531,7 @@ public class MemberResource extends GenericResource<MemberDO>
             importCreateUpdateMember(csvMember, diffs);
         }
 
-        if (delete)
+        if (overwrite)
         {
             importDeleteMember(diffs);
         }
