@@ -218,7 +218,13 @@ public class UserResource extends GenericResource
                 // Skip to next member
                 break;
             }
-
+            else if (usersByEmail.size() > 1)
+            {
+                logger().error("Multiple users found with the email {} on Auth0", member.getEmail());
+                // Skip updating these accounts
+                break;
+            }
+            
             // Update membership numbers & roles when matched by email
             for (final User user : usersByEmail)
             {
