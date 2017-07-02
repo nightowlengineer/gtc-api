@@ -46,7 +46,6 @@ import io.swagger.annotations.ApiOperation;
 import uk.org.gtc.api.SendGridHelper;
 import uk.org.gtc.api.UtilityHelper;
 import uk.org.gtc.api.domain.CsvMember;
-import uk.org.gtc.api.domain.EmailTemplate;
 import uk.org.gtc.api.domain.ImportDiff;
 import uk.org.gtc.api.domain.LocationType;
 import uk.org.gtc.api.domain.MemberDO;
@@ -65,14 +64,14 @@ public class MemberResource extends GenericResource<MemberDO>
 {
     private final MemberService memberService;
     private final SendGridHelper emailService;
-
+    
     public MemberResource(final MemberService memberService, final SendGridHelper emailService)
     {
         super(memberService);
         this.memberService = memberService;
         this.emailService = emailService;
     }
-
+    
     @POST
     @Path("{id}/accept")
     @RolesAllowed("MEMBERSHIP_MANAGE")
@@ -80,12 +79,12 @@ public class MemberResource extends GenericResource<MemberDO>
     {
         final MemberDO appliedMember = memberService.getById(id);
         final MemberDO approvedMember = memberService.getById(id);
-
+        
         approvedMember.setMembershipNumber(memberService.getNextMemberNumber());
-
+        
         return memberService.update(appliedMember, approvedMember);
     }
-
+    
     private List<String> checkValidMember(final MemberDO member, final Boolean shouldThrowException)
     {
         final List<String> validationMessages = new ArrayList<>();
@@ -106,7 +105,7 @@ public class MemberResource extends GenericResource<MemberDO>
         }
         return Collections.emptyList();
     }
-
+    
     private List<List<String>> checkValidMembers(final List<MemberDO> members, final Boolean shouldThrowException)
     {
         final List<List<String>> fullMessages = new ArrayList<>();
@@ -120,7 +119,7 @@ public class MemberResource extends GenericResource<MemberDO>
         }
         return fullMessages;
     }
-
+    
     @GET
     @Timed
     @Path("cleanup")
@@ -140,7 +139,7 @@ public class MemberResource extends GenericResource<MemberDO>
         }
         return checkValidMembers(members, false);
     }
-
+    
     @POST
     @Timed
     @ApiOperation("Create a new member")
@@ -151,9 +150,9 @@ public class MemberResource extends GenericResource<MemberDO>
         {
             member.setMembershipNumber(memberService.getNextMemberNumber());
         }
-
+        
         checkValidMember(member, true);
-
+        
         if (memberService.findByMemberNumber(member.getMembershipNumber()).isEmpty())
         {
             return super.createItem(member);
@@ -162,9 +161,9 @@ public class MemberResource extends GenericResource<MemberDO>
         {
             throw new ValidationException("A member already exists with this membership number");
         }
-
+        
     }
-
+    
     @GET
     @Timed
     @Path("search/{query}")
@@ -211,7 +210,7 @@ public class MemberResource extends GenericResource<MemberDO>
         }
         return results;
     }
-
+    
     @Override
     @GET
     @Timed
@@ -223,7 +222,7 @@ public class MemberResource extends GenericResource<MemberDO>
         logger().debug("Fetching all members");
         return super.getAll();
     }
-
+    
     @GET
     @Timed
     @Path("applications")
@@ -235,7 +234,7 @@ public class MemberResource extends GenericResource<MemberDO>
         return memberService.getByStatus(MemberStatus.APPLIED, MemberStatus.APPROVED, MemberStatus.INVOICED, MemberStatus.PAID,
                 MemberStatus.DECLINED);
     }
-
+    
     @GET
     @Timed
     @Path("status/{status}")
@@ -245,7 +244,7 @@ public class MemberResource extends GenericResource<MemberDO>
         logger().debug("Fetching all " + status + " members");
         return memberService.getByStatus(status);
     }
-
+    
     /**
      * @param context
      * @return
@@ -265,7 +264,7 @@ public class MemberResource extends GenericResource<MemberDO>
         }
         return membershipNumber;
     }
-
+    
     @GET
     @Timed
     @Path("locationTypes")
@@ -275,7 +274,7 @@ public class MemberResource extends GenericResource<MemberDO>
     {
         return LocationType.values();
     }
-
+    
     @GET
     @Timed
     @Path("id/{id}")
@@ -300,10 +299,10 @@ public class MemberResource extends GenericResource<MemberDO>
                 throw new WebApplicationException(wae);
             }
         }
-
+        
         return member;
     }
-
+    
     @GET
     @Timed
     @Path("{memberNumber}")
@@ -312,12 +311,12 @@ public class MemberResource extends GenericResource<MemberDO>
     public MemberDO getMemberByNumber(final @PathParam("memberNumber") Long memberNumber) throws MongoException
     {
         logger().debug("Fetching member by membership number " + memberNumber);
-
+        
         final MemberDO fetchedMember = memberService.getByMemberNumber(memberNumber);
         checkValidMember(fetchedMember, false);
         return fetchedMember;
     }
-
+    
     @GET
     @Timed
     @Path("memberTypes")
@@ -327,7 +326,7 @@ public class MemberResource extends GenericResource<MemberDO>
     {
         return MemberType.values();
     }
-
+    
     @GET
     @Timed
     @Path("me")
@@ -338,7 +337,7 @@ public class MemberResource extends GenericResource<MemberDO>
         final Long membershipNumber = getCurrentUserMembershipNumber(context);
         return memberService.getByMemberNumber(membershipNumber);
     }
-
+    
     @GET
     @Timed
     @Path("nextMemberNumber")
@@ -348,7 +347,7 @@ public class MemberResource extends GenericResource<MemberDO>
     {
         return memberService.getNextMemberNumber();
     }
-
+    
     @GET
     @Timed
     @Path("salutationTypes")
@@ -358,7 +357,7 @@ public class MemberResource extends GenericResource<MemberDO>
     {
         return Salutation.values();
     }
-
+    
     /**
      * Gets a {@link Set} of member numbers.
      *
@@ -375,7 +374,7 @@ public class MemberResource extends GenericResource<MemberDO>
         }
         return memberNumbers;
     }
-
+    
     @GET
     @Timed
     @Path("statusTypes")
@@ -385,7 +384,7 @@ public class MemberResource extends GenericResource<MemberDO>
     {
         return MemberStatus.values();
     }
-
+    
     /**
      * Create or update a member from an import.
      *
@@ -399,10 +398,10 @@ public class MemberResource extends GenericResource<MemberDO>
         final Set<Long> importedSet = diffs.getImportedSet();
         final Set<Long> updatedSet = diffs.getUpdatedSet();
         final Set<Long> createdSet = diffs.getCreatedSet();
-
+        
         importedSet.add(csvMember.getMembershipNumber());
         final MemberDO existingMember = memberService.getByMemberNumber(csvMember.getMembershipNumber());
-
+        
         // Member exists
         if (existingMember != null)
         {
@@ -422,14 +421,14 @@ public class MemberResource extends GenericResource<MemberDO>
                     null, null, null, null, null));
             createdSet.add(csvMember.getMembershipNumber());
         }
-
+        
         diffs.setCreatedSet(createdSet);
         diffs.setUpdatedSet(updatedSet);
         diffs.setImportedSet(importedSet);
-
+        
         return diffs;
     }
-
+    
     /**
      * Get the existing list of members in the database, and remove all that
      * exist in the imported document. From here, we have the intersection of
@@ -446,7 +445,7 @@ public class MemberResource extends GenericResource<MemberDO>
         final Set<Long> deletedSet = diffs.getDeletedSet();
         final Set<Long> errorSet = diffs.getErrorSet();
         existingSet.removeAll(importedSet);
-
+        
         for (final Long memberNumber : existingSet)
         {
             String errorMessage = null;
@@ -475,15 +474,15 @@ public class MemberResource extends GenericResource<MemberDO>
             errorSet.add(memberNumber);
             logger().error(errorMessage);
         }
-
+        
         diffs.setDeletedSet(deletedSet);
         diffs.setErrorSet(errorSet);
         diffs.setImportedSet(importedSet);
         diffs.setExistingSet(existingSet);
-
+        
         return diffs;
     }
-
+    
     @POST
     @Timed
     @Path("upload")
@@ -506,16 +505,16 @@ public class MemberResource extends GenericResource<MemberDO>
             logger().warn("Could not process import", ioe);
             throw new MemberImportException("Couldn't process the file that was provided. Please confirm it matches the spec.");
         }
-
+        
         final Set<Long> createdSet = new HashSet<>();
         final Set<Long> updatedSet = new HashSet<>();
         final Set<Long> deletedSet = new HashSet<>();
         final Set<Long> errorSet = new HashSet<>();
         final Set<Long> importedSet = new HashSet<>();
         final Set<Long> existingSet = new HashSet<>();
-
+        
         existingSet.addAll(getSetOfMemberNumbers());
-
+        
         final ImportDiff diffs = new ImportDiff();
         diffs.setCreatedSet(createdSet);
         diffs.setUpdatedSet(updatedSet);
@@ -523,35 +522,39 @@ public class MemberResource extends GenericResource<MemberDO>
         diffs.setErrorSet(errorSet);
         diffs.setImportedSet(importedSet);
         diffs.setExistingSet(existingSet);
-
+        
         // Process members to create/update
         while (it.hasNext())
         {
             final CsvMember csvMember = it.next();
             importCreateUpdateMember(csvMember, diffs);
         }
-
+        
         if (overwrite)
         {
             importDeleteMember(diffs);
         }
-
-        sendUpdateEmail(EmailTemplate.OFFICE_MEMBER_UPDATE, diffs);
-
+        
+        final Boolean success = sendUpdateEmail(diffs);
+        if (!success)
+        {
+            logger().warn("Not successful sending update email. Continuing...");
+        }
+        
         return diffs;
     }
-
+    
     @Override
     Logger logger()
     {
         return LoggerFactory.getLogger(MemberResource.class);
     }
-
-    private void sendUpdateEmail(final EmailTemplate memberUpdate, final ImportDiff diffs)
+    
+    private Boolean sendUpdateEmail(final ImportDiff diffs)
     {
-        // TODO: Implement email sending
+        return emailService.sendImportNotificationEmail(diffs);
     }
-
+    
     @PUT
     @Timed
     @Path("id/{id}")
@@ -560,7 +563,7 @@ public class MemberResource extends GenericResource<MemberDO>
     public MemberDO updateMemberById(final @PathParam("id") String id, final MemberDO member) throws WebApplicationException
     {
         final MemberDO existingMember = memberService.getById(id);
-
+        
         if (!existingMember.getStatus().equals(member.getStatus()))
         {
             final MemberStatus existingStatus = existingMember.getStatus();
@@ -615,10 +618,10 @@ public class MemberResource extends GenericResource<MemberDO>
                     break;
             }
         }
-
+        
         return memberService.update(existingMember, member);
     }
-
+    
     @PUT
     @Timed
     @Path("me")
@@ -628,28 +631,28 @@ public class MemberResource extends GenericResource<MemberDO>
             throws WebApplicationException, JSONException
     {
         final Long membershipNumber = getCurrentUserMembershipNumber(context);
-
+        
         final MemberDO existingMember = memberService.getByMemberNumber(membershipNumber);
-
+        
         if (!existingMember.getStatus().equals(newMember.getStatus()))
         {
             throw new WebApplicationException("You can not update your own membership status.");
         }
-
+        
         if (!existingMember.getType().equals(newMember.getType()))
         {
             throw new WebApplicationException("You can not change your own membership type.");
         }
-
+        
         newMember.setId(existingMember.getId());
         newMember.setCreatedDate(existingMember.getCreatedDate());
         newMember.setLastUpdatedDate(new Date());
         newMember.setStatus(existingMember.getStatus());
         newMember.setType(existingMember.getType());
-
+        
         return memberService.update(existingMember, newMember);
     }
-
+    
     @GET
     @Timed
     @Path("{membershipNumber}/{lastName}/verify")
@@ -661,7 +664,7 @@ public class MemberResource extends GenericResource<MemberDO>
         final MemberDO memberToVerify = memberService.getByMemberNumber(membershipNumber);
         return memberToVerify.getLastName().equalsIgnoreCase(lastName) && memberToVerify.getStatus() == MemberStatus.CURRENT;
     }
-
+    
     @GET
     @Path("{memberNumber}/welcome")
     @PermitAll
