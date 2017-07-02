@@ -31,7 +31,7 @@ public class MemberResourceTest
 	
 	final MemberService memberService = Mockito.mock(MemberService.class);
 	
-	final MemberResource memberResource = new MemberResource(memberService);
+	final MemberResource memberResource = new MemberResource(memberService, null);
 	
 	public final MemberDO appliedMember = new MemberDO();
 	public final MemberDO declinedMember = new MemberDO();

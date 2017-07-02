@@ -42,8 +42,10 @@ import com.mongodb.MongoException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import uk.org.gtc.api.SendGridHelper;
 import uk.org.gtc.api.UtilityHelper;
 import uk.org.gtc.api.domain.CsvMember;
+import uk.org.gtc.api.domain.EmailTemplate;
 import uk.org.gtc.api.domain.ImportDiff;
 import uk.org.gtc.api.domain.LocationType;
 import uk.org.gtc.api.domain.MemberDO;
@@ -61,11 +63,13 @@ import us.monoid.json.JSONException;
 public class MemberResource extends GenericResource<MemberDO>
 {
 	private final MemberService memberService;
+	private final SendGridHelper emailService;
 	
-	public MemberResource(final MemberService memberService)
+	public MemberResource(final MemberService memberService, final SendGridHelper emailService)
 	{
 		super(memberService);
 		this.memberService = memberService;
+		this.emailService = emailService;
 	}
 	
 	@POST
@@ -530,9 +534,15 @@ public class MemberResource extends GenericResource<MemberDO>
 			importDeleteMember(diffs);
 		}
 		
+		sendUpdateEmail(EmailTemplate.OFFICE_MEMBER_UPDATE, diffs);
+		
 		return diffs;
 	}
-	
+
+	private void sendUpdateEmail(final EmailTemplate memberUpdate, final ImportDiff diffs) {
+		// TODO: Implement email sending
+	}
+
 	@Override
 	Logger logger()
 	{

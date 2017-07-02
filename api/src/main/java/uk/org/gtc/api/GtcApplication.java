@@ -45,7 +45,6 @@ import uk.org.gtc.api.service.MemberService;
 
 public class GtcApplication extends Application<GtcConfiguration>
 {
-	
 	public static void main(final String[] args) throws Exception
 	{
 		new GtcApplication().run(args);
@@ -129,11 +128,12 @@ public class GtcApplication extends Application<GtcConfiguration>
 		
 		// Services
 		final MemberService memberService = new MemberService(members);
+		final SendGridHelper emailService = new SendGridHelper(sendgrid, memberService);
 		final BookService bookService = new BookService(books);
 		
 		// Resource registration
 		environment.jersey().register(new ApiResource());
-		environment.jersey().register(new MemberResource(memberService));
+		environment.jersey().register(new MemberResource(memberService, emailService));
 		environment.jersey().register(new BookResource(bookService));
 		environment.jersey().register(new UserResource(configuration, memberService));
 		
