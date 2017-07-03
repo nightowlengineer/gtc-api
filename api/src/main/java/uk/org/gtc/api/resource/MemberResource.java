@@ -552,7 +552,15 @@ public class MemberResource extends GenericResource<MemberDO>
     
     private Boolean sendUpdateEmail(final ImportDiff diffs)
     {
-        return emailService.sendImportNotificationEmail(diffs);
+        if (diffs.resultedInChange())
+        {
+            return emailService.sendImportNotificationEmail(diffs);
+        }
+        else
+        {
+            logger().info("Skipping import notification email as no changes detected");
+            return true;
+        }
     }
     
     @PUT

@@ -10,12 +10,17 @@ public class ImportDiff
     Set<Long> errorSet;
     Set<Long> importedSet;
     Set<Long> existingSet;
-
+    
     public ImportDiff()
     {
         // Jackson mapping
     }
-
+    
+    public Boolean resultedInChange()
+    {
+        return !(getCreatedSet().isEmpty() && getDeletedSet().isEmpty() && getUpdatedSet().isEmpty());
+    }
+    
     /**
      * @return the createdSet
      */
@@ -23,7 +28,7 @@ public class ImportDiff
     {
         return createdSet;
     }
-
+    
     /**
      * @return the deletedSet
      */
@@ -31,7 +36,7 @@ public class ImportDiff
     {
         return deletedSet;
     }
-
+    
     /**
      * @return the errorSet
      */
@@ -39,7 +44,7 @@ public class ImportDiff
     {
         return errorSet;
     }
-
+    
     /**
      * @return the existingSet
      */
@@ -47,7 +52,7 @@ public class ImportDiff
     {
         return existingSet;
     }
-
+    
     /**
      * @return the importedSet
      */
@@ -55,7 +60,7 @@ public class ImportDiff
     {
         return importedSet;
     }
-
+    
     /**
      * @return the updatedSet
      */
@@ -63,7 +68,7 @@ public class ImportDiff
     {
         return updatedSet;
     }
-
+    
     /**
      * @param createdSet
      *            the createdSet to set
@@ -72,7 +77,7 @@ public class ImportDiff
     {
         this.createdSet = createdSet;
     }
-
+    
     /**
      * @param deletedSet
      *            the deletedSet to set
@@ -81,7 +86,7 @@ public class ImportDiff
     {
         this.deletedSet = deletedSet;
     }
-
+    
     /**
      * @param errorSet
      *            the errorSet to set
@@ -90,7 +95,7 @@ public class ImportDiff
     {
         this.errorSet = errorSet;
     }
-
+    
     /**
      * @param existingSet
      *            the existingSet to set
@@ -99,7 +104,7 @@ public class ImportDiff
     {
         this.existingSet = existingSet;
     }
-
+    
     /**
      * @param importedSet
      *            the importedSet to set
@@ -108,7 +113,7 @@ public class ImportDiff
     {
         this.importedSet = importedSet;
     }
-
+    
     /**
      * @param updatedSet
      *            the updatedSet to set
