@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import uk.org.gtc.api.GtcConfiguration;
+import uk.org.gtc.api.SendGridHelper;
 import uk.org.gtc.api.domain.ApplicationRole;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.domain.UserAppMetadata;
@@ -49,17 +50,20 @@ public class UserResource extends GenericResource
 {
     private final GtcConfiguration configuration;
     private final MemberService memberService;
-
+    private final SendGridHelper emailService;
+    
     private String accessToken;
     private Date accessTokenExpiresAt;
-
-    public UserResource(final GtcConfiguration configuration, final MemberService memberService) throws Auth0Exception
+    
+    public UserResource(final GtcConfiguration configuration, final MemberService memberService, final SendGridHelper emailService)
+            throws Auth0Exception
     {
         this.configuration = configuration;
         this.accessToken = getAccessToken();
         this.memberService = memberService;
+        this.emailService = emailService;
     }
-
+    
     /**
      * Gets the current access token, or requests a new token if the current one
      * has expired.
@@ -79,21 +83,21 @@ public class UserResource extends GenericResource
             logger().info("Getting new management token");
             final String audience = configuration.auth0Domain + "/api/v2/";
             final AuthAPI auth = new AuthAPI(configuration.auth0Domain, configuration.auth0MgmtApiId, configuration.auth0MgmtApiKey);
-
+            
             final TokenHolder tokens = auth.requestToken(audience).execute();
-
+            
             // Store the expiry time (defaults to 86400 seconds/24 hours)
             final Calendar cal = Calendar.getInstance();
             cal.add(Calendar.SECOND, Math.toIntExact(tokens.getExpiresIn()));
             this.accessTokenExpiresAt = cal.getTime();
-
+            
             this.accessToken = tokens.getAccessToken();
             return this.accessToken;
         }
         logger().debug("Using existing access token");
         return this.accessToken;
     }
-
+    
     @GET
     @Timed
     @Path("auth0/getActiveUserCount")
@@ -102,17 +106,17 @@ public class UserResource extends GenericResource
     public Integer getActiveAuth0Users() throws Auth0Exception
     {
         final ManagementAPI mgmt = new ManagementAPI(configuration.auth0Domain, getAccessToken());
-
+        
         return mgmt.stats().getActiveUsersCount().execute();
     }
-
+    
     private List<User> getAllAuth0Users() throws Auth0Exception
     {
         List<User> users = new ArrayList<>();
         users = getNextUserPage(users, 0);
         return users;
     }
-
+    
     @GET
     @Timed
     @Path("auth0/users")
@@ -122,7 +126,7 @@ public class UserResource extends GenericResource
     {
         return getAllAuth0Users();
     }
-
+    
     private List<User> getAuth0UsersByField(final String field, final String value) throws UnsupportedEncodingException, Auth0Exception
     {
         // Only search for users with a verified email, otherwise
@@ -136,13 +140,13 @@ public class UserResource extends GenericResource
                 .trim();
         final UserFilter filter = new UserFilter();
         filter.withQuery(query);
-
+        
         final ManagementAPI mgmt = new ManagementAPI(configuration.auth0Domain, getAccessToken());
         final List<User> users = mgmt.users().list(filter).execute().getItems();
         logger().debug("Querying with {} matched {} users", query, users.size());
         return users;
     }
-
+    
     private List<User> getNextUserPage(final List<User> users, final Integer pageNumber) throws Auth0Exception
     {
         final ManagementAPI mgmt = new ManagementAPI(configuration.auth0Domain, getAccessToken());
@@ -158,7 +162,7 @@ public class UserResource extends GenericResource
         }
         return users;
     }
-
+    
     @GET
     @ApiOperation("Returns the current user's metadata")
     @Path("metadata/app")
@@ -168,7 +172,7 @@ public class UserResource extends GenericResource
         final Auth0User prin = (Auth0User) context.getUserPrincipal();
         return prin.getAppMetadata().toString();
     }
-
+    
     @GET
     @ApiOperation("Returns the current user's roleset")
     @Path("roles")
@@ -187,13 +191,13 @@ public class UserResource extends GenericResource
             throw new WebApplicationException("Invalid roleset");
         }
     }
-
+    
     @Override
     Logger logger()
     {
         return LoggerFactory.getLogger(UserResource.class);
     }
-
+    
     @GET
     @Timed
     @Path("auth0/syncAuth0Users")
@@ -204,13 +208,13 @@ public class UserResource extends GenericResource
         final ManagementAPI mgmt = new ManagementAPI(configuration.auth0Domain, getAccessToken());
         final String emailField = "email.raw";
         final String membershipNumberKey = "membershipNumber";
-
+        
         Integer updateCount = 0;
         final List<MemberDO> members = memberService.getAll();
         for (final MemberDO member : members)
         {
             final List<User> usersByEmail = getAuth0UsersByField(emailField, member.getEmail());
-
+            
             // No match found for any information we hold.
             if (usersByEmail.isEmpty())
             {
@@ -233,13 +237,13 @@ public class UserResource extends GenericResource
                 final String rolesKey = "roles";
                 final Map<String, Object> appMetadata = user.getAppMetadata();
                 final Map<String, Object> newAppMetadata = new HashMap<>();
-
+                
                 Integer membershipNumberAppMetadata = null;
                 if (appMetadata.containsKey(membershipNumberKey))
                 {
                     membershipNumberAppMetadata = (Integer) appMetadata.get(membershipNumberKey);
                 }
-
+                
                 // Update membership number
                 if (membershipNumberAppMetadata == null || !membershipNumberAppMetadata.equals(member.getMembershipNumber()))
                 {
@@ -247,7 +251,7 @@ public class UserResource extends GenericResource
                     newAppMetadata.put(membershipNumberKey, member.getMembershipNumber());
                     updated = true;
                 }
-
+                
                 // Update relevant roles for the member
                 @SuppressWarnings("unchecked")
                 final List<String> roles = (List<String>) appMetadata.getOrDefault(rolesKey, new ArrayList<>());
@@ -266,7 +270,7 @@ public class UserResource extends GenericResource
                     newAppMetadata.put(rolesKey, roles);
                     updated = true;
                 }
-
+                
                 // Update user object with roles and/or membership number
                 if (updated)
                 {
@@ -275,11 +279,20 @@ public class UserResource extends GenericResource
                     // Update Auth0 with new user object
                     logger().debug("Updating user {} with {}", user.getEmail(), newAppMetadata);
                     updateCount++;
-                    mgmt.users().update(user.getId(), newUser).execute();
+                    try
+                    {
+                        mgmt.users().update(user.getId(), newUser).execute();
+                    }
+                    catch (final Auth0Exception a0e)
+                    {
+                        logger().error("Could not update user " + user.getId(), a0e);
+                        break;
+                    }
+                    emailService.sendAccountLinkedNotification(member);
                 }
             }
         }
-
+        
         final List<User> users = getAllAuth0Users();
         for (final User user : users)
         {
@@ -301,7 +314,7 @@ public class UserResource extends GenericResource
                 final User newUser = new User(configuration.auth0UserConnection);
                 final String rolesKey = "roles";
                 final Map<String, Object> newAppMetadata = new HashMap<>();
-
+                
                 // Remove membership number
                 if (membershipNumberAppMetadata != null)
                 {
@@ -309,7 +322,7 @@ public class UserResource extends GenericResource
                     newAppMetadata.put(membershipNumberKey, null);
                     updated = true;
                 }
-
+                
                 // Update relevant roles for the member
                 @SuppressWarnings("unchecked")
                 final List<String> roles = (List<String>) appMetadata.getOrDefault(rolesKey, new ArrayList<>());
@@ -328,7 +341,7 @@ public class UserResource extends GenericResource
                     newAppMetadata.put(rolesKey, roles);
                     updated = true;
                 }
-
+                
                 // Update user object with roles and/or membership number
                 if (updated)
                 {
@@ -340,7 +353,7 @@ public class UserResource extends GenericResource
                 }
             }
         }
-
+        
         return updateCount;
     }
 }

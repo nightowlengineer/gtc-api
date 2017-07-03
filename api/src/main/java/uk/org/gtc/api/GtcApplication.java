@@ -49,13 +49,13 @@ public class GtcApplication extends Application<GtcConfiguration>
     {
         new GtcApplication().run(args);
     }
-
+    
     @Override
     public String getName()
     {
         return "gtc-api";
     }
-
+    
     @Override
     public void initialize(final Bootstrap<GtcConfiguration> bootstrap)
     {
@@ -68,12 +68,12 @@ public class GtcApplication extends Application<GtcConfiguration>
             }
         });
     }
-
+    
     Logger logger()
     {
         return LoggerFactory.getLogger(GtcApplication.class);
     }
-
+    
     @Override
     public void run(final GtcConfiguration configuration, final Environment environment) throws UnknownHostException, Auth0Exception
     {
@@ -85,7 +85,7 @@ public class GtcApplication extends Application<GtcConfiguration>
         mongoCredentials.add(credential);
         final MongoClient mongo = new MongoClient(mongoHost, mongoCredentials);
         environment.lifecycle().manage(new MongoManaged(mongo));
-
+        
         // CORS configuration
         final FilterRegistration.Dynamic corsFilter = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
         corsFilter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
@@ -94,12 +94,12 @@ public class GtcApplication extends Application<GtcConfiguration>
         corsFilter.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,PUT,POST,DELETE,OPTIONS");
         corsFilter.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, configuration.corsOrigins);
         corsFilter.setInitParameter(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*");
-
+        
         // Authentication configuration
         final List<String> urlPatterns = new ArrayList<>();
         urlPatterns.add("/member/*");
         urlPatterns.add("/user/*");
-
+        
         final JWTFilter jwtFilterImpl = new JWTFilter(configuration);
         final FilterRegistration.Dynamic jwtFilter = environment.servlets().addFilter("jwt-filter", jwtFilterImpl);
         for (final String urlPattern : urlPatterns)
@@ -109,34 +109,34 @@ public class GtcApplication extends Application<GtcConfiguration>
         jwtFilter.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM,
                 "Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization");
         jwtFilter.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,PUT,POST,DELETE,OPTIONS");
-
+        
         // Integrations
         final SendGrid sendgrid = new SendGrid(configuration.sendgridApiKey);
-
+        
         // Health checks
         environment.healthChecks().register("basic", new BasicHealthCheck());
         environment.healthChecks().register("mongo", new MongoHealthCheck(mongo));
         environment.healthChecks().register("sendgrid", new SendGridHealthCheck(sendgrid));
-
+        
         // Database and Jackson mappings
         @SuppressWarnings("deprecation")
         final DB db = mongo.getDB(configuration.mongoDatabase);
-
+        
         final JacksonDBCollection<MemberDO, String> members = JacksonDBCollection.wrap(db.getCollection("members"), MemberDO.class,
                 String.class);
         final JacksonDBCollection<BookDO, String> books = JacksonDBCollection.wrap(db.getCollection("books"), BookDO.class, String.class);
-
+        
         // Services
         final MemberService memberService = new MemberService(members);
         final SendGridHelper emailService = new SendGridHelper(sendgrid, memberService);
         final BookService bookService = new BookService(books);
-
+        
         // Resource registration
         environment.jersey().register(new ApiResource());
         environment.jersey().register(new MemberResource(memberService, emailService));
         environment.jersey().register(new BookResource(bookService));
-        environment.jersey().register(new UserResource(configuration, memberService));
-
+        environment.jersey().register(new UserResource(configuration, memberService, emailService));
+        
         // Authentication
         final OAuthCredentialAuthFilter.Builder<Auth0User> authFilter = new OAuthCredentialAuthFilter.Builder<>();
         final GtcAuthenticator gtcAuthenticator = new GtcAuthenticator(logger(), configuration);
@@ -144,7 +144,7 @@ public class GtcApplication extends Application<GtcConfiguration>
         final String tokenPrefix = "Bearer";
         final AuthDynamicFeature gtcAuth = new AuthDynamicFeature(
                 authFilter.setAuthenticator(gtcAuthenticator).setPrefix(tokenPrefix).setAuthorizer(gtcAuthoriser).buildAuthFilter());
-
+        
         environment.jersey().register(gtcAuth);
         environment.jersey().register(RolesAllowedDynamicFeature.class);
         environment.jersey().register(MultiPartFeature.class);

@@ -113,6 +113,45 @@ public class SendGridHelper
         }
     }
     
+    public boolean sendAccountLinkedNotification(final MemberDO member)
+    {
+        // Setup template and default content
+        final EmailTemplate template = EmailTemplate.MEMBER_ACCOUNT_LINKED;
+        final Mail mail = new Mail();
+        mail.setFrom(defaultNoReplyAddress);
+        mail.setTemplateId(template.getSendGridTemplateId());
+        
+        final Personalization p = new Personalization();
+        p.addTo(new Email(member.getEmail()));
+        p.addSubstitution("[%firstName%]", member.getFirstName());
+        mail.addPersonalization(p);
+        
+        // Send request to SendGrid
+        final Request request = new Request();
+        request.method = Method.POST;
+        request.endpoint = "mail/send";
+        try
+        {
+            request.body = mail.build();
+            final Response response = sendgrid.api(request);
+            if (response.statusCode == 202)
+            {
+                return true;
+            }
+            else
+            {
+                logger().error("API error sending account linking email: {}", response.body);
+                return false;
+            }
+        }
+        catch (final IOException e)
+        {
+            logger().error("Comms error sending account linking email", e);
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
     Logger logger()
     {
         return LoggerFactory.getLogger(SendGridHelper.class);
