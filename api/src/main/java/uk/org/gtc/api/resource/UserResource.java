@@ -238,15 +238,18 @@ public class UserResource extends GenericResource
                 final Map<String, Object> appMetadata = user.getAppMetadata();
                 final Map<String, Object> newAppMetadata = new HashMap<>();
                 
-                Integer membershipNumberAppMetadata = null;
+                Long membershipNumberAppMetadata = null;
                 if (appMetadata.containsKey(membershipNumberKey))
                 {
-                    membershipNumberAppMetadata = (Integer) appMetadata.get(membershipNumberKey);
+                    final Integer mdKey = (Integer) appMetadata.get(membershipNumberKey);
+                    membershipNumberAppMetadata = mdKey.longValue();
                 }
                 
                 // Update membership number
                 if (membershipNumberAppMetadata == null || !membershipNumberAppMetadata.equals(member.getMembershipNumber()))
                 {
+                    logger().debug("{} has {} in app metadata, {} on system", user.getEmail(), membershipNumberAppMetadata,
+                            member.getMembershipNumber());
                     logger().debug("User {} doesn't have membership number", user.getEmail());
                     newAppMetadata.put(membershipNumberKey, member.getMembershipNumber());
                     updated = true;
