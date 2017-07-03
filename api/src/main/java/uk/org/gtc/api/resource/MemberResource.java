@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.auth0.Auth0User;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.RuntimeJsonMappingException;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.mongodb.MongoException;
@@ -526,7 +527,17 @@ public class MemberResource extends GenericResource<MemberDO>
         // Process members to create/update
         while (it.hasNext())
         {
-            final CsvMember csvMember = it.next();
+            CsvMember csvMember = null;
+            try
+            {
+                csvMember = it.next();
+            }
+            catch (final RuntimeJsonMappingException e)
+            {
+                logger().warn("Could not process import", e);
+                throw new MemberImportException(
+                        "Couldn't process the file that was provided. Please confirm it matches the spec. " + e.getCause().getMessage());
+            }
             importCreateUpdateMember(csvMember, diffs);
         }
         
