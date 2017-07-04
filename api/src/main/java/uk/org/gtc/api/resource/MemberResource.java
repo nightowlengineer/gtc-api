@@ -36,6 +36,10 @@ import org.slf4j.LoggerFactory;
 
 import com.auth0.Auth0User;
 import com.codahale.metrics.annotation.Timed;
+import com.ecwid.maleorang.MailchimpClient;
+import com.ecwid.maleorang.MailchimpException;
+import com.ecwid.maleorang.method.v3_0.lists.members.GetMemberMethod;
+import com.ecwid.maleorang.method.v3_0.lists.members.MemberInfo;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.RuntimeJsonMappingException;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -44,11 +48,14 @@ import com.mongodb.MongoException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import uk.org.gtc.api.GtcConfiguration;
 import uk.org.gtc.api.SendGridHelper;
 import uk.org.gtc.api.UtilityHelper;
 import uk.org.gtc.api.domain.CsvMember;
 import uk.org.gtc.api.domain.ImportDiff;
 import uk.org.gtc.api.domain.LocationType;
+import uk.org.gtc.api.domain.MailchimpInfo;
+import uk.org.gtc.api.domain.MailchimpStatus;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.domain.MemberStatus;
 import uk.org.gtc.api.domain.MemberType;
@@ -63,14 +70,43 @@ import us.monoid.json.JSONException;
 @Produces(MediaType.APPLICATION_JSON)
 public class MemberResource extends GenericResource<MemberDO>
 {
+    private final GtcConfiguration configuration;
     private final MemberService memberService;
     private final SendGridHelper emailService;
     
-    public MemberResource(final MemberService memberService, final SendGridHelper emailService)
+    public MemberResource(final GtcConfiguration configuration, final MemberService memberService, final SendGridHelper emailService)
     {
         super(memberService);
+        this.configuration = configuration;
         this.memberService = memberService;
         this.emailService = emailService;
+    }
+    
+    @GET
+    @Path("me/mailchimp/status")
+    @PermitAll
+    public MailchimpInfo getMyMailchimpStatus(final @Context SecurityContext context)
+            throws IOException, MailchimpException
+    {
+        final Long membershipNumber = getCurrentUserMembershipNumber(context);
+        final MemberDO member = memberService.getByMemberNumber(membershipNumber);
+        
+        final MailchimpClient client = new MailchimpClient(configuration.mailchimpApiKey);
+        try
+        {
+            final GetMemberMethod method = new GetMemberMethod(configuration.mailchimpListId, member.getEmail());
+            method.fields = "status,unsubscribe_reason,last_changed";
+            final MemberInfo mailchimpMember = client.execute(method);
+            final MailchimpStatus status = MailchimpStatus.valueOf(mailchimpMember.status.toUpperCase());
+            final String unsubscribeReason = (String) mailchimpMember.mapping.getOrDefault("unsubscribe_reason", null);
+            final Date lastChanged = mailchimpMember.last_changed;
+            
+            return new MailchimpInfo(lastChanged, unsubscribeReason, status);
+        }
+        finally
+        {
+            client.close();
+        }
     }
     
     @POST

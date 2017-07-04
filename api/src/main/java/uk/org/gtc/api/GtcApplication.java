@@ -133,7 +133,7 @@ public class GtcApplication extends Application<GtcConfiguration>
         
         // Resource registration
         environment.jersey().register(new ApiResource());
-        environment.jersey().register(new MemberResource(memberService, emailService));
+        environment.jersey().register(new MemberResource(configuration, memberService, emailService));
         environment.jersey().register(new BookResource(bookService));
         environment.jersey().register(new UserResource(configuration, memberService, emailService));
         
