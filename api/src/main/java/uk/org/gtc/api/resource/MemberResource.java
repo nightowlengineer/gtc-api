@@ -38,6 +38,7 @@ import com.auth0.Auth0User;
 import com.codahale.metrics.annotation.Timed;
 import com.ecwid.maleorang.MailchimpClient;
 import com.ecwid.maleorang.MailchimpException;
+import com.ecwid.maleorang.method.v3_0.lists.members.EditMemberMethod;
 import com.ecwid.maleorang.method.v3_0.lists.members.GetMemberMethod;
 import com.ecwid.maleorang.method.v3_0.lists.members.MemberInfo;
 import com.fasterxml.jackson.databind.MappingIterator;
@@ -96,6 +97,33 @@ public class MemberResource extends GenericResource<MemberDO>
         {
             final GetMemberMethod method = new GetMemberMethod(configuration.mailchimpListId, member.getEmail());
             method.fields = "status,unsubscribe_reason,last_changed";
+            final MemberInfo mailchimpMember = client.execute(method);
+            final MailchimpStatus status = MailchimpStatus.valueOf(mailchimpMember.status.toUpperCase());
+            final String unsubscribeReason = (String) mailchimpMember.mapping.getOrDefault("unsubscribe_reason", null);
+            final Date lastChanged = mailchimpMember.last_changed;
+            
+            return new MailchimpInfo(lastChanged, unsubscribeReason, status);
+        }
+        finally
+        {
+            client.close();
+        }
+    }
+    
+    @GET
+    @Path("me/mailchimp/subscribe")
+    @PermitAll
+    public MailchimpInfo subscribeMeToMailchimp(final @Context SecurityContext context)
+            throws IOException, MailchimpException
+    {
+        final Long membershipNumber = getCurrentUserMembershipNumber(context);
+        final MemberDO member = memberService.getByMemberNumber(membershipNumber);
+        
+        final MailchimpClient client = new MailchimpClient(configuration.mailchimpApiKey);
+        try
+        {
+            final EditMemberMethod method = new EditMemberMethod.Update(configuration.mailchimpListId, member.getEmail());
+            method.status = "subscribed";
             final MemberInfo mailchimpMember = client.execute(method);
             final MailchimpStatus status = MailchimpStatus.valueOf(mailchimpMember.status.toUpperCase());
             final String unsubscribeReason = (String) mailchimpMember.mapping.getOrDefault("unsubscribe_reason", null);
