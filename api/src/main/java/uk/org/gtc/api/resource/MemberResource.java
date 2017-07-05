@@ -38,6 +38,7 @@ import com.auth0.Auth0User;
 import com.codahale.metrics.annotation.Timed;
 import com.ecwid.maleorang.MailchimpClient;
 import com.ecwid.maleorang.MailchimpException;
+import com.ecwid.maleorang.MailchimpObject;
 import com.ecwid.maleorang.method.v3_0.lists.members.EditMemberMethod;
 import com.ecwid.maleorang.method.v3_0.lists.members.GetMemberMethod;
 import com.ecwid.maleorang.method.v3_0.lists.members.MemberInfo;
@@ -84,6 +85,43 @@ public class MemberResource extends GenericResource<MemberDO>
     }
     
     @GET
+    @Path("{id}/mailchimp/status")
+    @RolesAllowed("MEMBERSHIP_MANAGE")
+    public MailchimpInfo getMemberMailchimpStatus(final @PathParam("id") String id)
+            throws IOException
+    {
+        final MemberDO member = memberService.getById(id);
+        
+        final MailchimpClient client = new MailchimpClient(configuration.mailchimpApiKey);
+        try
+        {
+            final GetMemberMethod method = new GetMemberMethod(configuration.mailchimpListId, member.getEmail());
+            method.fields = "status,unsubscribe_reason,last_changed";
+            final MemberInfo mailchimpMember = client.execute(method);
+            final MailchimpStatus status = MailchimpStatus.valueOf(mailchimpMember.status.toUpperCase());
+            final String unsubscribeReason = (String) mailchimpMember.mapping.getOrDefault("unsubscribe_reason", null);
+            final Date lastChanged = mailchimpMember.last_changed;
+            
+            return new MailchimpInfo(lastChanged, unsubscribeReason, status);
+        }
+        catch (final MailchimpException me)
+        {
+            if (me.code == HttpServletResponse.SC_NOT_FOUND)
+            {
+                return new MailchimpInfo(null, null, MailchimpStatus.NOT_SUBSCRIBED);
+            }
+            else
+            {
+                return new MailchimpInfo(null, null, MailchimpStatus.UNKNOWN);
+            }
+        }
+        finally
+        {
+            client.close();
+        }
+    }
+    
+    @GET
     @Path("me/mailchimp/status")
     @PermitAll
     public MailchimpInfo getMyMailchimpStatus(final @Context SecurityContext context)
@@ -111,6 +149,41 @@ public class MemberResource extends GenericResource<MemberDO>
     }
     
     @GET
+    @Path("{id}/mailchimp/subscribe")
+    @RolesAllowed("MEMBERSHIP_MANAGE")
+    public MailchimpInfo subscribeMemberToMailchimp(final @PathParam("id") String id)
+            throws IOException, MailchimpException
+    {
+        final MemberDO member = memberService.getById(id);
+        
+        final MailchimpClient client = new MailchimpClient(configuration.mailchimpApiKey);
+        try
+        {
+            final EditMemberMethod method = new EditMemberMethod.CreateOrUpdate(configuration.mailchimpListId, member.getEmail());
+            method.status = "subscribed";
+            method.merge_fields = new MailchimpObject();
+            method.merge_fields.mapping.put("FNAME", member.getFirstName());
+            method.merge_fields.mapping.put("LNAME", member.getLastName());
+            /*
+             * Disabled until Mailchimp list has been updated:
+             * method.merge_fields.mapping.put("TYPE", member.getType());
+             * method.merge_fields.mapping.put("MEMNUM",
+             * member.getMembershipNumber());
+             */
+            final MemberInfo mailchimpMember = client.execute(method);
+            final MailchimpStatus status = MailchimpStatus.valueOf(mailchimpMember.status.toUpperCase());
+            final String unsubscribeReason = (String) mailchimpMember.mapping.getOrDefault("unsubscribe_reason", null);
+            final Date lastChanged = mailchimpMember.last_changed;
+            
+            return new MailchimpInfo(lastChanged, unsubscribeReason, status);
+        }
+        finally
+        {
+            client.close();
+        }
+    }
+    
+    @GET
     @Path("me/mailchimp/subscribe")
     @PermitAll
     public MailchimpInfo subscribeMeToMailchimp(final @Context SecurityContext context)
@@ -124,6 +197,15 @@ public class MemberResource extends GenericResource<MemberDO>
         {
             final EditMemberMethod method = new EditMemberMethod.Update(configuration.mailchimpListId, member.getEmail());
             method.status = "subscribed";
+            method.merge_fields = new MailchimpObject();
+            method.merge_fields.mapping.put("FNAME", member.getFirstName());
+            method.merge_fields.mapping.put("LNAME", member.getLastName());
+            /*
+             * Disabled until Mailchimp list has been updated:
+             * method.merge_fields.mapping.put("TYPE", member.getType());
+             * method.merge_fields.mapping.put("MEMNUM",
+             * member.getMembershipNumber());
+             */
             final MemberInfo mailchimpMember = client.execute(method);
             final MailchimpStatus status = MailchimpStatus.valueOf(mailchimpMember.status.toUpperCase());
             final String unsubscribeReason = (String) mailchimpMember.mapping.getOrDefault("unsubscribe_reason", null);
