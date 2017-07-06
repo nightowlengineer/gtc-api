@@ -7,9 +7,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -39,8 +42,13 @@ import com.codahale.metrics.annotation.Timed;
 import com.ecwid.maleorang.MailchimpClient;
 import com.ecwid.maleorang.MailchimpException;
 import com.ecwid.maleorang.MailchimpObject;
+import com.ecwid.maleorang.method.v3_0.batches.BatchStatus;
+import com.ecwid.maleorang.method.v3_0.batches.GetBatchStatusMethod;
+import com.ecwid.maleorang.method.v3_0.batches.GetBatchesStatusMethod;
+import com.ecwid.maleorang.method.v3_0.batches.StartBatchMethod;
 import com.ecwid.maleorang.method.v3_0.lists.members.EditMemberMethod;
 import com.ecwid.maleorang.method.v3_0.lists.members.GetMemberMethod;
+import com.ecwid.maleorang.method.v3_0.lists.members.GetMembersMethod;
 import com.ecwid.maleorang.method.v3_0.lists.members.MemberInfo;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.RuntimeJsonMappingException;
@@ -216,6 +224,115 @@ public class MemberResource extends GenericResource<MemberDO>
         finally
         {
             client.close();
+        }
+    }
+    
+    /**
+     * Sync metadata (first/last names) with Mailchimp.
+     * In the future, this method should use membership numbers, not just email
+     * addresses which could be changed by users on Mailchimp. On the latter
+     * case, a webhook could be implemented to listen to the 'subscribe' and
+     * 'upemail' events from Mailchimp to trigger actions internally
+     * 
+     * @return the status of the batch
+     * @throws IOException
+     *             if there are any comms errors
+     * @throws MailchimpException
+     *             if Mailchimp throws an error
+     */
+    @GET
+    @Path("mailchimp/syncMetadata")
+    @RolesAllowed("MEMBERSHIP_MANAGE")
+    public BatchStatus syncMailchimpMetadata() throws IOException, MailchimpException
+    {
+        final List<MemberInfo> mailchimpMembers = new ArrayList<>();
+        final List<MemberDO> allMembers = memberService.getAll();
+        // Extract email addresses from membership database
+        final Set<String> emailList = allMembers.stream().map(MemberDO::getEmail).collect(Collectors.toSet());
+        
+        // Get list of members from Mailchimp
+        final GetMembersMethod getMailchimpMembers = new GetMembersMethod(configuration.mailchimpListId);
+        // TODO: Pagination.
+        // 2000 is the max size of this list on the current plan
+        getMailchimpMembers.count = 2000;
+        getMailchimpMembers.fields = "members.email_address,members.merge_fields";
+        
+        try (final MailchimpClient client = new MailchimpClient(configuration.mailchimpApiKey))
+        {
+            mailchimpMembers.addAll(client.execute(getMailchimpMembers).members);
+        }
+        
+        // Intersect email list with those from Mailchimp
+        // (only update members we know about)
+        emailList.retainAll(mailchimpMembers.stream().map(m -> m.email_address).collect(Collectors.toSet()));
+        final List<MemberDO> intersectedMembers = allMembers.stream().filter(m -> emailList.contains(m.getEmail()))
+                .collect(Collectors.toList());
+        
+        final List<EditMemberMethod> batchMethods = new ArrayList<>();
+        for (final MemberDO member : intersectedMembers)
+        {
+            final Map<String, Object> mappingFields = new HashMap<>();
+            mappingFields.put("FNAME", member.getFirstName());
+            mappingFields.put("LNAME", member.getLastName());
+            // TODO: Update to TYPE when Mailchimp has been updated
+            mappingFields.put("MMERGE3", member.getType().toString());
+            // TODO: Update to MEMNUM when Mailchimp has been updated
+            // mappingFields.put("MEMNUM", member.getMembershipNumber());
+            // Currently this field stores 'notes'.
+            // As these aren't stored in this system, until the field has
+            // been removed on Mailchimp any member of the list that has
+            // content in this field will be repeatedly synced as it will not be
+            // able to find it in the mailchimpMembers list
+            mappingFields.put("MMERGE4", "");
+            
+            final MemberInfo memberInfo = new MemberInfo();
+            memberInfo.email_address = member.getEmail();
+            memberInfo.merge_fields = new MailchimpObject();
+            memberInfo.merge_fields.mapping.putAll(mappingFields);
+            
+            if (!mailchimpMembers.contains(memberInfo))
+            {
+                final EditMemberMethod method = new EditMemberMethod.Update(configuration.mailchimpListId, member.getEmail());
+                // TODO: Remove once MEMNUM has been implemented above.
+                // This line is present to avoid overwriting 'notes' that are
+                // currently sored under 'MMERGE4'
+                mappingFields.remove("MMERGE4");
+                method.merge_fields = new MailchimpObject();
+                method.merge_fields.mapping.putAll(mappingFields);
+                logger().debug("Updating {}", method.toString());
+                batchMethods.add(method);
+            }
+        }
+        
+        logger().info("Sending batch update to Mailchimp with {} operations inside", batchMethods.size());
+        
+        try (final MailchimpClient client = new MailchimpClient(configuration.mailchimpApiKey))
+        {
+            return client.execute(new StartBatchMethod(batchMethods));
+        }
+    }
+    
+    @GET
+    @Path("mailchimp/getBatches")
+    @RolesAllowed("MEMBERSHIP_MANAGE")
+    public List<BatchStatus> getMailchimpBatchStatus() throws IOException, MailchimpException
+    {
+        final GetBatchesStatusMethod method = new GetBatchesStatusMethod();
+        try (final MailchimpClient client = new MailchimpClient(configuration.mailchimpApiKey))
+        {
+            return client.execute(method).batches;
+        }
+    }
+    
+    @GET
+    @Path("mailchimp/getBatchStatus/{id}")
+    @RolesAllowed("MEMBERSHIP_MANAGE")
+    public BatchStatus getMailchimpBatchStatus(final @PathParam("id") String batchId) throws IOException, MailchimpException
+    {
+        final GetBatchStatusMethod method = new GetBatchStatusMethod(batchId);
+        try (final MailchimpClient client = new MailchimpClient(configuration.mailchimpApiKey))
+        {
+            return client.execute(method);
         }
     }
     
