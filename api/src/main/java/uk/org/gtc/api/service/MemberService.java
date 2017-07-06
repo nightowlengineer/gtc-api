@@ -21,14 +21,11 @@ import uk.org.gtc.api.exception.MemberNotFoundException;
 
 public class MemberService extends GenericService<MemberDO>
 {
-    private final JacksonDBCollection<MemberDO, String> collection;
-
     public MemberService(final JacksonDBCollection<MemberDO, String> members)
     {
         super(members);
-        this.collection = members;
     }
-
+    
     public List<MemberDO> findByMemberNumber(final Long memberNumber)
     {
         final List<MemberDO> members = new ArrayList<>();
@@ -43,7 +40,7 @@ public class MemberService extends GenericService<MemberDO>
         }
         return members;
     }
-
+    
     public MemberDO getByMemberNumber(final Long memberNumber)
     {
         final List<MemberDO> members = findByMemberNumber(memberNumber);
@@ -61,12 +58,12 @@ public class MemberService extends GenericService<MemberDO>
                     HttpServletResponse.SC_NOT_FOUND);
         }
     }
-
+    
     public List<MemberDO> getByStatus(final MemberStatus... status)
     {
         return query(DBQuery.in("status", (Object[]) status));
     }
-
+    
     public Long getNextMemberNumber()
     {
         final MemberDO lastMember = getLastBy(DBSort.desc("membershipNumber"));
@@ -74,11 +71,11 @@ public class MemberService extends GenericService<MemberDO>
         nextMembershipNumber++;
         return nextMembershipNumber;
     }
-
+    
     @Override
     Logger logger()
     {
         return LoggerFactory.getLogger(MemberService.class);
     }
-
+    
 }

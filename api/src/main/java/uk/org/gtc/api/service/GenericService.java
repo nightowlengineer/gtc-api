@@ -22,31 +22,31 @@ import com.mongodb.DBObject;
 import uk.org.gtc.api.UtilityHelper;
 import uk.org.gtc.api.domain.BaseDomainObject;
 
-public class GenericService<T extends BaseDomainObject>
+public abstract class GenericService<T extends BaseDomainObject>
 {
-    private final JacksonDBCollection<T, String> collection;
-
+    protected final JacksonDBCollection<T, String> collection;
+    
     public GenericService(final JacksonDBCollection<T, String> collection)
     {
         this.collection = collection;
     }
-
+    
     public T create(final T item)
     {
         final WriteResult<T, String> result = collection.insert(item);
         return result.getSavedObject();
     }
-
+    
     public Boolean delete(final T item)
     {
         return collection.removeById(item.getId()).getWriteResult().wasAcknowledged();
     }
-
+    
     public List<T> getAll()
     {
         return collection.find().toArray();
     }
-
+    
     /**
      * Find a list of sorted, lightweight items
      *
@@ -60,28 +60,28 @@ public class GenericService<T extends BaseDomainObject>
     {
         return collection.find(new BasicDBObject(), projection).sort(sort).limit(limit).toArray();
     }
-
+    
     public DBCursor<T> getAllSorted(final DBObject sort)
     {
         return collection.find().sort(sort);
     }
-
+    
     public T getById(final String id) throws WebApplicationException
     {
         if (!ObjectId.isValid(id))
         {
             throw new WebApplicationException(HttpServletResponse.SC_BAD_REQUEST);
         }
-
+        
         final T item = collection.findOneById(id);
-
+        
         if (item == null)
         {
             throw new WebApplicationException(HttpServletResponse.SC_NOT_FOUND);
         }
         return item;
     }
-
+    
     /**
      * Find a list of sorted, lightweight items
      *
@@ -103,17 +103,17 @@ public class GenericService<T extends BaseDomainObject>
             return null;
         }
     }
-
+    
     Logger logger()
     {
         return LoggerFactory.getLogger(GenericService.class);
     }
-
+    
     public List<T> query(final Query query)
     {
         return collection.find(query).toArray();
     }
-
+    
     /**
      * Find a list of items by named field
      *
@@ -129,7 +129,7 @@ public class GenericService<T extends BaseDomainObject>
         final Pattern regex = Pattern.compile(regexPattern);
         return collection.find(DBQuery.regex(field, regex)).toArray();
     }
-
+    
     /**
      * Update an existing item
      *

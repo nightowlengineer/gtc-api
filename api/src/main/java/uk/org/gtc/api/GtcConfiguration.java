@@ -12,6 +12,18 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 public class GtcConfiguration extends Configuration
 {
+    private static GtcConfiguration configuration;
+    
+    public static void setInstance(final GtcConfiguration configuration)
+    {
+        GtcConfiguration.configuration = configuration;
+    }
+    
+    public static GtcConfiguration getInstance()
+    {
+        return configuration;
+    }
+    
     @JsonProperty
     @NotEmpty
     public String mongoHost;

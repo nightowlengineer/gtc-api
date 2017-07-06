@@ -19,8 +19,6 @@ import com.auth0.Auth0User;
 import com.auth0.exception.Auth0Exception;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
 import com.sendgrid.SendGrid;
 
 import io.dropwizard.Application;
@@ -32,7 +30,6 @@ import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import uk.org.gtc.api.domain.BookDO;
-import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.health.BasicHealthCheck;
 import uk.org.gtc.api.health.MongoHealthCheck;
 import uk.org.gtc.api.health.SendGridHealthCheck;
@@ -77,14 +74,10 @@ public class GtcApplication extends Application<GtcConfiguration>
     @Override
     public void run(final GtcConfiguration configuration, final Environment environment) throws UnknownHostException, Auth0Exception
     {
-        // Managed resources
-        final ServerAddress mongoHost = new ServerAddress(configuration.mongoHost);
-        final List<MongoCredential> mongoCredentials = new ArrayList<>();
-        final MongoCredential credential = MongoCredential.createScramSha1Credential(configuration.mongoUser, configuration.mongoDatabase,
-                configuration.mongoPassword);
-        mongoCredentials.add(credential);
-        final MongoClient mongo = new MongoClient(mongoHost, mongoCredentials);
-        environment.lifecycle().manage(new MongoManaged(mongo));
+        GtcConfiguration.setInstance(configuration);
+        final MongoClient mongo = MongoFactory.getInstance();
+        environment.lifecycle().manage(new MongoManaged());
+        final DB db = DBFactory.getInstance();
         
         // CORS configuration
         final FilterRegistration.Dynamic corsFilter = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
@@ -118,16 +111,10 @@ public class GtcApplication extends Application<GtcConfiguration>
         environment.healthChecks().register("mongo", new MongoHealthCheck(mongo));
         environment.healthChecks().register("sendgrid", new SendGridHealthCheck(sendgrid));
         
-        // Database and Jackson mappings
-        @SuppressWarnings("deprecation")
-        final DB db = mongo.getDB(configuration.mongoDatabase);
-        
-        final JacksonDBCollection<MemberDO, String> members = JacksonDBCollection.wrap(db.getCollection("members"), MemberDO.class,
-                String.class);
         final JacksonDBCollection<BookDO, String> books = JacksonDBCollection.wrap(db.getCollection("books"), BookDO.class, String.class);
         
         // Services
-        final MemberService memberService = new MemberService(members);
+        final MemberService memberService = MemberServiceFactory.getInstance();
         final SendGridHelper emailService = new SendGridHelper(sendgrid, memberService);
         final BookService bookService = new BookService(books);
         
