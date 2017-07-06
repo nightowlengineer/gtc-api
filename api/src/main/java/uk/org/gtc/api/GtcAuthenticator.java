@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import com.auth0.Auth0User;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.JWTVerifyException;
-import com.auth0.jwt.internal.org.apache.commons.codec.binary.Base64;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
@@ -24,18 +23,18 @@ import us.monoid.json.JSONObject;
 public class GtcAuthenticator implements Authenticator<String, Auth0User>
 {
     private final Logger logger;
-
+    
     private final JWTVerifier jwtVerifier;
-
+    
     private final GtcConfiguration configuration;
-
+    
     public GtcAuthenticator(final Logger logger, final GtcConfiguration configuration)
     {
         this.logger = logger;
         this.configuration = configuration;
-        this.jwtVerifier = new JWTVerifier(new Base64(true).decode(configuration.auth0OfficeApiKey), configuration.auth0OfficeApiId);
+        this.jwtVerifier = new JWTVerifier(configuration.auth0OfficeApiKey, configuration.auth0OfficeApiId);
     }
-
+    
     @Override
     public Optional<Auth0User> authenticate(final String token) throws AuthenticationException
     {
@@ -52,7 +51,7 @@ public class GtcAuthenticator implements Authenticator<String, Auth0User>
         {
             throw new AuthenticationException("Could not authenticate", e);
         }
-
+        
         if (UtilityHelper.isNull(user))
         {
             logger.debug("Failed to authenticate with token {}", token);
@@ -61,10 +60,10 @@ public class GtcAuthenticator implements Authenticator<String, Auth0User>
         {
             logger.debug("Authenticated " + user.getEmail() + " (" + user.getUserId() + ")");
         }
-
+        
         return Optional.of(user);
     }
-
+    
     Logger logger()
     {
         return LoggerFactory.getLogger(GtcAuthenticator.class);
