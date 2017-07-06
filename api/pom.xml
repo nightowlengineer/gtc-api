@@ -151,8 +151,12 @@
 			<artifactId>j2html</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>de.spinscale.dropwizard</groupId>
+			<artifactId>dropwizard-jobs-core</artifactId>
+			<version>3.0.0</version>
+		</dependency>
 	</dependencies>
-
 	<build>
 		<finalName>${project.artifactId}</finalName>
 		<resources>

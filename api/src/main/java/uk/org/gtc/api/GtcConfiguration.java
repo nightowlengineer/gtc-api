@@ -7,10 +7,11 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import de.spinscale.dropwizard.jobs.JobConfiguration;
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
-public class GtcConfiguration extends Configuration
+public class GtcConfiguration extends Configuration implements JobConfiguration
 {
     private static GtcConfiguration configuration;
     

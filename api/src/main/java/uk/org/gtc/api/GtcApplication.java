@@ -21,6 +21,7 @@ import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.sendgrid.SendGrid;
 
+import de.spinscale.dropwizard.jobs.JobsBundle;
 import io.dropwizard.Application;
 import io.dropwizard.auth.AuthDynamicFeature;
 import io.dropwizard.auth.AuthValueFactoryProvider;
@@ -33,6 +34,7 @@ import uk.org.gtc.api.domain.BookDO;
 import uk.org.gtc.api.health.BasicHealthCheck;
 import uk.org.gtc.api.health.MongoHealthCheck;
 import uk.org.gtc.api.health.SendGridHealthCheck;
+import uk.org.gtc.api.jobs.MailchimpSyncJob;
 import uk.org.gtc.api.resource.ApiResource;
 import uk.org.gtc.api.resource.BookResource;
 import uk.org.gtc.api.resource.MemberResource;
@@ -64,6 +66,7 @@ public class GtcApplication extends Application<GtcConfiguration>
                 return configuration.swaggerBundleConfiguration;
             }
         });
+        bootstrap.addBundle(new JobsBundle(new MailchimpSyncJob()));
     }
     
     Logger logger()
