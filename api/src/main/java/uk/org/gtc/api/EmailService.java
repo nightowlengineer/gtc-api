@@ -29,14 +29,14 @@ import uk.org.gtc.api.domain.ImportDiff;
 import uk.org.gtc.api.domain.MemberDO;
 import uk.org.gtc.api.service.MemberService;
 
-public class SendGridHelper
+public class EmailService
 {
     final SendGrid sendgrid;
     final MemberService memberService;
     
     final Email defaultNoReplyAddress = new Email("no-reply@gtc.org.uk", "The GTC");
     
-    public SendGridHelper(final SendGrid sendgrid, final MemberService memberService)
+    public EmailService(final SendGrid sendgrid, final MemberService memberService)
     {
         this.sendgrid = sendgrid;
         this.memberService = memberService;
@@ -154,7 +154,7 @@ public class SendGridHelper
     
     Logger logger()
     {
-        return LoggerFactory.getLogger(SendGridHelper.class);
+        return LoggerFactory.getLogger(EmailService.class);
     }
     
 }

@@ -11,6 +11,11 @@ public class MemberServiceFactory
 {
     private static MemberService instance;
     
+    public static void setInstance(final MemberService instance)
+    {
+        MemberServiceFactory.instance = instance;
+    }
+    
     public static MemberService getInstance()
     {
         if (instance == null)

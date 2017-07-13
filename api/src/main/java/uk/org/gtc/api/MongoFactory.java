@@ -11,6 +11,11 @@ public class MongoFactory
 {
     private static MongoClient instance;
     
+    public static void setInstance(final MongoClient instance)
+    {
+        MongoFactory.instance = instance;
+    }
+    
     public static MongoClient getInstance()
     {
         if (instance == null)

@@ -6,6 +6,11 @@ public class DBFactory
 {
     private static DB instance;
     
+    public static void setInstance(final DB instance)
+    {
+        DBFactory.instance = instance;
+    }
+    
     public static DB getInstance()
     {
         if (instance == null)

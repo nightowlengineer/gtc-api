@@ -11,13 +11,11 @@ import javax.servlet.FilterRegistration;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
-import org.mongojack.JacksonDBCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.auth0.Auth0User;
 import com.auth0.exception.Auth0Exception;
-import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.sendgrid.SendGrid;
 
@@ -30,17 +28,14 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import uk.org.gtc.api.domain.BookDO;
 import uk.org.gtc.api.health.BasicHealthCheck;
 import uk.org.gtc.api.health.MongoHealthCheck;
 import uk.org.gtc.api.health.SendGridHealthCheck;
+import uk.org.gtc.api.jobs.Auth0SyncJob;
 import uk.org.gtc.api.jobs.MailchimpSyncJob;
 import uk.org.gtc.api.resource.ApiResource;
-import uk.org.gtc.api.resource.BookResource;
 import uk.org.gtc.api.resource.MemberResource;
 import uk.org.gtc.api.resource.UserResource;
-import uk.org.gtc.api.service.BookService;
-import uk.org.gtc.api.service.MemberService;
 
 public class GtcApplication extends Application<GtcConfiguration>
 {
@@ -66,7 +61,7 @@ public class GtcApplication extends Application<GtcConfiguration>
                 return configuration.swaggerBundleConfiguration;
             }
         });
-        bootstrap.addBundle(new JobsBundle(new MailchimpSyncJob()));
+        bootstrap.addBundle(new JobsBundle(new MailchimpSyncJob(), new Auth0SyncJob()));
     }
     
     Logger logger()
@@ -80,7 +75,6 @@ public class GtcApplication extends Application<GtcConfiguration>
         GtcConfiguration.setInstance(configuration);
         final MongoClient mongo = MongoFactory.getInstance();
         environment.lifecycle().manage(new MongoManaged());
-        final DB db = DBFactory.getInstance();
         
         // CORS configuration
         final FilterRegistration.Dynamic corsFilter = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
@@ -114,18 +108,10 @@ public class GtcApplication extends Application<GtcConfiguration>
         environment.healthChecks().register("mongo", new MongoHealthCheck(mongo));
         environment.healthChecks().register("sendgrid", new SendGridHealthCheck(sendgrid));
         
-        final JacksonDBCollection<BookDO, String> books = JacksonDBCollection.wrap(db.getCollection("books"), BookDO.class, String.class);
-        
-        // Services
-        final MemberService memberService = MemberServiceFactory.getInstance();
-        final SendGridHelper emailService = new SendGridHelper(sendgrid, memberService);
-        final BookService bookService = new BookService(books);
-        
         // Resource registration
         environment.jersey().register(new ApiResource());
-        environment.jersey().register(new MemberResource(configuration, memberService, emailService));
-        environment.jersey().register(new BookResource(bookService));
-        environment.jersey().register(new UserResource(configuration, memberService, emailService));
+        environment.jersey().register(new MemberResource());
+        environment.jersey().register(new UserResource());
         
         // Authentication
         final OAuthCredentialAuthFilter.Builder<Auth0User> authFilter = new OAuthCredentialAuthFilter.Builder<>();

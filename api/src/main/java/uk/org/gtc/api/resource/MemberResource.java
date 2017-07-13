@@ -56,8 +56,10 @@ import com.mongodb.MongoException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import uk.org.gtc.api.EmailService;
+import uk.org.gtc.api.EmailServiceFactory;
 import uk.org.gtc.api.GtcConfiguration;
-import uk.org.gtc.api.SendGridHelper;
+import uk.org.gtc.api.MemberServiceFactory;
 import uk.org.gtc.api.UtilityHelper;
 import uk.org.gtc.api.domain.CsvMember;
 import uk.org.gtc.api.domain.ImportDiff;
@@ -81,14 +83,14 @@ public class MemberResource extends GenericResource<MemberDO>
 {
     private final GtcConfiguration configuration;
     private final MemberService memberService;
-    private final SendGridHelper emailService;
+    private final EmailService emailService;
     
-    public MemberResource(final GtcConfiguration configuration, final MemberService memberService, final SendGridHelper emailService)
+    public MemberResource()
     {
-        super(memberService);
-        this.configuration = configuration;
-        this.memberService = memberService;
-        this.emailService = emailService;
+        super(MemberServiceFactory.getInstance());
+        this.configuration = GtcConfiguration.getInstance();
+        this.memberService = MemberServiceFactory.getInstance();
+        this.emailService = EmailServiceFactory.getInstance();
     }
     
     @POST

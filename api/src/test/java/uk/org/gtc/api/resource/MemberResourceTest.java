@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
+import uk.org.gtc.api.MemberServiceFactory;
 import uk.org.gtc.api.domain.CsvMember;
 import uk.org.gtc.api.domain.ImportDiff;
 import uk.org.gtc.api.domain.MemberDO;
@@ -24,14 +25,13 @@ import uk.org.gtc.api.service.MemberService;
 /**
  * Unit test for simple App.
  */
-public class MemberResourceTest
+public class MemberResourceTest extends BaseTest
 {
     @Rule
     public final ExpectedException exception = ExpectedException.none();
     
     final MemberService memberService = Mockito.mock(MemberService.class);
-    
-    final MemberResource memberResource = new MemberResource(null, memberService, null);
+    final MemberResource memberResource;
     
     public final MemberDO appliedMember = new MemberDO();
     public final MemberDO declinedMember = new MemberDO();
@@ -46,6 +46,12 @@ public class MemberResourceTest
     
     public final List<MemberDO> members = new ArrayList<>();
     public final List<MemberDO> lapsedMembers = new ArrayList<>();
+    
+    public MemberResourceTest()
+    {
+        MemberServiceFactory.setInstance(memberService);
+        memberResource = new MemberResource();
+    }
     
     @Before
     public void createMembers()
@@ -91,7 +97,6 @@ public class MemberResourceTest
         diffs.setExistingSet(existingSet);
         diffs.setErrorSet(errorSet);
         diffs.setDeletedSet(deletedSet);
-        
         Mockito.when(memberService.findByMemberNumber(9000L)).thenReturn(lapsedMembers);
         Mockito.when(memberService.delete(lapsedMember)).thenReturn(false);
         
