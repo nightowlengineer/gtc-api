@@ -335,7 +335,7 @@ public class MemberResource extends GenericResource<MemberDO>
         }
         catch (final WebApplicationException wae)
         {
-            if (wae.getResponse().equals(HttpServletResponse.SC_NOT_FOUND))
+            if (wae.getResponse().getStatus() == HttpServletResponse.SC_NOT_FOUND)
             {
                 throw new MemberNotFoundException();
             }
