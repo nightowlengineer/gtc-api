@@ -11,7 +11,6 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.client.mgmt.filter.UserFilter;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.mgmt.users.User;
@@ -48,7 +47,6 @@ public class Auth0SyncJob extends Job
         final MemberService memberService = MemberServiceFactory.getInstance();
         final EmailService emailService = EmailServiceFactory.getInstance();
         Auth0Mgmt.getInstance();
-        final ManagementAPI mgmt = Auth0Mgmt.mgmt;
         final String emailField = "email.raw";
         final String membershipNumberKey = "membershipNumber";
         
@@ -135,7 +133,7 @@ public class Auth0SyncJob extends Job
                     updateCount++;
                     try
                     {
-                        mgmt.users().update(user.getId(), newUser).execute();
+                        Auth0Mgmt.mgmt.users().update(user.getId(), newUser).execute();
                     }
                     catch (final Auth0Exception a0e)
                     {
@@ -214,7 +212,7 @@ public class Auth0SyncJob extends Job
                     updateCount++;
                     try
                     {
-                        mgmt.users().update(user.getId(), newUser).execute();
+                        Auth0Mgmt.mgmt.users().update(user.getId(), newUser).execute();
                     }
                     catch (final Auth0Exception e)
                     {
@@ -234,12 +232,11 @@ public class Auth0SyncJob extends Job
     
     private List<User> getNextUserPage(final List<User> users, final Integer pageNumber) throws Auth0Exception
     {
-        final ManagementAPI mgmt = Auth0Mgmt.mgmt;
         final UserFilter filter = new UserFilter();
         filter.withSort("email:1");
         filter.withTotals(true);
         filter.withPage(pageNumber, 50);
-        final UsersPage page = mgmt.users().list(filter).execute();
+        final UsersPage page = Auth0Mgmt.mgmt.users().list(filter).execute();
         users.addAll(page.getItems());
         if (page.getTotal() > users.size())
         {
@@ -262,8 +259,7 @@ public class Auth0SyncJob extends Job
         final UserFilter filter = new UserFilter();
         filter.withQuery(query);
         Auth0Mgmt.getInstance();
-        final ManagementAPI mgmt = Auth0Mgmt.mgmt;
-        final List<User> users = mgmt.users().list(filter).execute().getItems();
+        final List<User> users = Auth0Mgmt.mgmt.users().list(filter).execute().getItems();
         logger().debug("Querying with {} matched {} users", query, users.size());
         return users;
     }
