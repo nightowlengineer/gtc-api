@@ -34,11 +34,7 @@ public class Auth0SyncJob extends Job
 {
     
     /**
-     * Sync metadata (first/last names) with Auth0.
-     * In the future, this method should use membership numbers, not just email
-     * addresses which could be changed by users on Mailchimp. On the latter
-     * case, a webhook could be implemented to listen to the 'subscribe' and
-     * 'upemail' events from Mailchimp to trigger actions internally
+     * Sync metadata (first/last names, membership numbers) with Auth0.
      */
     @Override
     public void doJob(final JobExecutionContext context) throws JobExecutionException
@@ -115,13 +111,6 @@ public class Auth0SyncJob extends Job
                     newAppMetadata.put(rolesKey, roles);
                     updated = true;
                 }
-                if (!roles.contains(ApplicationRole.FORUM.toString()))
-                {
-                    logger().debug("User {} doesn't have FORUM role", user.getEmail());
-                    roles.add(ApplicationRole.FORUM.toString());
-                    newAppMetadata.put(rolesKey, roles);
-                    updated = true;
-                }
                 
                 // Update user object with roles and/or membership number
                 if (updated)
@@ -192,13 +181,6 @@ public class Auth0SyncJob extends Job
                 {
                     logger().debug("User {} has MEMBER role", user.getEmail());
                     roles.remove(ApplicationRole.MEMBER.toString());
-                    newAppMetadata.put(rolesKey, roles);
-                    updated = true;
-                }
-                if (roles.contains(ApplicationRole.FORUM.toString()))
-                {
-                    logger().debug("User {} has FORUM role", user.getEmail());
-                    roles.remove(ApplicationRole.FORUM.toString());
                     newAppMetadata.put(rolesKey, roles);
                     updated = true;
                 }
