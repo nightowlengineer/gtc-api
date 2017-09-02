@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -13,14 +12,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
 
-import org.quartz.JobKey;
-import org.quartz.SchedulerException;
-import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.auth0.Auth0User;
-import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.annotations.Api;
@@ -67,15 +62,5 @@ public class UserResource extends GenericResource
     Logger logger()
     {
         return LoggerFactory.getLogger(UserResource.class);
-    }
-    
-    @GET
-    @Timed
-    @Path("auth0/syncAuth0Users")
-    @ApiOperation("Syncs Auth0 users with membership records. Returns number of accounts updated.")
-    @RolesAllowed("MEMBERSHIP_MANAGE")
-    public void syncAuth0Users() throws SchedulerException
-    {
-        StdSchedulerFactory.getDefaultScheduler().triggerJob(new JobKey("uk.org.gtc.api.jobs.Auth0SyncJob", "DEFAULT"));
     }
 }

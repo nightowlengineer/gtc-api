@@ -98,7 +98,7 @@ public class MailchimpSyncJob extends Job
                 final EditMemberMethod method = new EditMemberMethod.Update(configuration.mailchimpListId, member.getEmail());
                 // TODO: Remove once MEMNUM has been implemented above.
                 // This line is present to avoid overwriting 'notes' that are
-                // currently sored under 'MMERGE4'
+                // currently stored under 'MMERGE4'
                 mappingFields.remove("MMERGE4");
                 method.merge_fields = new MailchimpObject();
                 method.merge_fields.mapping.putAll(mappingFields);
@@ -111,8 +111,8 @@ public class MailchimpSyncJob extends Job
         
         try (final MailchimpClient client = new MailchimpClient(configuration.mailchimpApiKey))
         {
-            // client.execute(new StartBatchMethod(batchMethods));
             logger().warn("*** EXECUTING SCHEDULED JOB ***");
+            // client.execute(new StartBatchMethod(batchMethods));
         }
         catch (final IOException e)
         {
