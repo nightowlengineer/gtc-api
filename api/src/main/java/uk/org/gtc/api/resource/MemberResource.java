@@ -726,30 +726,21 @@ public class MemberResource extends GenericResource<MemberDO>
         final Long membershipNumber = getCurrentUserMembershipNumber(context);
         final MemberDO member = memberService.getByMemberNumber(membershipNumber);
         
-        final MailchimpClient client = new MailchimpClient(configuration.mailchimpApiKey);
-        try
+        try (final MailchimpClient client = new MailchimpClient(configuration.mailchimpApiKey))
         {
             final EditMemberMethod method = new EditMemberMethod.Update(configuration.mailchimpListId, member.getEmail());
             method.status = "subscribed";
             method.merge_fields = new MailchimpObject();
             method.merge_fields.mapping.put("FNAME", member.getFirstName());
             method.merge_fields.mapping.put("LNAME", member.getLastName());
-            /*
-             * Disabled until Mailchimp list has been updated:
-             * method.merge_fields.mapping.put("TYPE", member.getType());
-             * method.merge_fields.mapping.put("MEMNUM",
-             * member.getMembershipNumber());
-             */
+            method.merge_fields.mapping.put("TYPE", member.getType());
+            method.merge_fields.mapping.put("MEMNUM", member.getMembershipNumber());
             final MemberInfo mailchimpMember = client.execute(method);
             final MailchimpStatus status = MailchimpStatus.valueOf(mailchimpMember.status.toUpperCase());
             final String unsubscribeReason = (String) mailchimpMember.mapping.getOrDefault("unsubscribe_reason", null);
             final Date lastChanged = mailchimpMember.last_changed;
             
             return new MailchimpInfo(lastChanged, unsubscribeReason, status);
-        }
-        finally
-        {
-            client.close();
         }
     }
     
