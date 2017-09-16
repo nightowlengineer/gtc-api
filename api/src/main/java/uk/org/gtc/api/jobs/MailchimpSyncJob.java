@@ -79,16 +79,8 @@ public class MailchimpSyncJob extends Job
             final Map<String, Object> mappingFields = new HashMap<>();
             mappingFields.put("FNAME", member.getFirstName());
             mappingFields.put("LNAME", member.getLastName());
-            // TODO: Update to TYPE when Mailchimp has been updated
-            mappingFields.put("MMERGE3", member.getType().toString());
-            // TODO: Update to MEMNUM when Mailchimp has been updated
-            // mappingFields.put("MEMNUM", member.getMembershipNumber());
-            // Currently this field stores 'notes'.
-            // As these aren't stored in this system, until the field has
-            // been removed on Mailchimp any member of the list that has
-            // content in this field will be repeatedly synced as it will not be
-            // able to find it in the mailchimpMembers list
-            mappingFields.put("MMERGE4", "");
+            mappingFields.put("TYPE", member.getType().toString());
+            mappingFields.put("MEMNUM", member.getMembershipNumber());
             
             final MemberInfo memberInfo = new MemberInfo();
             memberInfo.email_address = member.getEmail();
@@ -98,13 +90,12 @@ public class MailchimpSyncJob extends Job
             if (!mailchimpMembers.contains(memberInfo))
             {
                 final EditMemberMethod method = new EditMemberMethod.Update(configuration.mailchimpListId, member.getEmail());
-                // TODO: Remove once MEMNUM has been implemented above.
-                // This line is present to avoid overwriting 'notes' that are
-                // currently stored under 'MMERGE4'
-                mappingFields.remove("MMERGE4");
                 method.merge_fields = new MailchimpObject();
                 method.merge_fields.mapping.putAll(mappingFields);
-                logger().debug("Updating {}", method.toString());
+                if (logger().isDebugEnabled())
+                {
+                    logger().debug("Updating {}", method.toString());
+                }
                 batchMethods.add(method);
             }
         }
