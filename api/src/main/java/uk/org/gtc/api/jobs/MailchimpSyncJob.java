@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import com.ecwid.maleorang.MailchimpClient;
 import com.ecwid.maleorang.MailchimpException;
 import com.ecwid.maleorang.MailchimpObject;
-import com.ecwid.maleorang.method.v3_0.batches.StartBatchMethod;
 import com.ecwid.maleorang.method.v3_0.lists.members.EditMemberMethod;
 import com.ecwid.maleorang.method.v3_0.lists.members.GetMembersMethod;
 import com.ecwid.maleorang.method.v3_0.lists.members.MemberInfo;
@@ -108,14 +107,16 @@ public class MailchimpSyncJob extends Job
                 logger().info("Sending batch update to Mailchimp with {} operations inside", batchMethods.size());
                 if (configuration.appMode == ApplicationMode.LIVE)
                 {
-                    client.execute(new StartBatchMethod(batchMethods));
+                    // client.execute(new StartBatchMethod(batchMethods));
+                    // TODO: Remove once confirmed OK
+                    logger().warn("Would execute batch job for Mailchimp");
                 }
                 else
                 {
                     logger().debug(batchMethods.toString());
                 }
             }
-            catch (final IOException | MailchimpException e)
+            catch (final IOException e)
             {
                 logger().error("Couldn't communicate with Mailchimp during scheduled job run", e);
             }
