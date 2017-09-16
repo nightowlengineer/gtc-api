@@ -19,6 +19,7 @@ import com.auth0.json.mgmt.users.UsersPage;
 import de.spinscale.dropwizard.jobs.Job;
 import de.spinscale.dropwizard.jobs.annotations.DelayStart;
 import de.spinscale.dropwizard.jobs.annotations.Every;
+import uk.org.gtc.api.ApplicationMode;
 import uk.org.gtc.api.Auth0Mgmt;
 import uk.org.gtc.api.EmailService;
 import uk.org.gtc.api.EmailServiceFactory;
@@ -122,7 +123,14 @@ public class Auth0SyncJob extends Job
                     updateCount++;
                     try
                     {
-                        Auth0Mgmt.mgmt.users().update(user.getId(), newUser).execute();
+                        if (configuration.appMode == ApplicationMode.LIVE)
+                        {
+                            Auth0Mgmt.mgmt.users().update(user.getId(), newUser).execute();
+                        }
+                        else
+                        {
+                            logger().debug("Would update user {} with {}", user.getId(), newUser);
+                        }
                     }
                     catch (final Auth0Exception a0e)
                     {
@@ -194,7 +202,14 @@ public class Auth0SyncJob extends Job
                     updateCount++;
                     try
                     {
-                        Auth0Mgmt.mgmt.users().update(user.getId(), newUser).execute();
+                        if (configuration.appMode == ApplicationMode.LIVE)
+                        {
+                            Auth0Mgmt.mgmt.users().update(user.getId(), newUser).execute();
+                        }
+                        else
+                        {
+                            logger().debug("Would update user {} with {}", user.getId(), newUser);
+                        }
                     }
                     catch (final Auth0Exception e)
                     {
