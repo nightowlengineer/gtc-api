@@ -27,6 +27,10 @@ public class GtcConfiguration extends Configuration implements JobConfiguration
     
     @JsonProperty
     @NotEmpty
+    public ApplicationMode appMode;
+    
+    @JsonProperty
+    @NotEmpty
     public String mongoHost;
     
     @JsonProperty
