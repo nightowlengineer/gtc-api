@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.ecwid.maleorang.MailchimpClient;
 import com.ecwid.maleorang.MailchimpException;
 import com.ecwid.maleorang.MailchimpObject;
+import com.ecwid.maleorang.method.v3_0.batches.StartBatchMethod;
 import com.ecwid.maleorang.method.v3_0.lists.members.EditMemberMethod;
 import com.ecwid.maleorang.method.v3_0.lists.members.GetMembersMethod;
 import com.ecwid.maleorang.method.v3_0.lists.members.MemberInfo;
@@ -23,6 +24,7 @@ import com.ecwid.maleorang.method.v3_0.lists.members.MemberInfo;
 import de.spinscale.dropwizard.jobs.Job;
 import de.spinscale.dropwizard.jobs.annotations.DelayStart;
 import de.spinscale.dropwizard.jobs.annotations.Every;
+import uk.org.gtc.api.ApplicationMode;
 import uk.org.gtc.api.GtcConfiguration;
 import uk.org.gtc.api.MemberServiceFactory;
 import uk.org.gtc.api.domain.MemberDO;
@@ -107,16 +109,25 @@ public class MailchimpSyncJob extends Job
             }
         }
         
-        logger().info("Sending batch update to Mailchimp with {} operations inside", batchMethods.size());
-        
-        try (final MailchimpClient client = new MailchimpClient(configuration.mailchimpApiKey))
+        logger().info("Executing scheduled job MailchimpSyncJob");
+        if (batchMethods.size() > 0)
         {
-            logger().warn("*** EXECUTING SCHEDULED JOB ***");
-            // client.execute(new StartBatchMethod(batchMethods));
-        }
-        catch (final IOException e)
-        {
-            logger().error("Couldn't communicate with Mailchimp during scheduled job run", e);
+            try (final MailchimpClient client = new MailchimpClient(configuration.mailchimpApiKey))
+            {
+                logger().info("Sending batch update to Mailchimp with {} operations inside", batchMethods.size());
+                if (configuration.appMode == ApplicationMode.LIVE)
+                {
+                    client.execute(new StartBatchMethod(batchMethods));
+                }
+                else
+                {
+                    logger().debug(batchMethods.toString());
+                }
+            }
+            catch (final IOException | MailchimpException e)
+            {
+                logger().error("Couldn't communicate with Mailchimp during scheduled job run", e);
+            }
         }
     }
     
