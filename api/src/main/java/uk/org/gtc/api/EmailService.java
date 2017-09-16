@@ -31,8 +31,9 @@ import uk.org.gtc.api.service.MemberService;
 
 public class EmailService
 {
-    final SendGrid sendgrid;
-    final MemberService memberService;
+    private final SendGrid sendgrid;
+    private final MemberService memberService;
+    private final GtcConfiguration configuration = GtcConfiguration.getInstance();
     
     final Email defaultNoReplyAddress = new Email("no-reply@gtc.org.uk", "The GTC");
     
@@ -94,21 +95,27 @@ public class EmailService
         try
         {
             request.body = mail.build();
-            final Response response = sendgrid.api(request);
-            if (response.statusCode == 202)
+            if (configuration.appMode == ApplicationMode.LIVE)
             {
-                return true;
+                final Response response = sendgrid.api(request);
+                if (response.statusCode == 202)
+                {
+                    return true;
+                }
+                else
+                {
+                    logger().error("API error sending notification email: {}", response.body);
+                    return false;
+                }
             }
             else
             {
-                logger().error("API error sending notification email: {}", response.body);
-                return false;
+                return true;
             }
         }
         catch (final IOException e)
         {
             logger().error("Comms error sending notification email", e);
-            e.printStackTrace();
             return false;
         }
     }
@@ -133,21 +140,27 @@ public class EmailService
         try
         {
             request.body = mail.build();
-            final Response response = sendgrid.api(request);
-            if (response.statusCode == 202)
+            if (configuration.appMode == ApplicationMode.LIVE)
             {
-                return true;
+                final Response response = sendgrid.api(request);
+                if (response.statusCode == 202)
+                {
+                    return true;
+                }
+                else
+                {
+                    logger().error("API error sending account linking email: {}", response.body);
+                    return false;
+                }
             }
             else
             {
-                logger().error("API error sending account linking email: {}", response.body);
-                return false;
+                return true;
             }
         }
         catch (final IOException e)
         {
             logger().error("Comms error sending account linking email", e);
-            e.printStackTrace();
             return false;
         }
     }
